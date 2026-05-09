@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDE 王者通关 · 专属成就报告 Demo</title>
+<style>
+/* ===== Reset ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: #0d1117;
+  color: #fff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; outline: none; }
+
+/* ===== PC 双栏布局 ===== */
+.layout {
+  display: grid;
+  grid-template-columns: 400px 680px;
+  height: 820px;
+  width: 1080px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.07);
+}
+
+/* ===== 左栏：触发区 ===== */
+.left-panel {
+  background: linear-gradient(160deg, #0a0e1a 0%, #0d1b2a 60%, #111827 100%);
+  border-right: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 36px;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 左栏背景装饰光晕 */
+.left-panel::before {
+  content: '';
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 340px;
+  height: 200px;
+  background: radial-gradient(ellipse, rgba(251,191,36,0.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* 通关卡片 */
+.level-pass-card {
+  width: 100%;
+  background: linear-gradient(135deg, #1a2a3a 0%, #0d1b2a 100%);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 22px 20px;
+}
+.lpc-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.lpc-check {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 16px rgba(34,197,94,0.4);
+}
+.lpc-check svg { width: 20px; height: 20px; }
+.lpc-title { font-size: 16px; font-weight: 700; color: #fff; }
+.lpc-sub { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+.lpc-quote {
+  font-size: 14px; color: rgba(255,255,255,0.6); font-style: italic; line-height: 1.7;
+  padding: 14px 0; border-top: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid rgba(255,255,255,0.07); margin-bottom: 16px;
+}
+.lpc-all-pass {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 15px; font-weight: 700; color: #60a5fa;
+}
+
+/* 成就入口按钮 */
+.achievement-entry {
+  width: 100%;
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px; border-radius: 14px;
+  background: linear-gradient(135deg, #0d1b2a, #1a2a3a);
+  border: 1px solid rgba(251,191,36,0.3);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  animation: entryPulse 2.5s ease-in-out infinite;
+  text-align: left;
+}
+.achievement-entry:hover { transform: translateY(-1px); }
+.achievement-entry:active { transform: scale(0.98); }
+@keyframes entryPulse {
+  0%,100% { box-shadow: 0 2px 20px rgba(251,191,36,0.1); }
+  50%      { box-shadow: 0 2px 32px rgba(251,191,36,0.28); }
+}
+.entry-icon { font-size: 32px; filter: drop-shadow(0 0 8px rgba(251,191,36,0.7)); flex-shrink: 0; }
+.entry-info { flex: 1; }
+.entry-title { font-size: 15px; font-weight: 700; color: #fbbf24; display: block; }
+.entry-desc { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; display: block; }
+.entry-arrow { font-size: 22px; color: rgba(251,191,36,0.5); }
+
+/* ===== 右栏：内容区 ===== */
+.right-panel {
+  background: #111827;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 默认空状态 */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: rgba(255,255,255,0.2);
+}
+.empty-state-icon { font-size: 56px; opacity: 0.3; }
+.empty-state-text { font-size: 15px; }
+
+/* ===== 视图层切换 ===== */
+.view { display: none; flex-direction: column; height: 100%; }
+.view.active { display: flex; }
+
+/* ==========================================
+   播报视图（全屏覆盖右栏）
+   ========================================== */
+#v-broadcast {
+  background: linear-gradient(160deg, #0a0e1a 0%, #0d1b2a 50%, #0a1428 100%);
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.stars { position: absolute; inset: 0; pointer-events: none; }
+.stars::before, .stars::after {
+  content: ''; position: absolute; width: 2px; height: 2px;
+  border-radius: 50%; background: rgba(255,255,255,0.6);
+  box-shadow:
+    60px 30px 0 rgba(255,255,255,0.4), 130px 80px 0 rgba(255,255,255,0.3),
+    210px 20px 0 rgba(255,255,255,0.5), 290px 95px 0 rgba(255,255,255,0.3),
+    380px 40px 0 rgba(255,255,255,0.4), 460px 75px 0 rgba(255,255,255,0.3),
+    540px 15px 0 rgba(255,255,255,0.5), 620px 60px 0 rgba(255,255,255,0.3),
+    80px 160px 0 rgba(255,255,255,0.3), 170px 200px 0 rgba(255,255,255,0.4),
+    260px 140px 0 rgba(255,255,255,0.3), 350px 180px 0 rgba(255,255,255,0.5),
+    440px 120px 0 rgba(255,255,255,0.3), 520px 190px 0 rgba(255,255,255,0.4),
+    600px 150px 0 rgba(255,255,255,0.3), 100px 300px 0 rgba(255,255,255,0.4),
+    200px 340px 0 rgba(255,255,255,0.3), 310px 280px 0 rgba(255,255,255,0.5),
+    420px 320px 0 rgba(255,255,255,0.3), 510px 260px 0 rgba(255,255,255,0.4);
+  animation: twinkle 3s ease-in-out infinite alternate;
+}
+.stars::after {
+  animation-delay: 1.5s; opacity: 0.5;
+  box-shadow:
+    90px 50px 0 rgba(251,191,36,0.3), 180px 100px 0 rgba(251,191,36,0.2),
+    270px 55px 0 rgba(251,191,36,0.3), 360px 115px 0 rgba(251,191,36,0.2),
+    450px 60px 0 rgba(251,191,36,0.3), 540px 105px 0 rgba(251,191,36,0.2),
+    120px 220px 0 rgba(251,191,36,0.3), 240px 250px 0 rgba(251,191,36,0.2),
+    360px 210px 0 rgba(251,191,36,0.3), 480px 240px 0 rgba(251,191,36,0.2);
+}
+@keyframes twinkle { from{opacity:0.3} to{opacity:1} }
+
+.skip-btn {
+  position: absolute; top: 24px; right: 28px;
+  font-size: 13px; color: rgba(255,255,255,0.35);
+  padding: 7px 16px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: color 0.2s, background 0.2s; z-index: 10;
+}
+.skip-btn:hover { color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.06); }
+
+.bc-lines {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 26px; width: 100%; padding: 0 60px; margin-bottom: 40px;
+  max-width: 640px;
+}
+.bc-line {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  opacity: 0; transform: translateY(22px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+  text-align: center;
+}
+.bc-line.show { opacity: 1; transform: translateY(0); }
+.bc-title-row { display: flex; align-items: center; gap: 14px; }
+.bc-trophy { font-size: 44px; display: inline-block; }
+.bc-trophy.bounce { animation: trophyBounce 0.6s ease both; }
+@keyframes trophyBounce {
+  0%   { transform: scale(0) rotate(-15deg); }
+  60%  { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.bc-main-title {
+  font-size: 26px; font-weight: 800; letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.bc-label { font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 0.3px; }
+.bc-value { font-size: 22px; font-weight: 700; color: #fff; }
+.bc-value em { font-style: normal; color: #fbbf24; font-size: 26px; }
+.bc-rank .bc-value em { color: #34d399; }
+.bc-quote .bc-value {
+  font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.72);
+  line-height: 1.7; max-width: 440px; font-style: italic;
+}
+.bc-action { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.bc-action.show { opacity: 1; transform: translateY(0); }
+.report-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 15px 40px; border-radius: 999px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #1a1a1a; font-size: 16px; font-weight: 700;
+  box-shadow: 0 0 32px rgba(251,191,36,0.5), 0 4px 20px rgba(0,0,0,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.report-btn:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(251,191,36,0.6), 0 6px 24px rgba(0,0,0,0.4); }
+.report-btn:active { transform: scale(0.96); }
+.bc-glow {
+  position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%);
+  width: 400px; height: 140px;
+  background: radial-gradient(ellipse, rgba(251,191,36,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ==========================================
+   报告视图
+   ========================================== */
+#v-report {
+  background: linear-gradient(180deg, #0a0e1a 0%, #0d1b2a 30%, #111827 100%);
+  animation: slideIn 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.rp-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 28px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.rp-header-title { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.5px; }
+.close-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.55); font-size: 16px; transition: background 0.15s;
+}
+.close-btn:hover { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.85); }
+.poster-entry-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 16px; border-radius: 999px;
+  background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3);
+  color: #fbbf24; font-size: 13px; font-weight: 600;
+  transition: background 0.15s;
+}
+.poster-entry-btn:hover { background: rgba(251,191,36,0.2); }
+
+/* 报告内容 — 两列网格 */
+.rp-scroll {
+  flex: 1; overflow-y: auto; padding: 20px 28px 40px;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.rp-scroll::-webkit-scrollbar { width: 4px; }
+.rp-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.rp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* 跨两列的元素 */
+.col-span-2 { grid-column: span 2; }
+
+/* 通用卡片 */
+.rp-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 18px;
+}
+.rp-card-title {
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.38);
+  letter-spacing: 0.9px; text-transform: uppercase; margin-bottom: 14px;
+}
+
+/* 荣誉区 */
+.hero-card {
+  background: linear-gradient(135deg, rgba(251,191,36,0.1) 0%, rgba(245,158,11,0.04) 100%);
+  border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 16px; padding: 28px 20px 22px;
+  display: flex; align-items: center; gap: 20px;
+  position: relative; overflow: hidden;
+}
+.hero-card::before {
+  content: ''; position: absolute; top: -50px; right: -30px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(251,191,36,0.12) 0%, transparent 70%);
+}
+/* 头像：用首字母代替 emoji，渲染更可靠 */
+.hero-avatar {
+  width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: 3px solid rgba(251,191,36,0.5);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  box-shadow: 0 0 24px rgba(251,191,36,0.3);
+}
+.hero-avatar-text {
+  font-size: 28px; font-weight: 800; color: #fff; line-height: 1;
+  font-family: -apple-system, 'PingFang SC', sans-serif;
+}
+.hero-badge {
+  position: absolute; bottom: -3px; right: -3px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  box-shadow: 0 0 8px rgba(251,191,36,0.8), 0 2px 4px rgba(0,0,0,0.4);
+  border: 2px solid #0d1b2a;
+}
+.hero-info { flex: 1; }
+.hero-name { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.hero-cert {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 14px; background: rgba(251,191,36,0.12);
+  border-radius: 999px; border: 1px solid rgba(251,191,36,0.25);
+}
+.cert-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #fbbf24;
+  box-shadow: 0 0 6px rgba(251,191,36,0.9); flex-shrink: 0;
+}
+.cert-text { font-size: 12px; color: #fbbf24; font-weight: 600; letter-spacing: 0.5px; }
+
+/* 统计宫格 */
+.stats-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.stat-box {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 16px 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.stat-emoji { font-size: 22px; }
+.stat-val { font-size: 17px; font-weight: 800; color: #fbbf24; line-height: 1; }
+.stat-key { font-size: 11px; color: rgba(255,255,255,0.38); text-align: center; }
+
+/* 段位路 */
+.rank-road { display: flex; align-items: flex-start; gap: 0; padding: 4px 0; }
+.rank-step { display: flex; align-items: center; flex: 1; min-width: 0; }
+.rank-node { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+.rank-emoji { font-size: 22px; }
+.rank-label { font-size: 10px; color: rgba(255,255,255,0.55); text-align: center; white-space: nowrap; }
+.rank-node.active .rank-emoji { filter: drop-shadow(0 0 10px rgba(251,191,36,0.9)); animation: pulseGlow 2s ease-in-out infinite; }
+@keyframes pulseGlow {
+  0%,100% { filter: drop-shadow(0 0 6px rgba(251,191,36,0.7)); }
+  50%      { filter: drop-shadow(0 0 14px rgba(251,191,36,1)); }
+}
+.rank-node.past .rank-label { color: rgba(255,255,255,0.4); }
+.rank-node.future { opacity: 0.25; }
+.rank-conn {
+  flex: 1; height: 2px; background: rgba(255,255,255,0.09);
+  margin: 0 2px; margin-bottom: 18px; border-radius: 1px;
+}
+.rank-conn.done { background: linear-gradient(90deg,rgba(251,191,36,0.7),rgba(245,158,11,0.3)); }
+
+/* 时间轴 */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item { display: flex; gap: 12px; }
+.tl-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 38px; }
+.tl-dot {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; position: relative; z-index: 1;
+}
+.tl-dot.hardest { background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.4); }
+.tl-dot.last {
+  background: linear-gradient(135deg, rgba(251,191,36,0.22),rgba(245,158,11,0.12));
+  border-color: rgba(251,191,36,0.5); box-shadow: 0 0 14px rgba(251,191,36,0.3);
+}
+.tl-line { flex: 1; width: 1px; background: rgba(255,255,255,0.09); margin: 2px 0; min-height: 18px; }
+.tl-right { padding: 7px 0 18px; flex: 1; min-width: 0; }
+.tl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.tl-name { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); }
+.tl-hard-tag {
+  font-size: 10px; padding: 2px 8px; border-radius: 999px;
+  background: rgba(251,191,36,0.18); color: #fbbf24;
+  border: 1px solid rgba(251,191,36,0.3); white-space: nowrap; margin-left: 8px;
+}
+.tl-meta { font-size: 11px; color: rgba(255,255,255,0.32); display: flex; gap: 12px; }
+
+/* 徽章墙 */
+.badge-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+.badge-item {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 11px 4px; border-radius: 10px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  transition: transform 0.15s;
+}
+.badge-item:hover { transform: translateY(-2px); }
+.badge-item.lit { background: rgba(251,191,36,0.07); border-color: rgba(251,191,36,0.22); }
+.badge-emoji { font-size: 24px; }
+.badge-name { font-size: 10px; color: rgba(255,255,255,0.45); text-align: center; line-height: 1.3; }
+.badge-item.lit .badge-name { color: rgba(255,255,255,0.78); }
+.badge-level { font-size: 10px; color: rgba(255,255,255,0.22); }
+.badge-item.lit .badge-level { color: #fbbf24; }
+
+/* 金句 */
+.quote-card {
+  background: linear-gradient(135deg,rgba(251,191,36,0.07),rgba(245,158,11,0.03));
+  border: 1px solid rgba(251,191,36,0.14);
+  border-radius: 16px; padding: 22px 20px; position: relative;
+}
+.quote-card::before {
+  content: '"'; position: absolute; top: -12px; left: 16px;
+  font-size: 72px; color: rgba(251,191,36,0.1);
+  font-family: Georgia, serif; line-height: 1;
+}
+.quote-text {
+  font-size: 14px; color: rgba(255,255,255,0.78); line-height: 1.75;
+  font-style: italic; position: relative; z-index: 1;
+}
+
+/* 排名 */
+.ranking-card { display: flex; align-items: center; gap: 22px; }
+.ring-wrap { flex-shrink: 0; position: relative; width: 88px; height: 88px; }
+.ring-svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 6; }
+.ring-fg {
+  fill: none; stroke: #34d399; stroke-width: 6; stroke-linecap: round;
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.16,1,0.3,1);
+}
+.ring-label {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.ring-pct { font-size: 19px; font-weight: 800; color: #34d399; line-height: 1; }
+.ring-unit { font-size: 10px; color: rgba(255,255,255,0.32); }
+.ranking-info { flex: 1; }
+.ranking-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.ranking-desc { font-size: 13px; color: rgba(255,255,255,0.42); line-height: 1.55; }
+
+/* ==========================================
+   海报视图
+   ========================================== */
+#v-poster {
+  background: rgba(0,0,0,0.9);
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+  padding: 24px 28px 36px;
+  animation: fadeIn 0.3s ease;
+  gap: 20px;
+}
+#v-poster::-webkit-scrollbar { width: 4px; }
+#v-poster::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+.pv-top {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.pv-title { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.9); }
+
+/* 海报 + 按钮横向布局 */
+.pv-body {
+  display: flex; gap: 32px; align-items: flex-start;
+  width: 100%; flex: 1;
+}
+
+/* 海报卡片 */
+.poster-card {
+  width: 320px; flex-shrink: 0; border-radius: 20px; overflow: hidden;
+  background: linear-gradient(160deg, #0a0e1a 0%, #0d1b2a 40%, #0f1e30 100%);
+  box-shadow: 0 8px 48px rgba(0,0,0,0.7); position: relative;
+}
+.poster-glow {
+  position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+  width: 220px; height: 90px;
+  background: radial-gradient(ellipse, rgba(251,191,36,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.poster-body {
+  padding: 28px 22px 20px; display: flex; flex-direction: column;
+  align-items: center; gap: 14px; position: relative;
+}
+.poster-logo { font-size: 10px; color: rgba(255,255,255,0.28); letter-spacing: 1.5px; text-transform: uppercase; }
+
+/* 海报头像 — 首字母方案 */
+.poster-avatar-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.poster-avatar {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: 2px solid rgba(251,191,36,0.4);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  box-shadow: 0 0 20px rgba(251,191,36,0.25);
+}
+.poster-avatar-text { font-size: 24px; font-weight: 800; color: #fff; line-height: 1; }
+.poster-avatar-badge {
+  position: absolute; bottom: -4px; right: -4px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  border: 2px solid #0d1b2a;
+  box-shadow: 0 0 6px rgba(251,191,36,0.8);
+}
+.poster-name { font-size: 18px; font-weight: 800; color: #fff; }
+.poster-rank-badge {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 18px; border-radius: 999px;
+  background: linear-gradient(135deg,rgba(251,191,36,0.18),rgba(245,158,11,0.09));
+  border: 1px solid rgba(251,191,36,0.32);
+}
+.poster-rank-emoji { font-size: 20px; filter: drop-shadow(0 0 6px rgba(251,191,36,0.8)); animation: trophySpin 4s ease-in-out infinite; }
+@keyframes trophySpin { 0%,100%{transform:rotate(-5deg) scale(1)} 50%{transform:rotate(5deg) scale(1.1)} }
+.poster-rank-text { font-size: 13px; font-weight: 800; color: #fbbf24; letter-spacing: 0.5px; }
+.poster-divider { width: 60%; height: 1px; background: rgba(255,255,255,0.07); }
+.poster-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; width: 100%; }
+.poster-stat { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px; }
+.poster-stat:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.07); }
+.poster-stat-val { font-size: 14px; font-weight: 800; color: #fbbf24; }
+.poster-stat-key { font-size: 10px; color: rgba(255,255,255,0.36); text-align: center; }
+.poster-quote { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.65; font-style: italic; text-align: center; padding: 0 4px; }
+.poster-rank-bar {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 14px; border-radius: 999px;
+  background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.2);
+}
+.poster-bar-dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,0.8); }
+.poster-bar-text { font-size: 12px; color: #34d399; font-weight: 600; }
+.poster-footer {
+  padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: center;
+}
+.poster-footer-text { font-size: 10px; color: rgba(255,255,255,0.26); letter-spacing: 0.5px; }
+
+/* 右侧操作区 */
+.pv-aside {
+  flex: 1; display: flex; flex-direction: column; gap: 12px; padding-top: 4px;
+}
+.pv-tip {
+  font-size: 13px; color: rgba(255,255,255,0.35); line-height: 1.6;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; padding: 14px 16px;
+}
+.pv-tip strong { color: rgba(255,255,255,0.6); display: block; margin-bottom: 4px; }
+.dl-btn {
+  width: 100%; padding: 14px 0; border-radius: 12px;
+  background: linear-gradient(135deg,#fbbf24,#f59e0b);
+  color: #1a1a1a; font-size: 15px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 0 24px rgba(251,191,36,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.dl-btn:hover { transform: translateY(-1px); box-shadow: 0 0 32px rgba(251,191,36,0.5); }
+.dl-btn:active { transform: scale(0.97); }
+.copy-btn {
+  width: 100%; padding: 14px 0; border-radius: 12px;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.8); font-size: 15px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background 0.15s;
+}
+.copy-btn:hover { background: rgba(255,255,255,0.12); }
+.btn-disabled { opacity: 0.5; pointer-events: none; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
+  background: rgba(52,211,153,0.92); color: #fff;
+  padding: 10px 24px; border-radius: 999px;
+  font-size: 14px; font-weight: 600; white-space: nowrap;
+  animation: toastIn 0.3s ease; z-index: 9999;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+@keyframes toastIn {
+  from { opacity:0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity:1; transform: translateX(-50%) translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ===== 左栏 ===== -->
+  <div class="left-panel">
+    <!-- 通关卡片 -->
+    <div class="level-pass-card">
+      <div class="lpc-header">
+        <div class="lpc-check">
+          <svg viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 10l4.5 4.5L16 6"/>
+          </svg>
+        </div>
+        <div>
+          <div class="lpc-title">本关通过！</div>
+          <div class="lpc-sub">第 7 关 · 前后端全栈开发</div>
+        </div>
+      </div>
+      <div class="lpc-quote">
+        "你做到了！从零开始，到独立开发并发布一个真实项目。恭喜你达到最强王者段位，你已经是一名真正的 PDE 了！"
+      </div>
+      <div class="lpc-all-pass">全部关卡已通关！ ✦</div>
+    </div>
+
+    <!-- 成就入口 -->
+    <button class="achievement-entry" onclick="startBroadcast()">
+      <span class="entry-icon">🏆</span>
+      <div class="entry-info">
+        <span class="entry-title">重新播放成就播报</span>
+        <span class="entry-desc">第7关 · 前后端全栈开发 · 王者段位</span>
+      </div>
+      <span class="entry-arrow">›</span>
+    </button>
+  </div>
+
+  <!-- ===== 右栏 ===== -->
+  <div class="right-panel">
+
+    <!-- 默认空状态 -->
+    <div class="empty-state" id="v-empty">
+      <div class="empty-state-icon">🏆</div>
+      <div class="empty-state-text">点击左侧按钮，查看你的专属成就报告</div>
+    </div>
+
+    <!-- 播报视图 -->
+    <div class="view" id="v-broadcast">
+      <div class="stars"></div>
+      <button class="skip-btn" id="skipBtn" onclick="skipBroadcast()">跳过</button>
+      <div class="bc-lines">
+        <div class="bc-line" id="bl0">
+          <div class="bc-title-row">
+            <span class="bc-trophy" id="bcTrophy">🏆</span>
+            <span class="bc-main-title">恭喜达到最强王者段位</span>
+          </div>
+        </div>
+        <div class="bc-line" id="bl1">
+          <span class="bc-label">完成时间</span>
+          <span class="bc-value">18 天 5 小时</span>
+        </div>
+        <div class="bc-line" id="bl2">
+          <span class="bc-label">累计提交次数</span>
+          <span class="bc-value">34 次</span>
+        </div>
+        <div class="bc-line bc-rank" id="bl3">
+          <span class="bc-label">你超越了</span>
+          <span class="bc-value">参与者中 <em>前 15%</em> 的同学</span>
+        </div>
+        <div class="bc-line bc-quote" id="bl4">
+          <span class="bc-value">"一个月的坚持，换来一个真正的全栈身份。稳扎稳打，节奏感满分。"</span>
+        </div>
+      </div>
+      <div class="bc-action" id="bcAction">
+        <button class="report-btn" onclick="openReport()">
+          查看我的专属报告 <span>✦</span>
+        </button>
+      </div>
+      <div class="bc-glow"></div>
+    </div>
+
+    <!-- 报告视图 -->
+    <div class="view" id="v-report">
+      <div class="rp-header">
+        <button class="close-btn" onclick="closeReport()">✕</button>
+        <span class="rp-header-title">我的专属成就报告</span>
+        <button class="poster-entry-btn" onclick="openPoster()">🖼 生成海报</button>
+      </div>
+      <div class="rp-scroll">
+        <div class="rp-grid">
+
+          <!-- 荣誉区（跨全宽） -->
+          <div class="hero-card col-span-2">
+            <div class="hero-avatar">
+              <span class="hero-avatar-text">团</span>
+              <div class="hero-badge">🏆</div>
+            </div>
+            <div class="hero-info">
+              <div class="hero-name">小团子</div>
+              <div class="hero-cert">
+                <div class="cert-dot"></div>
+                <span class="cert-text">PDE 全栈通关认证 · 王者段位</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 统计宫格（左） -->
+          <div class="rp-card">
+            <div class="rp-card-title">学习数据</div>
+            <div class="stats-grid">
+              <div class="stat-box">
+                <span class="stat-emoji">⏱</span>
+                <span class="stat-val">18天5小时</span>
+                <span class="stat-key">完成总耗时</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-emoji">🚀</span>
+                <span class="stat-val">34</span>
+                <span class="stat-key">累计提交次数</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 排名（右） -->
+          <div class="rp-card ranking-card">
+            <div class="ring-wrap">
+              <svg class="ring-svg" width="88" height="88" viewBox="0 0 88 88">
+                <circle class="ring-bg" cx="44" cy="44" r="33"/>
+                <circle class="ring-fg" id="ringFg" cx="44" cy="44" r="33"
+                  stroke-dasharray="207.3"
+                  stroke-dashoffset="207.3"/>
+              </svg>
+              <div class="ring-label">
+                <span class="ring-pct">85%</span>
+                <span class="ring-unit">超越</span>
+              </div>
+            </div>
+            <div class="ranking-info">
+              <div class="ranking-title">超越 85%<br>的参与者</div>
+              <div class="ranking-desc">你的闯关速度已超越本期 85% 的学员 🎉</div>
+            </div>
+          </div>
+
+          <!-- 段位晋级路（跨全宽） -->
+          <div class="rp-card col-span-2">
+            <div class="rp-card-title">段位晋级路</div>
+            <div class="rank-road">
+              <div class="rank-step"><div class="rank-node past"><span class="rank-emoji">🥉</span><span class="rank-label">青铜</span></div><div class="rank-conn done"></div></div>
+              <div class="rank-step"><div class="rank-node past"><span class="rank-emoji">🥈</span><span class="rank-label">白银</span></div><div class="rank-conn done"></div></div>
+              <div class="rank-step"><div class="rank-node past"><span class="rank-emoji">🥇</span><span class="rank-label">黄金</span></div><div class="rank-conn done"></div></div>
+              <div class="rank-step"><div class="rank-node past"><span class="rank-emoji">💎</span><span class="rank-label">铂金</span></div><div class="rank-conn done"></div></div>
+              <div class="rank-step"><div class="rank-node past"><span class="rank-emoji">💠</span><span class="rank-label">钻石</span></div><div class="rank-conn done"></div></div>
+              <div class="rank-step"><div class="rank-node past"><span class="rank-emoji">👑</span><span class="rank-label">大师</span></div><div class="rank-conn done"></div></div>
+              <div class="rank-step"><div class="rank-node active"><span class="rank-emoji">🏆</span><span class="rank-label">王者</span></div></div>
+            </div>
+          </div>
+
+          <!-- 时间轴（左） -->
+          <div class="rp-card">
+            <div class="rp-card-title">闯关历程</div>
+            <div class="timeline">
+              <div class="tl-item"><div class="tl-left"><div class="tl-dot">🐾</div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-header"><span class="tl-name">第1关 · 安装 CatPaw</span></div><div class="tl-meta"><span>2025/03/01 10:23</span><span>耗时 12 小时</span></div></div></div>
+              <div class="tl-item"><div class="tl-left"><div class="tl-dot">⚙️</div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-header"><span class="tl-name">第2关 · 安装开发环境</span></div><div class="tl-meta"><span>2025/03/04 15:40</span><span>耗时 2天5小时</span></div></div></div>
+              <div class="tl-item"><div class="tl-left"><div class="tl-dot">🤖</div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-header"><span class="tl-name">第3关 · 安装 Claude Code</span></div><div class="tl-meta"><span>2025/03/07 09:10</span><span>耗时 1天18小时</span></div></div></div>
+              <div class="tl-item"><div class="tl-left"><div class="tl-dot">💻</div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-header"><span class="tl-name">第4关 · 本地代码跑起来</span></div><div class="tl-meta"><span>2025/03/11 20:30</span><span>耗时 3天11小时</span></div></div></div>
+              <div class="tl-item"><div class="tl-left"><div class="tl-dot">🌐</div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-header"><span class="tl-name">第5关 · 纯前端页面发布</span></div><div class="tl-meta"><span>2025/03/13 11:55</span><span>耗时 1天16小时</span></div></div></div>
+              <div class="tl-item"><div class="tl-left"><div class="tl-dot">🔗</div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-header"><span class="tl-name">第6关 · 前后端联调并发布</span></div><div class="tl-meta"><span>2025/03/16 18:00</span><span>耗时 2天18小时</span></div></div></div>
+              <div class="tl-item"><div class="tl-left"><div class="tl-dot last">🚀</div></div><div class="tl-right"><div class="tl-header"><span class="tl-name">第7关 · 前后端全栈开发</span></div><div class="tl-meta"><span>2025/03/19 22:00</span><span>耗时 3天4小时</span></div></div></div>
+            </div>
+          </div>
+
+          <!-- 徽章墙（右） -->
+          <div class="rp-card">
+            <div class="rp-card-title">成就徽章</div>
+            <div class="badge-grid">
+              <div class="badge-item lit"><span class="badge-emoji">🐾</span><span class="badge-name">安装 CatPaw</span><span class="badge-level">第1关</span></div>
+              <div class="badge-item lit"><span class="badge-emoji">⚙️</span><span class="badge-name">开发环境</span><span class="badge-level">第2关</span></div>
+              <div class="badge-item lit"><span class="badge-emoji">🤖</span><span class="badge-name">Claude Code</span><span class="badge-level">第3关</span></div>
+              <div class="badge-item lit"><span class="badge-emoji">💻</span><span class="badge-name">本地跑起来</span><span class="badge-level">第4关</span></div>
+              <div class="badge-item lit"><span class="badge-emoji">🌐</span><span class="badge-name">前端发布</span><span class="badge-level">第5关</span></div>
+              <div class="badge-item lit"><span class="badge-emoji">🔗</span><span class="badge-name">联调发布</span><span class="badge-level">第6关</span></div>
+              <div class="badge-item lit"><span class="badge-emoji">🚀</span><span class="badge-name">全栈开发</span><span class="badge-level">第7关</span></div>
+              <div class="badge-item lit" style="background:linear-gradient(135deg,rgba(251,191,36,0.2),rgba(245,158,11,0.1));border-color:rgba(251,191,36,0.45)">
+                <span class="badge-emoji">👑</span><span class="badge-name" style="color:#fbbf24;font-weight:700">王者认证</span><span class="badge-level" style="color:#fbbf24">全通关</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 金句（跨全宽） -->
+          <div class="quote-card col-span-2">
+            <p class="quote-text">一个月的坚持，换来一个真正的全栈身份。稳扎稳打，节奏感满分。</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 海报视图 -->
+    <div class="view" id="v-poster">
+      <div class="pv-top">
+        <button class="close-btn" onclick="closePoster()">✕</button>
+        <span class="pv-title">专属成就海报</span>
+        <div style="width:34px"></div>
+      </div>
+
+      <div class="pv-body">
+        <!-- 海报卡片 -->
+        <div class="poster-card" id="posterCard">
+          <div class="poster-glow"></div>
+          <div class="poster-body">
+            <div class="poster-logo">PDE · 全栈闯关挑战</div>
+            <div class="poster-avatar-wrap">
+              <div class="poster-avatar">
+                <span class="poster-avatar-text">团</span>
+                <div class="poster-avatar-badge">🏆</div>
+              </div>
+              <div class="poster-name">小团子</div>
+            </div>
+            <div class="poster-rank-badge">
+              <span class="poster-rank-emoji">👑</span>
+              <span class="poster-rank-text">王者段位 · 全栈认证</span>
+            </div>
+            <div class="poster-divider"></div>
+            <div class="poster-stats">
+              <div class="poster-stat"><span class="poster-stat-val">18天5h</span><span class="poster-stat-key">完成耗时</span></div>
+              <div class="poster-stat"><span class="poster-stat-val">34</span><span class="poster-stat-key">累计提交</span></div>
+              <div class="poster-stat"><span class="poster-stat-val">22</span><span class="poster-stat-key">累计打卡</span></div>
+            </div>
+            <div class="poster-quote">"一个月的坚持，换来一个真正的全栈身份。稳扎稳打，节奏感满分。"</div>
+            <div class="poster-rank-bar">
+              <div class="poster-bar-dot"></div>
+              <span class="poster-bar-text">超越了 85% 的参与者</span>
+            </div>
+          </div>
+          <div class="poster-footer">
+            <span class="poster-footer-text">我在 PDE 完成了全栈修炼 🚀</span>
+          </div>
+        </div>
+
+        <!-- 右侧操作 -->
+        <div class="pv-aside">
+          <div class="pv-tip">
+            <strong>💡 使用说明</strong>
+            点击"保存图片"将海报下载到本地；"复制图片"可直接粘贴到 IM 或朋友圈。<br><br>
+            需要联网加载截图工具，首次点击稍等片刻。
+          </div>
+          <button class="dl-btn" id="dlBtn" onclick="downloadPoster()">⬇ 保存图片</button>
+          <button class="copy-btn" id="copyBtn" onclick="copyPoster()">📋 复制图片</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /right-panel -->
+</div><!-- /layout -->
+
+<!-- Toast -->
+<div class="toast" id="toast" style="display:none"></div>
+
+<script>
+const RANK_PCT = 85
+const R = 33
+const CIRC = 2 * Math.PI * R  // 207.3
+
+function showToast(msg, color) {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.style.background = color || 'rgba(52,211,153,0.92)'
+  t.style.display = 'block'
+  clearTimeout(t._timer)
+  t._timer = setTimeout(() => { t.style.display = 'none' }, 2400)
+}
+
+function setView(id) {
+  ['v-empty','v-broadcast','v-report','v-poster'].forEach(v => {
+    const el = document.getElementById(v)
+    if (v === id) {
+      el.style.display = 'flex'
+      if (el.classList.contains('view')) el.classList.add('active')
+    } else {
+      el.style.display = 'none'
+      if (el.classList.contains('view')) el.classList.remove('active')
+    }
+  })
+}
+
+// 页面加载后自动开始播报
+setTimeout(() => startBroadcast(), 400)
+
+// ===== 播报 =====
+let bcTimer = null
+
+function startBroadcast() {
+  resetBroadcast()
+  setView('v-broadcast')
+  setTimeout(() => {
+    document.getElementById('bcTrophy').classList.add('bounce')
+    showLine(0)
+  }, 300)
+}
+
+function showLine(idx) {
+  const el = document.getElementById('bl' + idx)
+  if (!el) {
+    setTimeout(() => {
+      document.getElementById('skipBtn').style.visibility = 'hidden'
+      document.getElementById('bcAction').classList.add('show')
+    }, 500)
+    return
+  }
+  el.classList.add('show')
+  bcTimer = setTimeout(() => showLine(idx + 1), 900)
+}
+
+function skipBroadcast() {
+  clearTimeout(bcTimer)
+  for (let i = 0; i <= 4; i++) {
+    const el = document.getElementById('bl' + i)
+    if (el) el.classList.add('show')
+  }
+  document.getElementById('bcTrophy').classList.add('bounce')
+  document.getElementById('skipBtn').style.visibility = 'hidden'
+  document.getElementById('bcAction').classList.add('show')
+}
+
+function resetBroadcast() {
+  clearTimeout(bcTimer)
+  for (let i = 0; i <= 4; i++) {
+    const el = document.getElementById('bl' + i)
+    if (el) el.classList.remove('show')
+  }
+  document.getElementById('bcTrophy').classList.remove('bounce')
+  document.getElementById('skipBtn').style.visibility = 'visible'
+  document.getElementById('bcAction').classList.remove('show')
+}
+
+// ===== 报告 =====
+let ringAnimated = false
+
+function openReport() {
+  setView('v-report')
+  if (!ringAnimated) {
+    ringAnimated = true
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const fg = document.getElementById('ringFg')
+      fg.style.strokeDashoffset = CIRC * (1 - RANK_PCT / 100)
+    }))
+  }
+}
+
+function closeReport() {
+  setView('v-empty')
+  resetBroadcast()
+}
+
+// ===== 海报 =====
+function openPoster() { setView('v-poster') }
+function closePoster() { setView('v-report') }
+
+function loadH2C() {
+  return new Promise((resolve, reject) => {
+    if (window.html2canvas) { resolve(window.html2canvas); return }
+    const s = document.createElement('script')
+    s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'
+    s.onload = () => resolve(window.html2canvas)
+    s.onerror = () => reject(new Error('加载失败'))
+    document.head.appendChild(s)
+  })
+}
+
+async function captureCard() {
+  const card = document.getElementById('posterCard')
+  try {
+    const h2c = await loadH2C()
+    return await h2c(card, { backgroundColor: '#0a0e1a', scale: 2, useCORS: true, logging: false })
+  } catch(e) {
+    showToast('截图失败，请手动截屏 📸', 'rgba(239,68,68,0.9)')
+    return null
+  }
+}
+
+async function downloadPoster() {
+  const btn = document.getElementById('dlBtn')
+  btn.textContent = '⏳ 生成中…'
+  btn.classList.add('btn-disabled')
+  const canvas = await captureCard()
+  if (canvas) {
+    const a = document.createElement('a')
+    a.download = 'PDE王者成就-小团子.png'
+    a.href = canvas.toDataURL('image/png')
+    a.click()
+    showToast('海报已保存 ✓')
+  }
+  btn.textContent = '⬇ 保存图片'
+  btn.classList.remove('btn-disabled')
+}
+
+async function copyPoster() {
+  const btn = document.getElementById('copyBtn')
+  btn.textContent = '⏳ 生成中…'
+  btn.classList.add('btn-disabled')
+  const canvas = await captureCard()
+  if (canvas) {
+    canvas.toBlob(async (blob) => {
+      if (!blob) return
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+        showToast('图片已复制到剪贴板 ✓')
+      } catch {
+        showToast('复制失败，请使用"保存图片"', 'rgba(239,68,68,0.9)')
+      }
+      btn.textContent = '📋 复制图片'
+      btn.classList.remove('btn-disabled')
+    }, 'image/png')
+  } else {
+    btn.textContent = '📋 复制图片'
+    btn.classList.remove('btn-disabled')
+  }
+}
+</script>
+</body>
+</html>
