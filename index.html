@@ -144,19 +144,28 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* 成就入口按钮 */
 .achievement-entry {
-  width: 100%;
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 2px;
-  border-radius: 0;
-  background: none;
-  border: none;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-  text-align: left;
+width: 100%;
+display: flex; align-items: center; gap: 10px;
+padding: 8px 2px;
+border-radius: 0;
+background: none;
+border: none;
+border-top: 1px solid rgba(255,255,255,0.1);
+cursor: pointer;
+text-align: left;
+/* 初始隐藏，播报完成后再淡入 */
+opacity: 0;
+transform: translateY(10px);
+pointer-events: none;
+transition: opacity 0.45s ease, transform 0.45s ease;
 }
-.achievement-entry:hover { opacity: 0.9; }
-.achievement-entry:active { opacity: 0.75; }
+.achievement-entry.visible {
+opacity: 1;
+transform: translateY(0);
+pointer-events: auto;
+}
+.achievement-entry.visible:hover { opacity: 0.9; }
+.achievement-entry.visible:active { opacity: 0.75; }
 .entry-icon { font-size: 22px; filter: drop-shadow(0 0 6px rgba(251,191,36,0.6)); flex-shrink: 0; }
 .entry-info { flex: 1; }
 .entry-title { font-size: 15px; font-weight: 700; color: #fbbf24; display: block; }
@@ -1577,13 +1586,15 @@ function startBroadcast() {
 
 function showLine(idx) {
   const el = document.getElementById('bl' + idx)
-  if (!el) {
-    setTimeout(() => {
-      document.getElementById('skipBtn').style.visibility = 'hidden'
-      document.getElementById('bcAction').classList.add('show')
-    }, 500)
-    return
-  }
+if (!el) {
+setTimeout(() => {
+document.getElementById('skipBtn').style.visibility = 'hidden'
+document.getElementById('bcAction').classList.add('show')
+const entry = document.querySelector('.achievement-entry')
+if (entry) entry.classList.add('visible')
+}, 500)
+return
+}
   el.classList.add('show')
   bcTimer = setTimeout(() => showLine(idx + 1), 900)
 }
@@ -1594,9 +1605,11 @@ function skipBroadcast() {
     const el = document.getElementById('bl' + i)
     if (el) el.classList.add('show')
   }
-  document.getElementById('bcTrophy').classList.add('bounce')
-  document.getElementById('skipBtn').style.visibility = 'hidden'
-  document.getElementById('bcAction').classList.add('show')
+document.getElementById('bcTrophy').classList.add('bounce')
+document.getElementById('skipBtn').style.visibility = 'hidden'
+document.getElementById('bcAction').classList.add('show')
+const entry = document.querySelector('.achievement-entry')
+if (entry) entry.classList.add('visible')
 }
 
 function resetBroadcast() {
@@ -1606,8 +1619,10 @@ function resetBroadcast() {
     if (el) el.classList.remove('show')
   }
   document.getElementById('bcTrophy').classList.remove('bounce')
-  document.getElementById('skipBtn').style.visibility = 'visible'
-  document.getElementById('bcAction').classList.remove('show')
+document.getElementById('skipBtn').style.visibility = 'visible'
+document.getElementById('bcAction').classList.remove('show')
+const entry = document.querySelector('.achievement-entry')
+if (entry) entry.classList.remove('visible')
 }
 
 // ===== 报告 =====
