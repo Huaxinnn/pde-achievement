@@ -339,6 +339,19 @@ pointer-events: auto;
 .bc-value { font-size: 22px; font-weight: 700; color: #fff; }
 .bc-value em { font-style: normal; color: #fbbf24; font-size: 26px; }
 .bc-rank .bc-value em { color: #34d399; }
+.bc-nth .bc-value {
+  font-size: 18px; font-weight: 800; color: #fff; line-height: 1.5;
+}
+.bc-nth .bc-value em { color: #fbbf24; font-size: 32px; letter-spacing: -0.5px; }
+.bc-nth-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: 999px;
+  background: linear-gradient(135deg, rgba(251,191,36,0.18), rgba(245,158,11,0.08));
+  border: 1px solid rgba(251,191,36,0.4);
+  font-size: 11px; color: #fbbf24; font-weight: 700; letter-spacing: 0.5px;
+  margin-top: 4px;
+  box-shadow: 0 0 14px rgba(251,191,36,0.2);
+}
 .bc-quote .bc-value {
   font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.72);
   line-height: 1.7; max-width: 440px; font-style: italic;
@@ -1210,7 +1223,12 @@ pointer-events: auto;
           <span class="bc-label">你超越了</span>
           <span class="bc-value">参与者中 <em>前 15%</em> 的同学</span>
         </div>
-        <div class="bc-line bc-quote" id="bl4">
+        <div class="bc-line bc-nth" id="bl4">
+          <span class="bc-label">你是 PDE 全栈闯关</span>
+          <span class="bc-value">第 <em>127</em> 位通关者</span>
+          <span class="bc-nth-badge">🎖 永久载入通关荣誉榜</span>
+        </div>
+        <div class="bc-line bc-quote" id="bl5">
           <span class="bc-value">"18天，从零到全栈。每一关都是一次真实的突破。"</span>
         </div>
       </div>
@@ -1586,7 +1604,7 @@ function startBroadcast() {
 
 function showLine(idx) {
   const el = document.getElementById('bl' + idx)
-if (!el) {
+  if (!el) {
 setTimeout(() => {
 document.getElementById('skipBtn').style.visibility = 'hidden'
 document.getElementById('bcAction').classList.add('show')
@@ -1601,7 +1619,7 @@ return
 
 function skipBroadcast() {
   clearTimeout(bcTimer)
-  for (let i = 0; i <= 4; i++) {
+  for (let i = 0; i <= 5; i++) {
     const el = document.getElementById('bl' + i)
     if (el) el.classList.add('show')
   }
@@ -1614,7 +1632,7 @@ if (entry) entry.classList.add('visible')
 
 function resetBroadcast() {
   clearTimeout(bcTimer)
-  for (let i = 0; i <= 4; i++) {
+  for (let i = 0; i <= 5; i++) {
     const el = document.getElementById('bl' + i)
     if (el) el.classList.remove('show')
   }
