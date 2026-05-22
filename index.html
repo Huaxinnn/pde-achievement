@@ -1071,7 +1071,7 @@ pointer-events: auto;
    海报卡片 — 赛博朋克蓝紫风
    ═══════════════════════════════════════ */
 .poster-card {
-  width: 336px; flex-shrink: 0; border-radius: 18px; overflow: hidden;
+  width: 368px; flex-shrink: 0; border-radius: 18px; overflow: hidden;
   background: linear-gradient(170deg, #080c18 0%, #0c1220 45%, #0d1528 100%);
   box-shadow: 0 12px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(80,120,255,0.18);
   position: relative;
@@ -1165,25 +1165,26 @@ pointer-events: auto;
 /* 成就标签 */
 .poster-badges {
   width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 .poster-badge {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 11px;
+  justify-content: center;
+  gap: 3px;
+  padding: 5px 8px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   white-space: nowrap;
+  min-width: 0;
 }
 .poster-badge.gold  { background: rgba(180,130,0,0.18);  border: 1px solid rgba(251,191,36,0.55); color: #fbbf24; }
 .poster-badge.cyan  { background: rgba(0,180,200,0.12);  border: 1px solid rgba(0,210,220,0.4);   color: #67e8f9; }
 .poster-badge.purple{ background: rgba(120,60,220,0.15); border: 1px solid rgba(167,139,250,0.4); color: #c4b5fd; }
-.poster-badge-ico { font-size: 11px; }
+.poster-badge-ico { font-size: 10px; flex-shrink: 0; }
 
 /* 数据统计卡 */
 .poster-stats {
@@ -1328,31 +1329,48 @@ pointer-events: auto;
 .poster-overlay.active .poster-modal-box {
   transform: translateY(0) scale(1);
 }
-/* 关闭按钮 —— 定位在卡片右上角内侧，不超出弹窗宽度 */
+/* 关闭按钮 —— 放在卡片右上斜外侧 */
 .poster-close-btn {
-  position: absolute;
-  top: 10px; right: 10px;
-  width: 30px; height: 30px; border-radius: 50%;
-  background: rgba(0,0,0,0.45);
-  border: 1px solid rgba(255,255,255,0.18);
-  color: rgba(255,255,255,0.85);
-  font-size: 13px; font-weight: 600;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: background 0.15s;
-  z-index: 10;
+position: absolute;
+top: -34px; right: -34px;
+width: 32px; height: 32px;
+border-radius: 999px;
+background: linear-gradient(135deg, rgba(15,23,42,0.86), rgba(30,41,59,0.74));
+border: 1px solid rgba(148,163,184,0.4);
+backdrop-filter: blur(6px);
+display: flex; align-items: center; justify-content: center;
+cursor: pointer;
+box-shadow: 0 6px 16px rgba(2,6,23,0.45), inset 0 1px 0 rgba(255,255,255,0.14);
+transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+z-index: 10;
 }
-.poster-close-btn:hover { background: rgba(0,0,0,0.65); }
+.poster-close-btn::before,
+.poster-close-btn::after {
+content: '';
+position: absolute;
+width: 14px;
+height: 2px;
+border-radius: 999px;
+background: rgba(241,245,249,0.92);
+}
+.poster-close-btn::before { transform: rotate(45deg); }
+.poster-close-btn::after { transform: rotate(-45deg); }
+.poster-close-btn:hover {
+transform: translateY(-1px) scale(1.03);
+border-color: rgba(56,189,248,0.58);
+box-shadow: 0 10px 22px rgba(2,6,23,0.58), 0 0 16px rgba(56,189,248,0.25);
+}
+.poster-close-btn:active { transform: scale(0.95); }
 /* 海报卡片容器（弹窗内） */
 .poster-modal-card {
-  width: 336px;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+width: 368px;
+border-radius: 18px;
+overflow: hidden;
+box-shadow: 0 24px 80px rgba(0,0,0,0.6);
 }
 /* 底部按钮行 */
 .poster-modal-actions {
-  display: flex; gap: 12px; width: 336px;
+display: flex; gap: 12px; width: 368px;
 }
 .poster-modal-actions .pma-copy {
   flex: 1; padding: 14px 0; border-radius: 12px;
@@ -1836,11 +1854,11 @@ pointer-events: auto;
 <!-- ===== 海报分享弹窗 ===== -->
 <div class="poster-overlay" id="posterOverlay" onclick="handleOverlayClick(event)">
   <div class="poster-modal-box" id="posterModalBox">
+    <!-- 关闭按钮，放在海报卡片外侧 -->
+    <button class="poster-close-btn" type="button" aria-label="关闭" onclick="closePosterModal()"></button>
 
     <!-- 海报卡片（截图目标） -->
     <div class="poster-modal-card" id="posterModalCard">
-      <!-- 关闭按钮，叠在卡片右上角 -->
-      <button class="poster-close-btn" onclick="closePosterModal()">✕</button>
       <div class="poster-card" id="posterCardModal">
         <div class="poster-corner-br"></div>
         <div class="poster-corner-bl"></div>
