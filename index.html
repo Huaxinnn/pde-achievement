@@ -891,6 +891,69 @@ pointer-events: auto;
 /* 英雄卡片（如果有） */
 .hero-card { grid-column: span 2; }
 
+/* 个性化叙述卡（网易云风格） */
+.story-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 18px 20px;
+  border: 1px solid rgba(96,165,250,0.28);
+  background: linear-gradient(140deg, rgba(30,58,138,0.28), rgba(15,23,42,0.56) 55%, rgba(251,191,36,0.1));
+  box-shadow: 0 10px 28px rgba(2,6,23,0.35);
+}
+.story-card::before {
+  content: '';
+  position: absolute;
+  left: -20%;
+  top: -55%;
+  width: 45%;
+  height: 210%;
+  transform: rotate(18deg);
+  background: linear-gradient(180deg, rgba(96,165,250,0), rgba(96,165,250,0.2), rgba(251,191,36,0));
+  pointer-events: none;
+}
+.story-eyebrow {
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  font-weight: 700;
+  color: rgba(147,197,253,0.82);
+  margin-bottom: 10px;
+}
+.story-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-bottom: 10px;
+}
+.story-main {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(226,232,240,0.92);
+}
+.story-sub {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(191,219,254,0.86);
+}
+.story-tags {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.story-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(148,163,184,0.35);
+  background: rgba(15,23,42,0.38);
+  color: rgba(226,232,240,0.9);
+  font-size: 11px;
+  padding: 4px 10px;
+}
+
 /* 金句 */
 .quote-card {
   background: linear-gradient(135deg,rgba(251,191,36,0.1),rgba(245,158,11,0.04));
@@ -1008,7 +1071,7 @@ pointer-events: auto;
    海报卡片 — 赛博朋克蓝紫风
    ═══════════════════════════════════════ */
 .poster-card {
-  width: 320px; flex-shrink: 0; border-radius: 16px; overflow: hidden;
+  width: 336px; flex-shrink: 0; border-radius: 18px; overflow: hidden;
   background: linear-gradient(170deg, #080c18 0%, #0c1220 45%, #0d1528 100%);
   box-shadow: 0 12px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(80,120,255,0.18);
   position: relative;
@@ -1019,7 +1082,7 @@ pointer-events: auto;
 .poster-corner-br, .poster-corner-tl {
   content: '';
   position: absolute;
-  width: 16px; height: 16px;
+  width: 18px; height: 18px;
   border-color: rgba(0,210,220,0.65);
   border-style: solid;
   pointer-events: none;
@@ -1042,30 +1105,30 @@ pointer-events: auto;
 /* 顶部紫色光晕 */
 .poster-glow {
   position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-  width: 260px; height: 120px;
+  width: 280px; height: 124px;
   background: radial-gradient(ellipse, rgba(100,60,220,0.35) 0%, rgba(60,30,160,0.15) 50%, transparent 75%);
   pointer-events: none;
 }
 
 .poster-body {
-  padding: 24px 20px 16px; display: flex; flex-direction: column;
+  padding: 26px 22px 18px; display: flex; flex-direction: column;
   align-items: center; gap: 12px; position: relative;
 }
 
 /* 顶部 logo 区：PDE 蓝标 + 副标题 */
 .poster-logo {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 10px;
 }
 .poster-logo-tag {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: #fff; font-size: 12px; font-weight: 800;
-  padding: 3px 10px; border-radius: 5px;
+  color: #fff; font-size: 13px; font-weight: 800;
+  padding: 4px 11px; border-radius: 6px;
   letter-spacing: 1.5px;
   box-shadow: 0 0 10px rgba(59,130,246,0.5);
 }
 .poster-logo-sub {
-  font-size: 12px; color: rgba(255,255,255,0.55);
-  font-weight: 500; letter-spacing: 0.3px;
+  font-size: 13px; color: rgba(255,255,255,0.58);
+  font-weight: 500; letter-spacing: 0.35px;
 }
 
 /* 头像 — 彩色渐变圆环 */
@@ -1073,7 +1136,7 @@ pointer-events: auto;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
 }
 .poster-avatar-ring {
-  width: 82px; height: 82px; border-radius: 50%;
+  width: 90px; height: 90px; border-radius: 50%;
   padding: 3px;
   background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #f59e0b, #ec4899, #3b82f6);
   display: flex; align-items: center; justify-content: center;
@@ -1081,12 +1144,12 @@ pointer-events: auto;
   flex-shrink: 0;
 }
 .poster-avatar {
-  width: 76px; height: 76px; border-radius: 50%;
+  width: 84px; height: 84px; border-radius: 50%;
   background: linear-gradient(135deg, #312e81, #4c1d95);
   display: flex; align-items: center; justify-content: center;
   position: relative;
 }
-.poster-avatar-text { font-size: 28px; font-weight: 800; color: #fff; line-height: 1; }
+.poster-avatar-text { font-size: 31px; font-weight: 800; color: #fff; line-height: 1; }
 .poster-avatar-badge {
   position: absolute; bottom: -2px; right: -2px;
   width: 22px; height: 22px; border-radius: 50%;
@@ -1096,8 +1159,8 @@ pointer-events: auto;
   border: 2px solid #0c1220;
   box-shadow: 0 0 8px rgba(251,191,36,0.9);
 }
-.poster-name { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
-.poster-name-sub { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: -6px; }
+.poster-name { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+.poster-name-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: -5px; }
 
 /* 成就标签 */
 .poster-badges {
@@ -1111,9 +1174,9 @@ pointer-events: auto;
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  padding: 5px 11px;
   border-radius: 999px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1132,16 +1195,16 @@ pointer-events: auto;
 }
 .poster-stat { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 12px 4px; }
 .poster-stat:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.07); }
-.poster-stat-val { font-size: 16px; font-weight: 800; color: #fff; }
+.poster-stat-val { font-size: 18px; font-weight: 800; color: #fff; }
 .poster-stat-val.cyan  { color: #67e8f9; }
 .poster-stat-val.green { color: #34d399; }
-.poster-stat-key { font-size: 10px; color: rgba(255,255,255,0.36); text-align: center; display: flex; align-items: center; gap: 3px; }
+.poster-stat-key { font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; display: flex; align-items: center; gap: 3px; }
 .poster-stat-key .stat-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,0.8); flex-shrink: 0; }
 
 /* 引言 */
 .poster-quote {
-  font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.7;
-  font-style: italic; text-align: center; padding: 0 6px;
+  font-size: 13px; color: rgba(255,255,255,0.56); line-height: 1.75;
+  font-style: italic; text-align: center; padding: 0 8px;
   position: relative;
 }
 .poster-quote::before { content: '\201C'; position: absolute; left: -2px; top: -4px; font-size: 22px; color: rgba(100,180,255,0.25); font-style: normal; line-height: 1; }
@@ -1151,8 +1214,20 @@ pointer-events: auto;
 .poster-rank-badge { display: none; }
 .poster-divider { display: none; }
 .poster-footer {
+  position: relative;
+  width: 100%;
   padding: 16px 24px 20px;
   display: flex; align-items: center; justify-content: center;
+}
+/* 参考图同款：邀请区上方渐变分割线 */
+.poster-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(0,210,220,0), rgba(80,160,255,0.45), rgba(120,90,255,0.45), rgba(0,210,220,0));
 }
 .poster-footer-text { font-size: 10px; color: rgba(255,255,255,0.26); letter-spacing: 0.5px; }
 .poster-footer-invite {
@@ -1160,11 +1235,12 @@ pointer-events: auto;
   display: flex; flex-direction: column; align-items: center; gap: 3px;
 }
 .poster-footer-invite-label {
-  font-size: 11px; color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
+  font-size: 12px; color: rgba(255,255,255,0.58); letter-spacing: 0.5px;
 }
 .poster-footer-invite-url {
-  font-size: 13px; font-weight: 600;
-  color: rgba(100,210,255,0.9); letter-spacing: 0.3px;
+  font-size: 15px; font-weight: 700;
+  color: rgba(100,210,255,0.92); letter-spacing: 0.4px;
+  text-shadow: 0 0 8px rgba(59,130,246,0.25);
 }
 
 /* 右侧操作区 */
@@ -1189,21 +1265,27 @@ pointer-events: auto;
 .dl-btn:active { transform: scale(0.97); }
 .copy-btn {
   width: 100%; padding: 14px 0; border-radius: 12px;
-  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14);
-  color: rgba(255,255,255,0.8); font-size: 15px; font-weight: 600;
+  background: linear-gradient(135deg, rgba(34,47,87,0.9), rgba(24,30,62,0.94));
+  border: 1px solid rgba(99,142,255,0.38);
+  color: rgba(228,238,255,0.92); font-size: 15px; font-weight: 600;
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  transition: background 0.15s;
+  box-shadow: inset 0 0 16px rgba(59,130,246,0.08);
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
 }
-.copy-btn:hover { background: rgba(255,255,255,0.12); }
+.copy-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(103,232,249,0.45);
+  box-shadow: 0 0 20px rgba(59,130,246,0.2), inset 0 0 18px rgba(99,102,241,0.2);
+}
 .elephant-btn {
   width: 100%; padding: 14px 0; border-radius: 12px;
-  background: linear-gradient(135deg, #1677ff, #0958d9);
+  background: linear-gradient(135deg, #22d3ee, #3b82f6);
   color: #fff; font-size: 15px; font-weight: 700;
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  box-shadow: 0 0 20px rgba(22,119,255,0.35);
+  box-shadow: 0 0 20px rgba(59,130,246,0.35);
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.elephant-btn:hover { transform: translateY(-1px); box-shadow: 0 0 28px rgba(22,119,255,0.5); }
+.elephant-btn:hover { transform: translateY(-1px); box-shadow: 0 0 28px rgba(56,189,248,0.5); }
 .elephant-btn:active { transform: scale(0.97); }
 .btn-disabled { opacity: 0.5; pointer-events: none; }
 
@@ -1263,34 +1345,40 @@ pointer-events: auto;
 .poster-close-btn:hover { background: rgba(0,0,0,0.65); }
 /* 海报卡片容器（弹窗内） */
 .poster-modal-card {
-  width: 340px;
-  border-radius: 16px;
+  width: 336px;
+  border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 24px 80px rgba(0,0,0,0.6);
 }
 /* 底部按钮行 */
 .poster-modal-actions {
-  display: flex; gap: 12px; width: 340px;
+  display: flex; gap: 12px; width: 336px;
 }
 .poster-modal-actions .pma-copy {
   flex: 1; padding: 14px 0; border-radius: 12px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.16);
-  color: rgba(255,255,255,0.88); font-size: 15px; font-weight: 600;
-  cursor: pointer; transition: background 0.15s;
+  background: linear-gradient(135deg, rgba(34,47,87,0.9), rgba(24,30,62,0.94));
+  border: 1px solid rgba(99,142,255,0.38);
+  color: rgba(228,238,255,0.92); font-size: 15px; font-weight: 600;
+  cursor: pointer;
+  box-shadow: inset 0 0 16px rgba(59,130,246,0.08);
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
 }
-.poster-modal-actions .pma-copy:hover { background: rgba(255,255,255,0.14); }
+.poster-modal-actions .pma-copy:hover {
+  transform: translateY(-1px);
+  border-color: rgba(103,232,249,0.45);
+  box-shadow: 0 0 20px rgba(59,130,246,0.2), inset 0 0 18px rgba(99,102,241,0.2);
+}
 .poster-modal-actions .pma-elephant {
   flex: 1; padding: 14px 0; border-radius: 12px;
-  background: linear-gradient(135deg, #00c9a7, #00a38e);
+  background: linear-gradient(135deg, #22d3ee, #3b82f6);
   color: #fff; font-size: 15px; font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(0,201,167,0.35);
+  box-shadow: 0 0 20px rgba(59,130,246,0.35);
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .poster-modal-actions .pma-elephant:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0 28px rgba(0,201,167,0.5);
+  box-shadow: 0 0 28px rgba(56,189,248,0.5);
 }
 .poster-modal-actions .pma-elephant:active { transform: scale(0.97); }
 .poster-modal-actions button.btn-disabled { opacity: 0.5; pointer-events: none; }
@@ -1432,6 +1520,19 @@ pointer-events: auto;
                 <div class="hero-kpi"><span class="hero-kpi-val">34 次</span><span class="hero-kpi-key">累计提交</span></div>
                 <div class="hero-kpi"><span class="hero-kpi-val">超越 85%</span><span class="hero-kpi-key">同批参与者</span></div>
               </div>
+            </div>
+          </div>
+
+          <!-- 个性化战报（跨全宽） -->
+          <div class="story-card col-span-2">
+            <div class="story-eyebrow">PERSONAL BRIEFING</div>
+            <div class="story-title">王者段位 · 稳定推进型选手</div>
+            <p class="story-main">你把每一次调试都变成了向前的一步，在高强度节奏里依然保持稳定推进。</p>
+            <p class="story-sub">第 6 关是你最难啃的一关，但你用连续提交把它磨成了里程碑。</p>
+            <div class="story-tags">
+              <span class="story-tag">卡关破局</span>
+              <span class="story-tag">深夜收官</span>
+              <span class="story-tag">高执行力</span>
             </div>
           </div>
 
@@ -1720,7 +1821,7 @@ pointer-events: auto;
             需要联网加载截图工具，首次点击稍等片刻。
           </div>
           <button class="dl-btn" id="dlBtn" onclick="downloadPoster()">⬇ 保存图片</button>
-          <button class="copy-btn" id="copyBtn" onclick="copyPoster()">📋 复制海报</button>
+          <button class="copy-btn" id="copyBtn" onclick="copyPoster()">复制海报</button>
           <button class="elephant-btn" id="elephantBtn" onclick="shareToElephant()">转发到大象</button>
         </div>
       </div>
@@ -1782,7 +1883,7 @@ pointer-events: auto;
 
     <!-- 操作按钮 -->
     <div class="poster-modal-actions">
-      <button class="pma-copy" id="pmaCopyBtn" onclick="copyPosterModal()">📋 复制海报</button>
+      <button class="pma-copy" id="pmaCopyBtn" onclick="copyPosterModal()">复制海报</button>
       <button class="pma-elephant" id="pmaElephantBtn" onclick="shareToElephantModal()">转发到大象</button>
     </div>
   </div>
@@ -1896,8 +1997,12 @@ function openReport() {
 }
 
 function closeReport() {
-  setView('v-empty')
-  resetBroadcast()
+  // 关闭报告后回到“播报已完成”状态，保留左侧“重新播放成就播报”入口
+  setView('v-broadcast')
+  document.getElementById('skipBtn').style.visibility = 'hidden'
+  document.getElementById('bcAction').classList.add('show')
+  const entry = document.querySelector('.achievement-entry')
+  if (entry) entry.classList.add('visible')
 }
 
 // ===== 海报弹窗 =====
@@ -1927,7 +2032,7 @@ async function copyPosterModal() {
   btn.classList.add('btn-disabled')
   const canvas = await captureCardEl(document.getElementById('posterCardModal'))
   if (!canvas) {
-    btn.textContent = '📋 复制海报'
+    btn.textContent = '复制海报'
     btn.classList.remove('btn-disabled')
     return
   }
@@ -1943,7 +2048,7 @@ async function copyPosterModal() {
       a.click()
       showToast('已保存为图片 ✓')
     }
-    btn.textContent = '📋 复制海报'
+    btn.textContent = '复制海报'
     btn.classList.remove('btn-disabled')
   }, 'image/png')
 }
@@ -2045,11 +2150,11 @@ async function copyPoster() {
       } catch {
         showToast('复制失败，请使用"保存图片"', 'rgba(239,68,68,0.9)')
       }
-      btn.textContent = '📋 复制海报'
+      btn.textContent = '复制海报'
       btn.classList.remove('btn-disabled')
     }, 'image/png')
   } else {
-    btn.textContent = '📋 复制海报'
+    btn.textContent = '复制海报'
     btn.classList.remove('btn-disabled')
   }
 }
