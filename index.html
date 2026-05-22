@@ -1004,82 +1004,152 @@ pointer-events: auto;
 }
 
 /* 海报卡片 */
+/* ═══════════════════════════════════════
+   海报卡片 — 赛博朋克蓝紫风
+   ═══════════════════════════════════════ */
 .poster-card {
-  width: 320px; flex-shrink: 0; border-radius: 20px; overflow: hidden;
-  background: linear-gradient(160deg, #0a0e1a 0%, #0d1b2a 40%, #0f1e30 100%);
-  box-shadow: 0 8px 48px rgba(0,0,0,0.7); position: relative;
+  width: 320px; flex-shrink: 0; border-radius: 16px; overflow: hidden;
+  background: linear-gradient(170deg, #080c18 0%, #0c1220 45%, #0d1528 100%);
+  box-shadow: 0 12px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(80,120,255,0.18);
+  position: relative;
 }
+
+/* 四角扫描框装饰 */
+.poster-card::before, .poster-card::after,
+.poster-corner-br, .poster-corner-tl {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  border-color: rgba(0,210,220,0.65);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 5;
+}
+.poster-card::before { top: 10px; left: 10px; border-width: 2px 0 0 2px; border-radius: 2px 0 0 0; }
+.poster-card::after  { top: 10px; right: 10px; border-width: 2px 2px 0 0; border-radius: 0 2px 0 0; }
+.poster-corner-br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; border-radius: 0 0 2px 0; }
+.poster-corner-bl { 
+  content: '';
+  position: absolute;
+  bottom: 10px; left: 10px;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(0,210,220,0.65);
+  border-width: 0 0 2px 2px; border-radius: 0 0 0 2px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* 顶部紫色光晕 */
 .poster-glow {
-  position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
-  width: 220px; height: 90px;
-  background: radial-gradient(ellipse, rgba(251,191,36,0.18) 0%, transparent 70%);
+  position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+  width: 260px; height: 120px;
+  background: radial-gradient(ellipse, rgba(100,60,220,0.35) 0%, rgba(60,30,160,0.15) 50%, transparent 75%);
   pointer-events: none;
 }
-.poster-body {
-  padding: 28px 22px 20px; display: flex; flex-direction: column;
-  align-items: center; gap: 14px; position: relative;
-}
-.poster-logo { font-size: 10px; color: rgba(255,255,255,0.28); letter-spacing: 1.5px; text-transform: uppercase; }
 
-/* 海报头像 — 首字母方案 */
+.poster-body {
+  padding: 24px 20px 16px; display: flex; flex-direction: column;
+  align-items: center; gap: 12px; position: relative;
+}
+
+/* 顶部 logo 区：PDE 蓝标 + 副标题 */
+.poster-logo {
+  display: flex; align-items: center; gap: 8px;
+}
+.poster-logo-tag {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #fff; font-size: 12px; font-weight: 800;
+  padding: 3px 10px; border-radius: 5px;
+  letter-spacing: 1.5px;
+  box-shadow: 0 0 10px rgba(59,130,246,0.5);
+}
+.poster-logo-sub {
+  font-size: 12px; color: rgba(255,255,255,0.55);
+  font-weight: 500; letter-spacing: 0.3px;
+}
+
+/* 头像 — 彩色渐变圆环 */
 .poster-avatar-wrap {
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.poster-avatar-ring {
+  width: 82px; height: 82px; border-radius: 50%;
+  padding: 3px;
+  background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #f59e0b, #ec4899, #3b82f6);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 24px rgba(100,60,220,0.45);
+  flex-shrink: 0;
 }
 .poster-avatar {
-  width: 60px; height: 60px; border-radius: 50%;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  border: 2px solid rgba(251,191,36,0.4);
+  width: 76px; height: 76px; border-radius: 50%;
+  background: linear-gradient(135deg, #312e81, #4c1d95);
   display: flex; align-items: center; justify-content: center;
   position: relative;
-  box-shadow: 0 0 20px rgba(251,191,36,0.25);
 }
-.poster-avatar-text { font-size: 24px; font-weight: 800; color: #fff; line-height: 1; }
+.poster-avatar-text { font-size: 28px; font-weight: 800; color: #fff; line-height: 1; }
 .poster-avatar-badge {
-  position: absolute; bottom: -4px; right: -4px;
+  position: absolute; bottom: -2px; right: -2px;
   width: 22px; height: 22px; border-radius: 50%;
   background: linear-gradient(135deg, #fbbf24, #f59e0b);
   display: flex; align-items: center; justify-content: center;
   font-size: 12px;
-  border: 2px solid #0d1b2a;
-  box-shadow: 0 0 6px rgba(251,191,36,0.8);
+  border: 2px solid #0c1220;
+  box-shadow: 0 0 8px rgba(251,191,36,0.9);
 }
-.poster-name { font-size: 18px; font-weight: 800; color: #fff; }
-.poster-rank-badge {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 18px; border-radius: 999px;
-  background: linear-gradient(135deg,rgba(251,191,36,0.18),rgba(245,158,11,0.09));
-  border: 1px solid rgba(251,191,36,0.32);
-}
-.poster-rank-emoji { font-size: 20px; filter: drop-shadow(0 0 6px rgba(251,191,36,0.8)); animation: trophySpin 4s ease-in-out infinite; }
-@keyframes trophySpin { 0%,100%{transform:rotate(-5deg) scale(1)} 50%{transform:rotate(5deg) scale(1.1)} }
-.poster-rank-text { font-size: 13px; font-weight: 800; color: #fbbf24; letter-spacing: 0.5px; }
+.poster-name { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+.poster-name-sub { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: -6px; }
+
+/* 成就标签 */
 .poster-badges {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 6px;
 }
 .poster-badge {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 4px;
-  padding: 5px 4px;
+  padding: 4px 10px;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(30,58,138,0.1));
-  border: 1px solid rgba(251,191,36,0.24);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
 }
-.poster-badge-ico { font-size: 11px; line-height: 1; filter: drop-shadow(0 0 4px rgba(251,191,36,0.45)); }
-.poster-badge-name { font-size: 9px; color: rgba(255,255,255,0.82); white-space: nowrap; }
-.poster-divider { width: 60%; height: 1px; background: rgba(255,255,255,0.07); }
-.poster-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; width: 100%; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; overflow: hidden; }
-.poster-stat { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px; }
+.poster-badge.gold  { background: rgba(180,130,0,0.18);  border: 1px solid rgba(251,191,36,0.55); color: #fbbf24; }
+.poster-badge.cyan  { background: rgba(0,180,200,0.12);  border: 1px solid rgba(0,210,220,0.4);   color: #67e8f9; }
+.poster-badge.purple{ background: rgba(120,60,220,0.15); border: 1px solid rgba(167,139,250,0.4); color: #c4b5fd; }
+.poster-badge-ico { font-size: 11px; }
+
+/* 数据统计卡 */
+.poster-stats {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 0;
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; overflow: hidden;
+}
+.poster-stat { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 12px 4px; }
 .poster-stat:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.07); }
-.poster-stat-val { font-size: 14px; font-weight: 800; color: #fbbf24; }
-.poster-stat-val.green { color: #fbbf24; }
-.poster-stat-key { font-size: 10px; color: rgba(255,255,255,0.36); text-align: center; }
-.poster-stat-key .stat-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 4px rgba(251,191,36,0.8); margin-right: 3px; vertical-align: middle; }
-.poster-quote { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.65; font-style: italic; text-align: center; padding: 0 4px; }
+.poster-stat-val { font-size: 16px; font-weight: 800; color: #fff; }
+.poster-stat-val.cyan  { color: #67e8f9; }
+.poster-stat-val.green { color: #34d399; }
+.poster-stat-key { font-size: 10px; color: rgba(255,255,255,0.36); text-align: center; display: flex; align-items: center; gap: 3px; }
+.poster-stat-key .stat-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,0.8); flex-shrink: 0; }
+
+/* 引言 */
+.poster-quote {
+  font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.7;
+  font-style: italic; text-align: center; padding: 0 6px;
+  position: relative;
+}
+.poster-quote::before { content: '\201C'; position: absolute; left: -2px; top: -4px; font-size: 22px; color: rgba(100,180,255,0.25); font-style: normal; line-height: 1; }
+.poster-quote::after  { content: '\201D'; position: absolute; right: -2px; bottom: -8px; font-size: 22px; color: rgba(100,180,255,0.25); font-style: normal; line-height: 1; }
+
+/* 旧 poster-rank-badge / divider 兼容保留（不再主用）*/
+.poster-rank-badge { display: none; }
+.poster-divider { display: none; }
 .poster-footer {
   padding: 16px 24px 20px;
   display: flex; align-items: center; justify-content: center;
@@ -1607,32 +1677,35 @@ pointer-events: auto;
       <div class="pv-body">
         <!-- 海报卡片 -->
         <div class="poster-card" id="posterCard">
+          <div class="poster-corner-br"></div>
+          <div class="poster-corner-bl"></div>
           <div class="poster-glow"></div>
           <div class="poster-body">
-            <div class="poster-logo">PDE · 全栈闯关挑战</div>
+            <div class="poster-logo">
+              <span class="poster-logo-tag">PDE</span>
+              <span class="poster-logo-sub">Camp · 通关成就</span>
+            </div>
             <div class="poster-avatar-wrap">
-              <div class="poster-avatar">
-                <span class="poster-avatar-text">团</span>
-                <div class="poster-avatar-badge">🏆</div>
+              <div class="poster-avatar-ring">
+                <div class="poster-avatar">
+                  <span class="poster-avatar-text">团</span>
+                  <div class="poster-avatar-badge">🏆</div>
+                </div>
               </div>
               <div class="poster-name">小团子</div>
+              <div class="poster-name-sub">7/7 关卡全部通关</div>
             </div>
-<div class="poster-rank-badge">
-<span class="poster-rank-emoji">👑</span>
-<span class="poster-rank-text">王者段位 · 全栈认证</span>
-</div>
-<div class="poster-badges">
-<div class="poster-badge"><span class="poster-badge-ico">🏆</span><span class="poster-badge-name">全栈王者</span></div>
-<div class="poster-badge"><span class="poster-badge-ico">⚡</span><span class="poster-badge-name">闪电手</span></div>
-<div class="poster-badge"><span class="poster-badge-ico">🔥</span><span class="poster-badge-name">连击达人</span></div>
-</div>
-<div class="poster-divider"></div>
-<div class="poster-stats">
-<div class="poster-stat"><span class="poster-stat-val">18天5h</span><span class="poster-stat-key">完成耗时</span></div>
-<div class="poster-stat"><span class="poster-stat-val">34</span><span class="poster-stat-key">累计提交</span></div>
-<div class="poster-stat"><span class="poster-stat-val green">Top 15%</span><span class="poster-stat-key"><span class="stat-dot"></span>超越参与者</span></div>
-</div>
-<div class="poster-quote">"18天，从零到全栈。每一关都是一次真实的突破。"</div>
+            <div class="poster-badges">
+              <span class="poster-badge gold"><span class="poster-badge-ico">👑</span>最强王者</span>
+              <span class="poster-badge cyan"><span class="poster-badge-ico">⚡</span>闪电突击者</span>
+              <span class="poster-badge purple"><span class="poster-badge-ico">🏅</span>第 8 位通关</span>
+            </div>
+            <div class="poster-stats">
+              <div class="poster-stat"><span class="poster-stat-val">18天5h</span><span class="poster-stat-key">总耗时</span></div>
+              <div class="poster-stat"><span class="poster-stat-val cyan">Top 15%</span><span class="poster-stat-key">超越 85%</span></div>
+              <div class="poster-stat"><span class="poster-stat-val green">第8位</span><span class="poster-stat-key">通关先锋</span></div>
+            </div>
+            <div class="poster-quote">善于快速理解新工具，遇到复杂挑战时选择深度研究而非蛮力突破</div>
           </div>
           <div class="poster-footer">
             <div class="poster-footer-invite">
@@ -1671,32 +1744,35 @@ pointer-events: auto;
       <!-- 关闭按钮，叠在卡片右上角 -->
       <button class="poster-close-btn" onclick="closePosterModal()">✕</button>
       <div class="poster-card" id="posterCardModal">
+        <div class="poster-corner-br"></div>
+        <div class="poster-corner-bl"></div>
         <div class="poster-glow"></div>
         <div class="poster-body">
-          <div class="poster-logo">PDE · 全栈闯关挑战</div>
+          <div class="poster-logo">
+            <span class="poster-logo-tag">PDE</span>
+            <span class="poster-logo-sub">Camp · 通关成就</span>
+          </div>
           <div class="poster-avatar-wrap">
-            <div class="poster-avatar">
-              <span class="poster-avatar-text">团</span>
-              <div class="poster-avatar-badge">🏆</div>
+            <div class="poster-avatar-ring">
+              <div class="poster-avatar">
+                <span class="poster-avatar-text">团</span>
+                <div class="poster-avatar-badge">🏆</div>
+              </div>
             </div>
             <div class="poster-name">小团子</div>
-          </div>
-          <div class="poster-rank-badge">
-            <span class="poster-rank-emoji">👑</span>
-            <span class="poster-rank-text">王者段位 · 全栈认证</span>
+            <div class="poster-name-sub">7/7 关卡全部通关</div>
           </div>
           <div class="poster-badges">
-            <div class="poster-badge"><span class="poster-badge-ico">🏆</span><span class="poster-badge-name">全栈王者</span></div>
-            <div class="poster-badge"><span class="poster-badge-ico">⚡</span><span class="poster-badge-name">闪电手</span></div>
-            <div class="poster-badge"><span class="poster-badge-ico">🔥</span><span class="poster-badge-name">连击达人</span></div>
+            <span class="poster-badge gold"><span class="poster-badge-ico">👑</span>最强王者</span>
+            <span class="poster-badge cyan"><span class="poster-badge-ico">⚡</span>闪电突击者</span>
+            <span class="poster-badge purple"><span class="poster-badge-ico">🏅</span>第 8 位通关</span>
           </div>
-          <div class="poster-divider"></div>
           <div class="poster-stats">
-            <div class="poster-stat"><span class="poster-stat-val">18天5h</span><span class="poster-stat-key">完成耗时</span></div>
-            <div class="poster-stat"><span class="poster-stat-val">34</span><span class="poster-stat-key">累计提交</span></div>
-            <div class="poster-stat"><span class="poster-stat-val green">Top 15%</span><span class="poster-stat-key"><span class="stat-dot"></span>超越参与者</span></div>
+            <div class="poster-stat"><span class="poster-stat-val">18天5h</span><span class="poster-stat-key">总耗时</span></div>
+            <div class="poster-stat"><span class="poster-stat-val cyan">Top 15%</span><span class="poster-stat-key">超越 85%</span></div>
+            <div class="poster-stat"><span class="poster-stat-val green">第8位</span><span class="poster-stat-key">通关先锋</span></div>
           </div>
-          <div class="poster-quote">"18天，从零到全栈。每一关都是一次真实的突破。"</div>
+          <div class="poster-quote">善于快速理解新工具，遇到复杂挑战时选择深度研究而非蛮力突破</div>
         </div>
         <div class="poster-footer">
           <div class="poster-footer-invite">
