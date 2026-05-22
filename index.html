@@ -1081,10 +1081,24 @@ pointer-events: auto;
 .poster-stat-key .stat-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 4px rgba(251,191,36,0.8); margin-right: 3px; vertical-align: middle; }
 .poster-quote { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.65; font-style: italic; text-align: center; padding: 0 4px; }
 .poster-footer {
-  padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 16px 24px 20px;
   display: flex; align-items: center; justify-content: center;
 }
 .poster-footer-text { font-size: 10px; color: rgba(255,255,255,0.26); letter-spacing: 0.5px; }
+.poster-footer-invite {
+  border: 1px solid rgba(220,50,50,0.75);
+  border-radius: 6px;
+  padding: 9px 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  box-shadow: 0 0 10px rgba(200,40,40,0.12);
+}
+.poster-footer-invite-label {
+  font-size: 11px; color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
+}
+.poster-footer-invite-url {
+  font-size: 13px; font-weight: 600;
+  color: rgba(100,210,255,0.9); letter-spacing: 0.3px;
+}
 
 /* 右侧操作区 */
 .pv-aside {
@@ -1165,27 +1179,27 @@ pointer-events: auto;
 .poster-overlay.active .poster-modal-box {
   transform: translateY(0) scale(1);
 }
-/* 关闭按钮 */
+/* 关闭按钮 —— 定位在卡片右上角内侧，不超出弹窗宽度 */
 .poster-close-btn {
   position: absolute;
-  top: -14px; right: -14px;
-  width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(255,255,255,0.12);
+  top: 10px; right: 10px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(0,0,0,0.45);
   border: 1px solid rgba(255,255,255,0.18);
-  color: rgba(255,255,255,0.8);
-  font-size: 14px; font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  font-size: 13px; font-weight: 600;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   transition: background 0.15s;
-  z-index: 2;
+  z-index: 10;
 }
-.poster-close-btn:hover { background: rgba(255,255,255,0.22); }
+.poster-close-btn:hover { background: rgba(0,0,0,0.65); }
 /* 海报卡片容器（弹窗内） */
 .poster-modal-card {
   width: 340px;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
 }
 /* 底部按钮行 */
 .poster-modal-actions {
@@ -1621,7 +1635,10 @@ pointer-events: auto;
 <div class="poster-quote">"18天，从零到全栈。每一关都是一次真实的突破。"</div>
           </div>
           <div class="poster-footer">
-            <span class="poster-footer-text">我在 PDE 完成了全栈修炼 🚀</span>
+            <div class="poster-footer-invite">
+              <span class="poster-footer-invite-label">邀请你一起来闯关</span>
+              <span class="poster-footer-invite-url">pdecamp.sankuai.com</span>
+            </div>
           </div>
         </div>
 
@@ -1634,7 +1651,7 @@ pointer-events: auto;
           </div>
           <button class="dl-btn" id="dlBtn" onclick="downloadPoster()">⬇ 保存图片</button>
           <button class="copy-btn" id="copyBtn" onclick="copyPoster()">📋 复制海报</button>
-          <button class="elephant-btn" id="elephantBtn" onclick="shareToElephant()">🐘 转发到大象</button>
+          <button class="elephant-btn" id="elephantBtn" onclick="shareToElephant()">转发到大象</button>
         </div>
       </div>
     </div>
@@ -1648,11 +1665,11 @@ pointer-events: auto;
 <!-- ===== 海报分享弹窗 ===== -->
 <div class="poster-overlay" id="posterOverlay" onclick="handleOverlayClick(event)">
   <div class="poster-modal-box" id="posterModalBox">
-    <!-- 关闭按钮 -->
-    <button class="poster-close-btn" onclick="closePosterModal()">✕</button>
 
     <!-- 海报卡片（截图目标） -->
     <div class="poster-modal-card" id="posterModalCard">
+      <!-- 关闭按钮，叠在卡片右上角 -->
+      <button class="poster-close-btn" onclick="closePosterModal()">✕</button>
       <div class="poster-card" id="posterCardModal">
         <div class="poster-glow"></div>
         <div class="poster-body">
@@ -1682,7 +1699,10 @@ pointer-events: auto;
           <div class="poster-quote">"18天，从零到全栈。每一关都是一次真实的突破。"</div>
         </div>
         <div class="poster-footer">
-          <span class="poster-footer-text">我在 PDE 完成了全栈修炼 🚀</span>
+          <div class="poster-footer-invite">
+            <span class="poster-footer-invite-label">邀请你一起来闯关</span>
+            <span class="poster-footer-invite-url">pdecamp.sankuai.com</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1690,7 +1710,7 @@ pointer-events: auto;
     <!-- 操作按钮 -->
     <div class="poster-modal-actions">
       <button class="pma-copy" id="pmaCopyBtn" onclick="copyPosterModal()">📋 复制海报</button>
-      <button class="pma-elephant" id="pmaElephantBtn" onclick="shareToElephantModal()">🐘 转发到大象</button>
+      <button class="pma-elephant" id="pmaElephantBtn" onclick="shareToElephantModal()">转发到大象</button>
     </div>
   </div>
 </div>
@@ -1863,14 +1883,14 @@ async function shareToElephantModal() {
 
   if (isInDaxiangContainer()) {
     forwardViaDaxiangBridge()
-    btn.textContent = '🐘 转发到大象'
+    btn.textContent = '转发到大象'
     btn.classList.remove('btn-disabled')
     return
   }
 
   const canvas = await captureCardEl(document.getElementById('posterCardModal'))
   if (!canvas) {
-    btn.textContent = '🐘 转发到大象'
+    btn.textContent = '转发到大象'
     btn.classList.remove('btn-disabled')
     return
   }
@@ -1890,7 +1910,7 @@ async function shareToElephantModal() {
       a.click()
       showToast('已保存海报，请在大象中发送图片 📎')
     }
-    btn.textContent = '🐘 转发到大象'
+    btn.textContent = '转发到大象'
     btn.classList.remove('btn-disabled')
   }, 'image/png')
 }
@@ -2004,7 +2024,7 @@ async function shareToElephant() {
   // ── 情况 A：在大象容器内，用 KNB 桥弹出转发选人弹窗 ──
   if (isInDaxiangContainer()) {
     forwardViaDaxiangBridge()
-    btn.textContent = '🐘 转发到大象'
+    btn.textContent = '转发到大象'
     btn.classList.remove('btn-disabled')
     return
   }
@@ -2012,7 +2032,7 @@ async function shareToElephant() {
   // ── 情况 B：普通浏览器，截图 → 复制到剪贴板 → 提示用户 ──
   const canvas = await captureCard()
   if (!canvas) {
-    btn.textContent = '🐘 转发到大象'
+    btn.textContent = '转发到大象'
     btn.classList.remove('btn-disabled')
     return
   }
@@ -2039,7 +2059,7 @@ async function shareToElephant() {
       showToast('已保存海报，请在大象中发送图片 📎')
     }
 
-    btn.textContent = '🐘 转发到大象'
+    btn.textContent = '转发到大象'
     btn.classList.remove('btn-disabled')
   }, 'image/png')
 }
