@@ -1748,11 +1748,55 @@ async function copyPoster() {
   }
 }
 
+// 检测是否在大象容器内（UA 包含 DXShell 或 DXRightSideShell）
+function isInDaxiangContainer() {
+  const ua = navigator.userAgent || ''
+  return /DXShell|DXRightSideShell|DXMP/i.test(ua)
+}
+
+// 通过大象 KNB 桥转发链接卡片
+function forwardViaDaxiangBridge() {
+  const pageUrl = window.location.href
+  // dxmp.forward 转发链接卡片到大象会话，会弹出选择联系人/群组的弹窗
+  if (typeof KNB !== 'undefined' && KNB.use) {
+    KNB.use('dxmp.forward', {
+      title: '🏆 我在 PDE 挑战赛全部通关了！',
+      image: 'https://p0.meituan.net/travelcube/3a5a1e3d4b7c2f8e9d1a0b6c4e2f7a8b.png',
+      content: '我完成了 PDE Camp 全部 7/7 关卡挑战，快来看我的专属成就报告！',
+      link: pageUrl.replace(/^https?:\/\/[^/]+/, '') || '/',
+      success: function() {
+        showToast('已转发到大象 ✓')
+      },
+      fail: function(err) {
+        console.warn('dxmp.forward fail', err)
+        showToast('转发失败，请手动分享链接')
+      }
+    })
+  } else {
+    // KNB 不可用，降级：复制链接
+    try {
+      navigator.clipboard.writeText(pageUrl)
+      showToast('链接已复制，请在大象中粘贴分享 ✓')
+    } catch(e) {
+      showToast('请手动复制链接：' + pageUrl)
+    }
+  }
+}
+
 async function shareToElephant() {
   const btn = document.getElementById('elephantBtn')
-  btn.textContent = '⏳ 生成中…'
+  btn.textContent = '⏳ 处理中…'
   btn.classList.add('btn-disabled')
 
+  // ── 情况 A：在大象容器内，用 KNB 桥弹出转发选人弹窗 ──
+  if (isInDaxiangContainer()) {
+    forwardViaDaxiangBridge()
+    btn.textContent = '🐘 转发到大象'
+    btn.classList.remove('btn-disabled')
+    return
+  }
+
+  // ── 情况 B：普通浏览器，截图 → 复制到剪贴板 → 提示用户 ──
   const canvas = await captureCard()
   if (!canvas) {
     btn.textContent = '🐘 转发到大象'
@@ -1760,7 +1804,6 @@ async function shareToElephant() {
     return
   }
 
-  // 先尝试写入剪贴板，再唤起大象（用户在大象里直接粘贴即可）
   canvas.toBlob(async (blob) => {
     if (!blob) return
 
@@ -1769,27 +1812,18 @@ async function shareToElephant() {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
       clipboardOk = true
     } catch(e) {
-      // 剪贴板写入失败不阻断流程
+      // 剪贴板写入失败
     }
 
-    // 尝试通过大象 URL Scheme 唤起（仅客户端环境有效）
-    // 大象支持 dingtalk://dingtalkclient/action/sendmessage 唤起聊天选择器
-    const schemeUrl = 'dingtalk://dingtalkclient/action/sendmessage?source=pde-achievement'
-    const schemeFrame = document.createElement('iframe')
-    schemeFrame.style.display = 'none'
-    schemeFrame.src = schemeUrl
-    document.body.appendChild(schemeFrame)
-    setTimeout(() => document.body.removeChild(schemeFrame), 1500)
-
     if (clipboardOk) {
-      showToast('海报已复制！在大象中粘贴即可发送 ✓')
+      showToast('海报已复制！打开大象粘贴发送即可 ✓')
     } else {
-      // 剪贴板不可用时降级为下载
+      // 降级为下载
       const a = document.createElement('a')
-      a.download = 'PDE王者成就-小团子.png'
+      a.download = 'PDE王者成就.png'
       a.href = canvas.toDataURL('image/png')
       a.click()
-      showToast('已下载海报，请在大象中发送图片 📎')
+      showToast('已保存海报，请在大象中发送图片 📎')
     }
 
     btn.textContent = '🐘 转发到大象'
