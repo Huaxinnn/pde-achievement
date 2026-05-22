@@ -1139,6 +1139,80 @@ pointer-events: auto;
   from { opacity:0; transform: translateX(-50%) translateY(10px); }
   to   { opacity:1; transform: translateX(-50%) translateY(0); }
 }
+
+/* ===== 海报分享弹窗 ===== */
+.poster-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 8888;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.poster-overlay.active {
+  opacity: 1; pointer-events: auto;
+}
+.poster-modal-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  transform: translateY(16px) scale(0.97);
+  transition: transform 0.28s cubic-bezier(.25,.8,.25,1);
+}
+.poster-overlay.active .poster-modal-box {
+  transform: translateY(0) scale(1);
+}
+/* 关闭按钮 */
+.poster-close-btn {
+  position: absolute;
+  top: -14px; right: -14px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.8);
+  font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  z-index: 2;
+}
+.poster-close-btn:hover { background: rgba(255,255,255,0.22); }
+/* 海报卡片容器（弹窗内） */
+.poster-modal-card {
+  width: 340px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
+}
+/* 底部按钮行 */
+.poster-modal-actions {
+  display: flex; gap: 12px; width: 340px;
+}
+.poster-modal-actions .pma-copy {
+  flex: 1; padding: 14px 0; border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.16);
+  color: rgba(255,255,255,0.88); font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.poster-modal-actions .pma-copy:hover { background: rgba(255,255,255,0.14); }
+.poster-modal-actions .pma-elephant {
+  flex: 1; padding: 14px 0; border-radius: 12px;
+  background: linear-gradient(135deg, #00c9a7, #00a38e);
+  color: #fff; font-size: 15px; font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0,201,167,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.poster-modal-actions .pma-elephant:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 28px rgba(0,201,167,0.5);
+}
+.poster-modal-actions .pma-elephant:active { transform: scale(0.97); }
+.poster-modal-actions button.btn-disabled { opacity: 0.5; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -1571,6 +1645,56 @@ pointer-events: auto;
 <!-- Toast -->
 <div class="toast" id="toast" style="display:none"></div>
 
+<!-- ===== 海报分享弹窗 ===== -->
+<div class="poster-overlay" id="posterOverlay" onclick="handleOverlayClick(event)">
+  <div class="poster-modal-box" id="posterModalBox">
+    <!-- 关闭按钮 -->
+    <button class="poster-close-btn" onclick="closePosterModal()">✕</button>
+
+    <!-- 海报卡片（截图目标） -->
+    <div class="poster-modal-card" id="posterModalCard">
+      <div class="poster-card" id="posterCardModal">
+        <div class="poster-glow"></div>
+        <div class="poster-body">
+          <div class="poster-logo">PDE · 全栈闯关挑战</div>
+          <div class="poster-avatar-wrap">
+            <div class="poster-avatar">
+              <span class="poster-avatar-text">团</span>
+              <div class="poster-avatar-badge">🏆</div>
+            </div>
+            <div class="poster-name">小团子</div>
+          </div>
+          <div class="poster-rank-badge">
+            <span class="poster-rank-emoji">👑</span>
+            <span class="poster-rank-text">王者段位 · 全栈认证</span>
+          </div>
+          <div class="poster-badges">
+            <div class="poster-badge"><span class="poster-badge-ico">🏆</span><span class="poster-badge-name">全栈王者</span></div>
+            <div class="poster-badge"><span class="poster-badge-ico">⚡</span><span class="poster-badge-name">闪电手</span></div>
+            <div class="poster-badge"><span class="poster-badge-ico">🔥</span><span class="poster-badge-name">连击达人</span></div>
+          </div>
+          <div class="poster-divider"></div>
+          <div class="poster-stats">
+            <div class="poster-stat"><span class="poster-stat-val">18天5h</span><span class="poster-stat-key">完成耗时</span></div>
+            <div class="poster-stat"><span class="poster-stat-val">34</span><span class="poster-stat-key">累计提交</span></div>
+            <div class="poster-stat"><span class="poster-stat-val green">Top 15%</span><span class="poster-stat-key"><span class="stat-dot"></span>超越参与者</span></div>
+          </div>
+          <div class="poster-quote">"18天，从零到全栈。每一关都是一次真实的突破。"</div>
+        </div>
+        <div class="poster-footer">
+          <span class="poster-footer-text">我在 PDE 完成了全栈修炼 🚀</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="poster-modal-actions">
+      <button class="pma-copy" id="pmaCopyBtn" onclick="copyPosterModal()">📋 复制海报</button>
+      <button class="pma-elephant" id="pmaElephantBtn" onclick="shareToElephantModal()">🐘 转发到大象</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const RANK_PCT = 85
 const R = 33
@@ -1683,9 +1807,96 @@ function closeReport() {
   resetBroadcast()
 }
 
-// ===== 海报 =====
-function openPoster() { setView('v-poster') }
-function closePoster() { setView('v-report') }
+// ===== 海报弹窗 =====
+function openPoster() {
+  const overlay = document.getElementById('posterOverlay')
+  overlay.classList.add('active')
+  document.body.style.overflow = 'hidden'
+}
+
+function closePosterModal() {
+  const overlay = document.getElementById('posterOverlay')
+  overlay.classList.remove('active')
+  document.body.style.overflow = ''
+}
+
+function handleOverlayClick(e) {
+  // 点击遮罩层本身（非卡片区域）关闭弹窗
+  if (e.target === document.getElementById('posterOverlay')) {
+    closePosterModal()
+  }
+}
+
+// 弹窗内复制海报
+async function copyPosterModal() {
+  const btn = document.getElementById('pmaCopyBtn')
+  btn.textContent = '⏳ 生成中…'
+  btn.classList.add('btn-disabled')
+  const canvas = await captureCardEl(document.getElementById('posterCardModal'))
+  if (!canvas) {
+    btn.textContent = '📋 复制海报'
+    btn.classList.remove('btn-disabled')
+    return
+  }
+  canvas.toBlob(async (blob) => {
+    if (!blob) return
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+      showToast('海报已复制到剪贴板 ✓')
+    } catch(e) {
+      const a = document.createElement('a')
+      a.download = 'PDE王者成就.png'
+      a.href = canvas.toDataURL('image/png')
+      a.click()
+      showToast('已保存为图片 ✓')
+    }
+    btn.textContent = '📋 复制海报'
+    btn.classList.remove('btn-disabled')
+  }, 'image/png')
+}
+
+// 弹窗内转发到大象
+async function shareToElephantModal() {
+  const btn = document.getElementById('pmaElephantBtn')
+  btn.textContent = '⏳ 处理中…'
+  btn.classList.add('btn-disabled')
+
+  if (isInDaxiangContainer()) {
+    forwardViaDaxiangBridge()
+    btn.textContent = '🐘 转发到大象'
+    btn.classList.remove('btn-disabled')
+    return
+  }
+
+  const canvas = await captureCardEl(document.getElementById('posterCardModal'))
+  if (!canvas) {
+    btn.textContent = '🐘 转发到大象'
+    btn.classList.remove('btn-disabled')
+    return
+  }
+  canvas.toBlob(async (blob) => {
+    if (!blob) return
+    let ok = false
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+      ok = true
+    } catch(e) {}
+    if (ok) {
+      showToast('海报已复制！打开大象粘贴发送即可 ✓')
+    } else {
+      const a = document.createElement('a')
+      a.download = 'PDE王者成就.png'
+      a.href = canvas.toDataURL('image/png')
+      a.click()
+      showToast('已保存海报，请在大象中发送图片 📎')
+    }
+    btn.textContent = '🐘 转发到大象'
+    btn.classList.remove('btn-disabled')
+  }, 'image/png')
+}
+
+// 保留原有（老视图用），兼容
+function closePoster() { closePosterModal() }
 
 function loadH2C() {
   return new Promise((resolve, reject) => {
@@ -1698,8 +1909,8 @@ function loadH2C() {
   })
 }
 
-async function captureCard() {
-  const card = document.getElementById('posterCard')
+async function captureCardEl(card) {
+  if (!card) card = document.getElementById('posterCardModal') || document.getElementById('posterCard')
   try {
     const h2c = await loadH2C()
     return await h2c(card, { backgroundColor: '#0a0e1a', scale: 2, useCORS: true, logging: false })
@@ -1708,6 +1919,8 @@ async function captureCard() {
     return null
   }
 }
+// 兼容旧调用
+async function captureCard() { return captureCardEl(document.getElementById('posterCard')) }
 
 async function downloadPoster() {
   const btn = document.getElementById('dlBtn')
