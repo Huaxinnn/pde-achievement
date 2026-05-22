@@ -1114,6 +1114,16 @@ pointer-events: auto;
   transition: background 0.15s;
 }
 .copy-btn:hover { background: rgba(255,255,255,0.12); }
+.elephant-btn {
+  width: 100%; padding: 14px 0; border-radius: 12px;
+  background: linear-gradient(135deg, #1677ff, #0958d9);
+  color: #fff; font-size: 15px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 0 20px rgba(22,119,255,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.elephant-btn:hover { transform: translateY(-1px); box-shadow: 0 0 28px rgba(22,119,255,0.5); }
+.elephant-btn:active { transform: scale(0.97); }
 .btn-disabled { opacity: 0.5; pointer-events: none; }
 
 /* Toast */
@@ -1245,7 +1255,7 @@ pointer-events: auto;
       <div class="rp-header">
         <button class="close-btn" onclick="closeReport()">✕</button>
         <span class="rp-header-title">我的专属成就报告</span>
-        <button class="poster-entry-btn" onclick="openPoster()">🖼 生成海报</button>
+        <button class="poster-entry-btn" onclick="openPoster()">🖼 生成并分享</button>
       </div>
       <div class="rp-scroll">
         <div class="rp-grid">
@@ -1549,7 +1559,8 @@ pointer-events: auto;
             需要联网加载截图工具，首次点击稍等片刻。
           </div>
           <button class="dl-btn" id="dlBtn" onclick="downloadPoster()">⬇ 保存图片</button>
-          <button class="copy-btn" id="copyBtn" onclick="copyPoster()">📋 复制图片</button>
+          <button class="copy-btn" id="copyBtn" onclick="copyPoster()">📋 复制海报</button>
+          <button class="elephant-btn" id="elephantBtn" onclick="shareToElephant()">🐘 转发到大象</button>
         </div>
       </div>
     </div>
@@ -1724,17 +1735,66 @@ async function copyPoster() {
       if (!blob) return
       try {
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
-        showToast('图片已复制到剪贴板 ✓')
+        showToast('海报已复制到剪贴板 ✓')
       } catch {
         showToast('复制失败，请使用"保存图片"', 'rgba(239,68,68,0.9)')
       }
-      btn.textContent = '📋 复制图片'
+      btn.textContent = '📋 复制海报'
       btn.classList.remove('btn-disabled')
     }, 'image/png')
   } else {
-    btn.textContent = '📋 复制图片'
+    btn.textContent = '📋 复制海报'
     btn.classList.remove('btn-disabled')
   }
+}
+
+async function shareToElephant() {
+  const btn = document.getElementById('elephantBtn')
+  btn.textContent = '⏳ 生成中…'
+  btn.classList.add('btn-disabled')
+
+  const canvas = await captureCard()
+  if (!canvas) {
+    btn.textContent = '🐘 转发到大象'
+    btn.classList.remove('btn-disabled')
+    return
+  }
+
+  // 先尝试写入剪贴板，再唤起大象（用户在大象里直接粘贴即可）
+  canvas.toBlob(async (blob) => {
+    if (!blob) return
+
+    let clipboardOk = false
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+      clipboardOk = true
+    } catch(e) {
+      // 剪贴板写入失败不阻断流程
+    }
+
+    // 尝试通过大象 URL Scheme 唤起（仅客户端环境有效）
+    // 大象支持 dingtalk://dingtalkclient/action/sendmessage 唤起聊天选择器
+    const schemeUrl = 'dingtalk://dingtalkclient/action/sendmessage?source=pde-achievement'
+    const schemeFrame = document.createElement('iframe')
+    schemeFrame.style.display = 'none'
+    schemeFrame.src = schemeUrl
+    document.body.appendChild(schemeFrame)
+    setTimeout(() => document.body.removeChild(schemeFrame), 1500)
+
+    if (clipboardOk) {
+      showToast('海报已复制！在大象中粘贴即可发送 ✓')
+    } else {
+      // 剪贴板不可用时降级为下载
+      const a = document.createElement('a')
+      a.download = 'PDE王者成就-小团子.png'
+      a.href = canvas.toDataURL('image/png')
+      a.click()
+      showToast('已下载海报，请在大象中发送图片 📎')
+    }
+
+    btn.textContent = '🐘 转发到大象'
+    btn.classList.remove('btn-disabled')
+  }, 'image/png')
 }
 </script>
 </body>
