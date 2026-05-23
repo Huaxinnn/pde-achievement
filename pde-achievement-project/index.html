@@ -495,7 +495,11 @@ pointer-events: auto;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(129,140,248,0.55), rgba(251,191,36,0.45), rgba(129,140,248,0.55), transparent);
 }
-.rp-header-title { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.5px; }
+.rp-header-title {
+  font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.5px;
+  position: absolute; left: 50%; transform: translateX(-50%);
+  white-space: nowrap; pointer-events: none;
+}
 .close-btn {
   width: 34px; height: 34px; border-radius: 50%;
   background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;
@@ -1990,9 +1994,8 @@ display: flex; gap: 12px; width: 368px;
       <div class="rp-slide slide-cover" style="background: radial-gradient(ellipse at 50% 40%, rgba(59,130,246,0.15) 0%, transparent 60%), linear-gradient(180deg, #060b1a 0%, #0a1428 50%, #0d1b2a 100%);">
         <div class="slide-cover-particles" id="coverParticles"></div>
         <div class="slide-content" style="text-align:center; z-index:1;">
-          <div class="slide-eyebrow">PDE全栈·闯关报告</div>
-          <div class="slide-title-xl">你的专属闯关记录</div>
-          <div class="slide-desc">18天5小时，从第一行代码到全栈通关</div>
+          <div class="slide-eyebrow">PDE全栈·闯关历程</div>
+          <div class="slide-desc" style="margin-top:10px;">18天5小时，从第一行代码到全栈通关</div>
           <!-- 身份信息卡（头像破框 + 信息区一体） -->
           <div style="margin-top:40px; display:inline-flex; flex-direction:column; align-items:center; position:relative;">
             <!-- 头像，叠在卡片顶部 -->
@@ -2246,11 +2249,11 @@ display: flex; gap: 12px; width: 368px;
           <!-- 顶部：组名 + 你的排名 -->
           <div style="margin-top:28px; display:flex; align-items:flex-end; justify-content:space-between;">
             <div>
-              <div style="font-size:12px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:5px;">所在小组</div>
+              <div style="font-size:12px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:5px;">所在部门</div>
               <div style="font-size:18px; font-weight:600; color:rgba(255,255,255,0.88);">前端冲刺 3 组</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-size:12px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:3px;">组内通关排名</div>
+              <div style="font-size:12px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:3px;">通关排名</div>
               <div style="font-size:26px; font-weight:800; color:#818cf8; line-height:1;">#8</div>
             </div>
           </div>
@@ -2334,7 +2337,7 @@ display: flex; gap: 12px; width: 368px;
       <!-- 第7页：时间线 -->
       <div class="rp-slide slide-timeline" style="background: linear-gradient(180deg, #0d0b14 0%, #0a0e1a 100%);">
         <div class="slide-content" style="text-align:left; z-index:1; width:100%; max-width:420px;">
-          <div class="slide-eyebrow" style="text-align:center;">闯关历程</div>
+          <div class="slide-eyebrow" style="text-align:center;">闯关时间线</div>
 
           <div style="margin-top:24px; display:flex; flex-direction:column; gap:0; position:relative;">
 
@@ -2552,7 +2555,7 @@ display: flex; gap: 12px; width: 368px;
 
           <!-- 闯关历程（左） -->
           <div class="rp-card">
-            <div class="rp-card-title">闯关历程</div>
+            <div class="rp-card-title">闯关时间线</div>
             <div class="rp-card-sub">从第 1 关到第 7 关，用 18 天完成全链路实战升级。</div>
             <div class="timeline">
               <div class="tl-item">
@@ -2594,11 +2597,11 @@ display: flex; gap: 12px; width: 368px;
   <!-- 顶部：组名 + 你的排名 -->
   <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:16px;">
     <div>
-      <div style="font-size:11px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:4px;">所在小组</div>
+      <div style="font-size:11px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:4px;">所在部门</div>
       <div style="font-size:17px; font-weight:600; color:rgba(255,255,255,0.88);">前端冲刺 3 组</div>
     </div>
     <div style="text-align:right;">
-      <div style="font-size:11px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:2px;">组内通关排名</div>
+      <div style="font-size:11px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:2px;">通关排名</div>
       <div style="font-size:24px; font-weight:800; color:#818cf8; line-height:1;">#8</div>
     </div>
   </div>
