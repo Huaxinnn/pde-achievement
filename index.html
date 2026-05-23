@@ -180,6 +180,7 @@ pointer-events: auto;
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  scrollbar-gutter: stable;
 }
 .right-panel::before {
   content: '';
@@ -188,11 +189,12 @@ pointer-events: auto;
   pointer-events: none;
   background: radial-gradient(circle at 70% 18%, rgba(56,189,248,0.11), transparent 42%);
 }
-.right-panel > * { position: relative; z-index: 1; }
+.right-panel > *:not(.empty-state) { position: relative; z-index: 1; }
 
 /* 默认空状态 */
 .empty-state {
-  flex: 1;
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -201,6 +203,7 @@ pointer-events: auto;
   color: rgba(255,255,255,0.24);
   padding: 30px;
   text-align: center;
+  z-index: 1;
 }
 .empty-state-icon { font-size: 52px; opacity: 0.34; }
 .empty-state-text { font-size: 14px; color: rgba(255,255,255,0.38); }
@@ -447,43 +450,40 @@ pointer-events: auto;
    ========================================== */
 #v-report {
   position: relative;
-  overflow: hidden;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
   background: linear-gradient(180deg, #0a0e1a 0%, #0d1b2a 30%, #111827 100%);
   animation: slideIn 0.4s cubic-bezier(0.16,1,0.3,1);
 }
-#v-report::before,
-#v-report::after {
-  content: '';
-  position: absolute;
-  pointer-events: none;
-  filter: blur(2px);
+#v-report::-webkit-scrollbar { width: 4px; }
+#v-report::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+#v-full-report {
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #0a0e1a 0%, #0d1b2a 30%, #111827 100%);
+  animation: slideIn 0.35s cubic-bezier(0.16,1,0.3,1);
 }
-#v-report::before {
-  width: 340px;
-  height: 340px;
-  top: -120px;
-  right: -90px;
-  background: radial-gradient(circle, rgba(251,191,36,0.14) 0%, transparent 70%);
+#v-full-report::-webkit-scrollbar { width: 4px; }
+#v-full-report::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.full-report-scroll {
+  padding: 26px 28px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-#v-report::after {
-  width: 380px;
-  height: 380px;
-  bottom: -180px;
-  left: -110px;
-  background: radial-gradient(circle, rgba(129,140,248,0.16) 0%, transparent 72%);
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(40px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-.rp-header,
-.rp-scroll { position: relative; z-index: 1; }
+
+/* 固定顶栏 */
 .rp-header {
+  position: sticky; top: 0; z-index: 10;
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 28px 14px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-  backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, rgba(10,14,26,0.95), rgba(13,27,42,0.9));
+  backdrop-filter: blur(12px);
   flex-shrink: 0;
 }
 .rp-header::after {
@@ -495,7 +495,11 @@ pointer-events: auto;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(129,140,248,0.55), rgba(251,191,36,0.45), rgba(129,140,248,0.55), transparent);
 }
-.rp-header-title { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.5px; }
+.rp-header-title {
+  font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.5px;
+  position: absolute; left: 50%; transform: translateX(-50%);
+  white-space: nowrap; pointer-events: none;
+}
 .close-btn {
   width: 34px; height: 34px; border-radius: 50%;
   background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;
@@ -511,13 +515,71 @@ pointer-events: auto;
 }
 .poster-entry-btn:hover { background: rgba(251,191,36,0.2); }
 
-/* 报告内容 — 两列网格 */
-.rp-scroll {
-  flex: 1; overflow-y: auto; padding: 20px 28px 40px;
-  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+/* 分页幻灯片 */
+.rp-slide {
+  scroll-snap-align: start;
+  min-height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 80px 48px 60px;
+  position: relative;
+  overflow: hidden;
 }
-.rp-scroll::-webkit-scrollbar { width: 4px; }
-.rp-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* 页码指示器 */
+.page-indicator {
+  position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 10px; z-index: 11;
+}
+.page-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.2); border: none;
+  cursor: pointer; transition: all 0.3s;
+  padding: 0;
+}
+.page-dot.active {
+  background: rgba(251,191,36,0.9); transform: scale(1.4);
+  box-shadow: 0 0 10px rgba(251,191,36,0.5);
+}
+
+/* Slides 通用内容样式 */
+.slide-eyebrow {
+  font-size: 12px; font-weight: 600; letter-spacing: 3px;
+  color: rgba(129,140,248,0.75); text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.slide-title-xl {
+  font-size: 52px; font-weight: 200; letter-spacing: 2px;
+  line-height: 1.2; margin: 8px 0;
+  background: linear-gradient(180deg, #fff 10%, #9ca3af 90%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.slide-desc {
+  margin-top: 6px; font-size: 15px; color: rgba(148,163,184,0.6); letter-spacing: 1px;
+}
+
+/* 封面粒子 */
+.slide-cover-particles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.cover-particle {
+  position: absolute; border-radius: 50%; background: rgba(129,140,248,0.7);
+  animation: particleFloat 6s linear infinite;
+}
+@keyframes particleFloat {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10% { opacity: 0.85; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-360px) translateX(40px) scale(0.3); opacity: 0; }
+}
+
+/* 第2页 KPI 大数字 */
+.stat-hero { position: relative; }
+.stat-hero-num {
+  font-size: 64px; font-weight: 100; color: rgba(255,255,255,0.93); line-height: 1;
+}
+.stat-hero-unit { font-size: 22px; font-weight: 300; color: rgba(148,163,184,0.55); margin-left: 4px; }
+.stat-hero-key { font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.72); margin-top: 6px; }
+.stat-hero-motto { font-size: 12px; color: rgba(148,163,184,0.42); margin-top: 4px; }
+
+/* ===== 汇总页专用 ===== */
 
 .rp-grid {
   display: grid;
@@ -686,6 +748,28 @@ pointer-events: auto;
 .hero-kpi-val { font-size: 14px; font-weight: 800; color: #fbbf24; line-height: 1.1; }
 .hero-kpi-key { font-size: 10px; color: rgba(255,255,255,0.5); }
 
+/* 荣誉卡内的闯关心得 */
+.hero-reflection {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+.reflection-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(56, 189, 248, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 8px;
+  display: block;
+}
+.hero-reflection .reflection-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(226, 232, 240, 0.8);
+  margin: 0;
+}
+
 /* 统计宫格 */
 .stats-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
 .stat-box {
@@ -841,6 +925,17 @@ pointer-events: auto;
 .group-rank-item.is-me .group-rank-order { background: rgba(56,189,248,0.24); color: #67e8f9; }
 .group-rank-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); }
 .group-rank-time { font-size: 11px; color: rgba(255,255,255,0.46); white-space: nowrap; }
+.group-rank-empty {
+  margin-top: 10px;
+  border: 1px dashed rgba(148,163,184,0.32);
+  border-radius: 10px;
+  padding: 14px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.48);
+  text-align: center;
+  background: rgba(15,23,42,0.22);
+}
 
 /* ══════════════════════════════════════
    高级游戏勋章风格
@@ -1146,6 +1241,28 @@ pointer-events: auto;
   margin-bottom: 12px;
 }
 
+.reflection-card {
+  background: linear-gradient(135deg, rgba(14,116,144,0.24), rgba(30,64,175,0.22), rgba(15,23,42,0.6));
+  border: 1px solid rgba(56,189,248,0.35);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 22px rgba(2,132,199,0.18);
+}
+.reflection-title {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: rgba(125,211,252,0.9);
+  font-weight: 700;
+}
+.reflection-card .reflection-text {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(226,232,240,0.95);
+  white-space: pre-wrap;
+}
+
+
 /* ==========================================
    海报视图
    ========================================== */
@@ -1242,7 +1359,7 @@ pointer-events: auto;
 
 /* 头像 — 彩色渐变圆环 */
 .poster-avatar-wrap {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
 }
 .poster-avatar-ring {
   width: 90px; height: 90px; border-radius: 50%;
@@ -1274,8 +1391,9 @@ pointer-events: auto;
 /* 成就标签 */
 .poster-badges {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
 }
 .poster-badge {
@@ -1293,6 +1411,7 @@ pointer-events: auto;
 .poster-badge.gold  { background: rgba(56,189,248,0.14); border: 1px solid rgba(125,211,252,0.4); color: #bae6fd; }
 .poster-badge.cyan  { background: rgba(59,130,246,0.13); border: 1px solid rgba(96,165,250,0.42); color: #bfdbfe; }
 .poster-badge.purple{ background: rgba(99,102,241,0.14); border: 1px solid rgba(165,180,252,0.44); color: #c7d2fe; }
+.poster-badge.indigo{ background: rgba(129,140,248,0.12); border: 1px solid rgba(129,140,248,0.35); color: rgba(255,255,255,0.9); font-weight: 700; }
 .poster-badge-ico { font-size: 10px; flex-shrink: 0; opacity: 0.85; }
 
 /* 数据统计卡 */
@@ -1398,6 +1517,130 @@ pointer-events: auto;
 .elephant-btn:hover { transform: translateY(-1px); box-shadow: 0 0 28px rgba(56,189,248,0.5); }
 .elephant-btn:active { transform: scale(0.97); }
 .btn-disabled { opacity: 0.5; pointer-events: none; }
+
+/* 轻量心得输入弹层 */
+.reflection-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.62);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 8890;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.reflection-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.reflection-modal {
+  width: min(92vw, 420px);
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: linear-gradient(155deg, rgba(15, 23, 42, 0.97), rgba(30, 41, 59, 0.95));
+  box-shadow: 0 20px 52px rgba(2, 6, 23, 0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+  padding: 18px;
+  transform: translateY(10px) scale(0.98);
+  transition: transform 0.22s ease;
+}
+.reflection-overlay.active .reflection-modal {
+  transform: translateY(0) scale(1);
+}
+.reflection-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+}
+.reflection-modal-sub {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(191, 219, 254, 0.78);
+}
+.reflection-input {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(129, 140, 248, 0.36);
+  background: rgba(15, 23, 42, 0.78);
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 10px 12px;
+  resize: none;
+  min-height: 84px;
+  outline: none;
+}
+.reflection-input::placeholder {
+  color: rgba(148, 163, 184, 0.76);
+}
+.reflection-input:focus {
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16);
+}
+.reflection-meta {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.reflection-hint-btn {
+  font-size: 11px;
+  color: rgba(191, 219, 254, 0.7);
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(148, 163, 184, 0.08);
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.reflection-hint-btn:hover {
+  color: rgba(226, 232, 240, 0.9);
+  border-color: rgba(129, 140, 248, 0.4);
+  background: rgba(99, 102, 241, 0.1);
+}
+.reflection-counter {
+  font-size: 11px;
+  color: rgba(148, 163, 184, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+.reflection-counter.near-limit {
+  color: rgba(251, 191, 36, 0.8);
+}
+.reflection-counter.at-limit {
+  color: rgba(239, 68, 68, 0.8);
+}
+.reflection-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.reflection-skip-btn,
+.reflection-submit-btn {
+  border-radius: 999px;
+  font-size: 13px;
+  padding: 8px 16px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.reflection-skip-btn {
+  background: rgba(148, 163, 184, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  color: rgba(226, 232, 240, 0.88);
+}
+.reflection-submit-btn {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #1a1a1a;
+  font-weight: 700;
+  box-shadow: 0 0 18px rgba(251,191,36,0.35);
+}
+.reflection-skip-btn:hover,
+.reflection-submit-btn:hover {
+  transform: translateY(-1px);
+}
+
 
 /* Toast */
 .toast {
@@ -1512,7 +1755,7 @@ display: flex; gap: 12px; width: 368px;
 
 /* ===== 响应式适配 ===== */
 @media (max-height: 860px) {
-  html, body { overflow: auto; }
+  html, body { overflow: auto; scrollbar-gutter: stable; }
   body {
     padding: 12px;
     align-items: flex-start;
@@ -1525,7 +1768,7 @@ display: flex; gap: 12px; width: 368px;
 }
 
 @media (max-width: 1220px) {
-  html, body { overflow: auto; }
+  html, body { overflow: auto; scrollbar-gutter: stable; }
   body {
     padding: 12px;
     align-items: flex-start;
@@ -1623,7 +1866,7 @@ display: flex; gap: 12px; width: 368px;
     top: -18px;
     right: -10px;
   }
-  .poster-badges { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .poster-badges { gap: 6px; }
 }
 </style>
 </head>
@@ -1666,7 +1909,7 @@ display: flex; gap: 12px; width: 368px;
 <span class="entry-icon">🏆</span>
 <div class="entry-info">
 <span class="entry-title">重新播放成就播报</span>
-<span class="entry-desc">点击查看王者播报与专属报告</span>
+<span class="entry-desc">点击查看王者播报与闯关报告</span>
 </div>
 <span class="entry-arrow">›</span>
 </button>
@@ -1729,8 +1972,8 @@ display: flex; gap: 12px; width: 368px;
         </div>
       </div>
       <div class="bc-action" id="bcAction">
-        <button class="report-btn" onclick="openReport()">
-          查看我的专属报告 <span>✦</span>
+        <button class="report-btn" onclick="openReflectionPrompt()">
+          查看我的闯关历程 <span>✦</span>
         </button>
       </div>
       <div class="bc-glow"></div>
@@ -1740,151 +1983,152 @@ display: flex; gap: 12px; width: 368px;
     <div class="view" id="v-report">
       <div class="rp-header">
         <button class="close-btn" onclick="closeReport()">✕</button>
-        <span class="rp-header-title">我的专属成就报告</span>
-        <button class="poster-entry-btn" onclick="openPoster()">生成海报并分享</button>
+<span class="rp-header-title" id="rpHeaderTitle">我的闯关历程</span>
+<button class="poster-entry-btn" onclick="openPoster()">生成海报并分享</button>
       </div>
-      <div class="rp-scroll">
-        <div class="rp-grid">
 
-          <!-- 荣誉区（跨全宽） -->
-          <div class="hero-card col-span-2">
-            <div class="hero-avatar">
-              <span class="hero-avatar-text">团</span>
-              <div class="hero-badge">🏆</div>
+      <!-- 页码指示器 -->
+      <div class="page-indicator" id="pageIndicator"></div>
+
+      <!-- 第1页：开场封面 -->
+      <div class="rp-slide slide-cover" style="background: radial-gradient(ellipse at 50% 40%, rgba(59,130,246,0.15) 0%, transparent 60%), linear-gradient(180deg, #060b1a 0%, #0a1428 50%, #0d1b2a 100%);">
+        <div class="slide-cover-particles" id="coverParticles"></div>
+        <div class="slide-content" style="text-align:center; z-index:1;">
+          <div class="slide-eyebrow">PDE全栈·闯关历程</div>
+          <div class="slide-desc" style="margin-top:10px;">18天5小时，从第一行代码到全栈通关</div>
+          <!-- 身份信息卡（头像破框 + 信息区一体） -->
+          <div style="margin-top:40px; display:inline-flex; flex-direction:column; align-items:center; position:relative;">
+            <!-- 头像，叠在卡片顶部 -->
+            <div class="hero-avatar" style="display:inline-flex; width:80px; height:80px; position:relative; z-index:2; margin-bottom:-20px;">
+              <span class="hero-avatar-text" style="font-size:36px;">团</span>
             </div>
-            <div class="hero-info">
-              <div class="hero-name">小团子</div>
-              <div class="hero-cert">
-                <div class="cert-dot"></div>
-                <span class="cert-text">PDE 全栈通关认证 · 王者段位</span>
+            <!-- 卡片主体 -->
+            <div style="display:flex; flex-direction:column; align-items:center; gap:0; padding:28px 32px 18px; border-radius:18px; background:linear-gradient(160deg,rgba(30,41,59,0.6),rgba(15,23,42,0.7)); border:1px solid rgba(129,140,248,0.2); box-shadow:0 8px 28px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06); min-width:240px; position:relative; z-index:1;">
+              <!-- 姓名 -->
+              <div class="hero-name" style="margin:0 0 12px; font-size:22px;">小团子</div>
+              <!-- 分隔线 -->
+              <div style="width:80%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); margin-bottom:12px;"></div>
+              <!-- 认证行 -->
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+                <span style="width:5px; height:5px; border-radius:50%; background:#fbbf24; box-shadow:0 0 6px rgba(251,191,36,0.9); flex-shrink:0;"></span>
+                <span style="font-size:12px; color:rgba(251,191,36,0.85); font-weight:600; letter-spacing:0.3px;">PDE 全栈通关认证 · 王者段位</span>
               </div>
-              <div class="hero-kpis">
-                <div class="hero-kpi"><span class="hero-kpi-val">18天5小时</span><span class="hero-kpi-key">全程通关</span></div>
-                <div class="hero-kpi"><span class="hero-kpi-val">34 次</span><span class="hero-kpi-key">累计提交</span></div>
-                <div class="hero-kpi"><span class="hero-kpi-val">超越 85%</span><span class="hero-kpi-key">同批参与者</span></div>
+              <!-- 称号行 -->
+              <div style="display:inline-flex; align-items:center; gap:7px; padding:5px 14px; border-radius:999px; background:rgba(129,140,248,0.08); border:1px solid rgba(129,140,248,0.2);">
+<span style="font-size:10px; color:rgba(148,163,184,0.55); letter-spacing:1px; font-weight:600;">专属称号</span>
+<span style="width:1px; height:10px; background:rgba(255,255,255,0.15);"></span>
+<span id="slideCoverTitle" style="font-size:13px; font-weight:800; color:rgba(255,255,255,0.9); letter-spacing:0.5px;">🌙 深夜修仙极客</span>
               </div>
             </div>
           </div>
+          <div style="margin-top:28px; color:rgba(255,255,255,0.3); font-size:12px; letter-spacing:2px;">这段旅程，值得被记住</div>
+        </div>
+      </div>
 
-          <!-- 个性化战报（跨全宽） -->
-          <div class="story-card col-span-2">
-            <div class="story-eyebrow">PERSONAL BRIEFING</div>
-            <div class="story-title">王者段位 · 稳定推进型选手</div>
-            <p class="story-main">你把每一次调试都变成了向前的一步，在高强度节奏里依然保持稳定推进。</p>
-            <p class="story-sub">第 6 关是你最难啃的一关，但你用连续提交把它磨成了里程碑。</p>
-            <div class="story-tags">
-              <span class="story-tag">卡关破局</span>
-              <span class="story-tag">深夜收官</span>
-              <span class="story-tag">高执行力</span>
-            </div>
+      <!-- 第2页：数字背后（叙事版，与称号联动） -->
+      <div class="rp-slide slide-stats" style="background: radial-gradient(ellipse at 40% 40%, rgba(99,102,241,0.1) 0%, transparent 55%), radial-gradient(ellipse at 70% 70%, rgba(56,189,248,0.06) 0%, transparent 45%), linear-gradient(180deg, #0a0e1a 0%, #0d1b2a 100%);">
+        <div class="slide-content" style="text-align:left; z-index:1; width:100%; max-width:420px;">
+          <div class="slide-eyebrow" style="text-align:center;">数字背后</div>
+
+          <!-- 叙事文案区：节奏感排版 -->
+          <div id="slide2Narrative" style="margin-top:40px; display:flex; flex-direction:column; gap:0;">
+
+            <!-- 引言句：小字，低调开场 -->
+            <p style="font-size:15px; font-weight:300; line-height:1.8; color:rgba(226,232,240,0.45); margin:0 0 24px; letter-spacing:0.3px;">
+              大多数人睡着的时候，你还在敲键盘。
+            </p>
+
+            <!-- 数字句1：大字突出，核心事实 -->
+            <p style="font-size:20px; font-weight:300; line-height:1.7; color:rgba(226,232,240,0.8); margin:0 0 16px;">
+              <em style="font-style:normal; font-weight:800; color:#fff; font-size:28px; letter-spacing:-0.5px;">18 天</em>，你按下了
+              <em style="font-style:normal; font-weight:800; color:#fff; font-size:28px; letter-spacing:-0.5px;">34 次</em>提交。
+            </p>
+
+            <!-- 数字句2：带颜色高亮，情感最深处 -->
+            <p style="font-size:20px; font-weight:300; line-height:1.7; color:rgba(226,232,240,0.8); margin:0 0 32px;">
+              凌晨 <em style="font-style:normal; font-weight:800; color:#60a5fa; font-size:26px; letter-spacing:-0.3px;">02:14</em>，是你留在这段旅程里最深的印记。
+            </p>
+
+            <!-- 分隔线 -->
+            <div style="width:100%; height:1px; background:linear-gradient(90deg, rgba(255,255,255,0.12), transparent); margin-bottom:28px;"></div>
+
+            <!-- 收尾句：金色强调，沉稳收束 -->
+            <p style="font-size:17px; font-weight:300; line-height:1.8; color:rgba(226,232,240,0.65); margin:0; letter-spacing:0.2px;">
+              就这样，你超越了同期
+              <em style="font-style:normal; font-weight:800; color:#fbbf24; font-size:22px;">85%</em>
+              的学员。
+            </p>
+
           </div>
+        </div>
+      </div>
 
-          <!-- 统计宫格（左） -->
-          <div class="rp-card">
-            <div class="rp-card-title">学习数据</div>
-            <div class="rp-card-sub">从活跃、投入时段、稳定性三个维度看本次闯关表现。</div>
-            <div class="stats-grid">
-              <div class="stat-box">
-                <div class="stat-main"><span class="stat-emoji">📅</span><span class="stat-val">连续 11 天</span></div>
-                <span class="stat-key">活跃学习天数</span>
-              </div>
-<div class="stat-box">
-<div class="stat-main"><span class="stat-emoji">🌙</span><span class="stat-val">凌晨 02:14</span></div>
-<span class="stat-key">最晚收工记录</span>
-</div>
-              <div class="stat-box">
-                <div class="stat-main"><span class="stat-emoji">✅</span><span class="stat-val">6/7 关</span></div>
-                <span class="stat-key">首次验收通过</span>
-              </div>
-            </div>
+      <!-- 第3页：你最难忘的一关 -->
+      <div class="rp-slide slide-story" style="background: radial-gradient(ellipse at 40% 40%, rgba(251,191,36,0.08) 0%, transparent 55%), radial-gradient(ellipse at 70% 70%, rgba(99,102,241,0.06) 0%, transparent 45%), linear-gradient(180deg, #0d0b14 0%, #0a0e1a 100%);">
+        <div class="slide-content" style="text-align:left; z-index:1; width:100%; max-width:420px;">
+          <div class="slide-eyebrow" style="color:rgba(251,191,36,0.8); text-align:center;">你最难忘的一关</div>
+
+          <!-- 叙事文案区：与称号联动，节奏感排版 -->
+          <div id="slide3Narrative" style="margin-top:40px; display:flex; flex-direction:column; gap:0;">
+
+            <!-- 引言句：小字，低调开场 -->
+            <p style="font-size:15px; font-weight:300; line-height:1.8; color:rgba(226,232,240,0.45); margin:0 0 24px; letter-spacing:0.3px;">
+              有一关，你花的时间比其他所有关卡都多。
+            </p>
+
+            <!-- 核心句1：关卡高亮 -->
+            <p style="font-size:20px; font-weight:300; line-height:1.7; color:rgba(226,232,240,0.8); margin:0 0 16px;">
+              那就是<em style="font-style:normal; font-weight:800; color:#fbbf24; font-size:28px; letter-spacing:-0.5px;">第 6 关</em>。
+            </p>
+
+            <!-- 核心句2：行为描述，数字高亮 -->
+            <p style="font-size:20px; font-weight:300; line-height:1.7; color:rgba(226,232,240,0.8); margin:0 0 32px;">
+              你提交了
+              <em style="font-style:normal; font-weight:800; color:#fff; font-size:28px; letter-spacing:-0.5px;">8 次</em>，
+              凌晨 <em style="font-style:normal; font-weight:800; color:#60a5fa; font-size:24px;">02:14</em> 才最终收官。
+            </p>
+
+            <!-- 分隔线 -->
+            <div style="width:100%; height:1px; background:linear-gradient(90deg, rgba(251,191,36,0.2), transparent); margin-bottom:28px;"></div>
+
+            <!-- 收尾句：情感收束 -->
+            <p style="font-size:17px; font-weight:300; line-height:1.8; color:rgba(226,232,240,0.65); margin:0; letter-spacing:0.2px;">
+              但你没有放弃——用连续提交，把它磨成了里程碑。
+            </p>
+
           </div>
+        </div>
+      </div>
 
-          <!-- 排名（右） -->
-          <div class="rp-card ranking-card">
-            <div class="ring-wrap">
-              <svg class="ring-svg" width="88" height="88" viewBox="0 0 88 88">
-                <circle class="ring-bg" cx="44" cy="44" r="33"/>
-                <circle class="ring-fg" id="ringFg" cx="44" cy="44" r="33"
-                  stroke-dasharray="207.3"
-                  stroke-dashoffset="207.3"/>
-              </svg>
-              <div class="ring-label">
-                <span class="ring-pct">85%</span>
-                <span class="ring-unit">超越</span>
-              </div>
+      <!-- 第4页：你的心声 -->
+      <div class="rp-slide slide-reflection" style="background: radial-gradient(ellipse at 40% 40%, rgba(56,189,248,0.08) 0%, transparent 55%), radial-gradient(ellipse at 70% 70%, rgba(99,102,241,0.05) 0%, transparent 45%), #060a14;">
+        <div class="slide-content" style="text-align:left; z-index:1; width:100%; max-width:420px;">
+          <div class="slide-eyebrow" style="color:rgba(56,189,248,0.8); text-align:center;">你的心声</div>
+
+          <div style="margin-top:40px; display:flex; flex-direction:column; gap:0;">
+
+            <!-- 承接句：衔接前两页的叙事 -->
+            <p style="font-size:15px; font-weight:300; line-height:1.8; color:rgba(226,232,240,0.45); margin:0 0 28px; letter-spacing:0.3px;">
+              数字记录了你走过的路，而这句话，是你自己留下的注脚。
+            </p>
+
+            <!-- 引号装饰 + 用户心声 -->
+            <div style="position:relative;">
+              <span style="position:absolute; top:-8px; left:-4px; font-size:52px; color:rgba(56,189,248,0.2); line-height:1; font-family:Georgia,serif;">&ldquo;</span>
+              <p id="reflectionSlideText" style="font-size:24px; font-weight:300; line-height:1.75; color:rgba(226,232,240,0.9); font-style:italic; margin:0; padding-left:8px;">这一路有卡关、有突破，也有意外惊喜，感谢坚持到最后的自己。</p>
             </div>
-            <div class="ranking-info">
-              <div class="ranking-title">Top 15% · 王者节奏</div>
-              <div class="ranking-desc">你在本期学员中进入前 15%，属于高效率、强执行的通关选手。</div>
-              <div class="ranking-trend">⬆ 较平均节奏快 2.2 倍</div>
-            </div>
+
           </div>
+        </div>
+      </div>
 
-          <!-- 闯关历程（左） -->
-          <div class="rp-card">
-            <div class="rp-card-title">闯关历程</div>
-            <div class="rp-card-sub">从第 1 关到第 7 关，用 18 天完成全链路实战升级。</div>
-            <div class="timeline-summary">
-              <span>起点 2025/03/01</span>
-              <span>终点 2025/03/19</span>
-              <span>总耗时 18天5小时</span>
-            </div>
-            <div class="timeline">
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">🐾</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第1关 · 安装 CatPaw</span><span class="tl-rank"><span class="tl-rank-emoji">🥉</span>青铜解锁</span></div><div class="tl-meta"><span>2025/03/01 10:23</span><span>耗时 12 小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">⚙️</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第2关 · 安装开发环境</span><span class="tl-rank"><span class="tl-rank-emoji">🥈</span>白银解锁</span></div><div class="tl-meta"><span>2025/03/04 15:40</span><span>耗时 2天5小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">🤖</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第3关 · 安装 Claude Code</span><span class="tl-rank"><span class="tl-rank-emoji">🥇</span>黄金解锁</span></div><div class="tl-meta"><span>2025/03/07 09:10</span><span>耗时 1天18小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">💻</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第4关 · 本地代码跑起来</span><span class="tl-rank"><span class="tl-rank-emoji">💎</span>铂金解锁</span></div><div class="tl-meta"><span>2025/03/11 20:30</span><span>耗时 3天11小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">🌐</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第5关 · 纯前端页面发布</span><span class="tl-rank"><span class="tl-rank-emoji">💠</span>钻石解锁</span></div><div class="tl-meta"><span>2025/03/13 11:55</span><span>耗时 1天16小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">🔗</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第6关 · 前后端联调并发布</span><span class="tl-rank"><span class="tl-rank-emoji">👑</span>大师解锁</span></div><div class="tl-meta"><span>2025/03/16 18:00</span><span>耗时 2天18小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot last">🚀</div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第7关 · 前后端全栈开发</span><span class="tl-rank king"><span class="tl-rank-emoji">🏆</span>王者达成！</span></div><div class="tl-meta"><span>2025/03/19 22:00</span><span>耗时 3天4小时</span></div></div>
-              </div>
-            </div>
-          </div>
+      <!-- 第5页：荣誉勋章 -->
+      <div class="rp-slide slide-badges" style="background: radial-gradient(ellipse at 40% 50%, rgba(99,102,241,0.08) 0%, transparent 50%), radial-gradient(ellipse at 60% 50%, rgba(251,191,36,0.06) 0%, transparent 50%), #0c0f1a;">
+        <div class="slide-content" style="text-align:center; z-index:1; width:100%;">
+          <div class="slide-eyebrow">你的专属成就</div>
+          <div class="badge-grid" style="max-width:480px; margin:24px auto 0; border:none;">
 
-          <!-- 小组排名（右） -->
-          <div class="rp-card group-rank-card">
-            <div class="rp-card-title">小组排名</div>
-            <div class="rp-card-sub" id="groupRankSummary">你是前端冲刺 3 组第 8 位通关的同学</div>
-            <div class="group-rank-meta" id="groupRankMeta">11/16 已通关</div>
-            <div class="group-rank-list" id="groupRankList">
-              <div class="group-rank-item is-top"><span class="group-rank-order">#1</span><span class="group-rank-name">张一</span><span class="group-rank-time">2025/03/18 11:40</span></div>
-              <div class="group-rank-item is-top"><span class="group-rank-order">#2</span><span class="group-rank-name">李二</span><span class="group-rank-time">2025/03/18 16:08</span></div>
-              <div class="group-rank-item is-top"><span class="group-rank-order">#3</span><span class="group-rank-name">王三</span><span class="group-rank-time">2025/03/18 21:12</span></div>
-              <div class="group-rank-item"><span class="group-rank-order">#4</span><span class="group-rank-name">赵四</span><span class="group-rank-time">2025/03/19 09:03</span></div>
-              <div class="group-rank-item"><span class="group-rank-order">#5</span><span class="group-rank-name">周五</span><span class="group-rank-time">2025/03/19 11:26</span></div>
-              <div class="group-rank-item"><span class="group-rank-order">#6</span><span class="group-rank-name">吴六</span><span class="group-rank-time">2025/03/19 13:44</span></div>
-              <div class="group-rank-item"><span class="group-rank-order">#7</span><span class="group-rank-name">郑七</span><span class="group-rank-time">2025/03/19 18:22</span></div>
-              <div class="group-rank-item is-me"><span class="group-rank-order">#8</span><span class="group-rank-name">你（小团子）</span><span class="group-rank-time">2025/03/19 22:00</span></div>
-            </div>
-          </div>
-
-          <!-- 成就徽章（右） -->
-          <div class="rp-card col-span-2">
-            <div class="rp-card-title">成就徽章墙</div>
-            <div class="badge-summary">7枚核心徽章已点亮，覆盖速度、稳定性、精确度与全栈能力。</div>
-<div class="badge-grid">
-
-<!-- 全栈王者：王冠 -->
+<!-- 全栈王者 -->
 <div class="badge-item lit c-gold">
   <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
     <div class="badge-hex-glow"></div>
@@ -1903,7 +2147,7 @@ display: flex; gap: 12px; width: 368px;
   <span class="badge-level">7关全通</span>
 </div>
 
-<!-- 闪电手：闪电 -->
+<!-- 闪电手 -->
 <div class="badge-item lit c-cyan">
   <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
     <div class="badge-hex-glow"></div>
@@ -1918,7 +2162,7 @@ display: flex; gap: 12px; width: 368px;
   <span class="badge-level">单关最快</span>
 </div>
 
-<!-- 连击达人：火焰 -->
+<!-- 连击达人 -->
 <div class="badge-item lit c-orange">
   <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
     <div class="badge-hex-glow"></div>
@@ -1934,7 +2178,7 @@ display: flex; gap: 12px; width: 368px;
   <span class="badge-level">连续提交10+</span>
 </div>
 
-<!-- 夜行者：月亮+星 -->
+<!-- 夜行者 -->
 <div class="badge-item lit c-blue">
   <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
     <div class="badge-hex-glow"></div>
@@ -1949,23 +2193,23 @@ display: flex; gap: 12px; width: 368px;
     </div>
   </div>
   <span class="badge-name">夜行者</span>
-  <span class="badge-level">深夜通关</span>
+  <span class="badge-level">凌晨提交</span>
 </div>
 
-<!-- 精准出击：靶心 -->
+<!-- 精准出击 -->
 <div class="badge-item lit c-red">
   <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
     <div class="badge-hex-glow"></div>
     <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/></svg>
     <div class="badge-hex">
       <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-        <circle cx="20" cy="20" r="15" stroke="white" stroke-width="2" opacity="0.9"/>
-        <circle cx="20" cy="20" r="9"  stroke="white" stroke-width="2" opacity="0.9"/>
-        <circle cx="20" cy="20" r="4"  fill="white" opacity="0.95"/>
-        <line x1="20" y1="3"  x2="20" y2="8"  stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
-        <line x1="20" y1="32" x2="20" y2="37" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
-        <line x1="3"  y1="20" x2="8"  y2="20" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
-        <line x1="32" y1="20" x2="37" y2="20" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
+        <circle cx="20" cy="20" r="13" stroke="white" stroke-width="1.8" opacity="0.9"/>
+        <circle cx="20" cy="20" r="8" stroke="white" stroke-width="1.8" opacity="0.75"/>
+        <circle cx="20" cy="20" r="3" fill="white" opacity="0.95"/>
+        <line x1="20" y1="4" x2="20" y2="9" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <line x1="20" y1="31" x2="20" y2="36" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <line x1="4" y1="20" x2="9" y2="20" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <line x1="31" y1="20" x2="36" y2="20" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
       </svg>
     </div>
   </div>
@@ -1973,7 +2217,7 @@ display: flex; gap: 12px; width: 368px;
   <span class="badge-level">提交即通过</span>
 </div>
 
-<!-- 坚持不懈：日历+勾 -->
+<!-- 坚持不懈 -->
 <div class="badge-item lit c-purple">
   <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
     <div class="badge-hex-glow"></div>
@@ -1992,26 +2236,555 @@ display: flex; gap: 12px; width: 368px;
   <span class="badge-level">连续7天在线</span>
 </div>
 
-<!-- 超速通关：火箭 -->
-<div class="badge-item lit c-pink">
-  <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-    <div class="badge-hex-glow"></div>
-    <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/></svg>
-    <div class="badge-hex">
-      <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-        <path d="M20 4C20 4 29 8 29 19L29 26L20 33L11 26L11 19C11 8 20 4 20 4Z" fill="white" opacity="0.95"/>
-        <circle cx="20" cy="18" r="4.5" fill="rgba(236,72,153,0.5)"/>
-        <path d="M11 24 L7 31 L13 29 Z" fill="white" opacity="0.75"/>
-        <path d="M29 24 L33 31 L27 29 Z" fill="white" opacity="0.75"/>
-        <path d="M17 33 L15 38 L20 36 L25 38 L23 33" fill="rgba(255,180,80,0.9)"/>
-      </svg>
-    </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第6页：同行者 -->
+      <div class="rp-slide slide-rank" style="background: radial-gradient(ellipse at 50% 20%, rgba(129,140,248,0.07) 0%, transparent 50%), linear-gradient(180deg, #0a0e1a 0%, #0d1b2a 100%);">
+        <div class="slide-content" style="text-align:left; z-index:1; width:100%; max-width:420px; display:flex; flex-direction:column; gap:0;">
+
+          <div class="slide-eyebrow" style="text-align:center;">同行者</div>
+
+          <!-- 顶部：组名 + 你的排名 -->
+          <div style="margin-top:28px; display:flex; align-items:flex-end; justify-content:space-between;">
+            <div>
+              <div style="font-size:12px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:5px;">所在部门</div>
+              <div style="font-size:18px; font-weight:600; color:rgba(255,255,255,0.88);">前端冲刺 3 组</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:3px;">通关排名</div>
+              <div style="font-size:26px; font-weight:800; color:#818cf8; line-height:1;">#8</div>
+            </div>
+          </div>
+
+          <!-- 细分隔线 -->
+          <div style="margin:18px 0 0; height:1px; background:linear-gradient(90deg, rgba(129,140,248,0.2), transparent);"></div>
+
+          <!-- 排名列表 -->
+          <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px; overflow-y:auto; max-height:340px; padding-right:2px;">
+
+            <!-- #1 张一 -->
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.15);">
+              <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#f59e0b,#92400e); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#1</div>
+              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.85); font-weight:500;">张一</span>
+              <span style="font-size:12px; color:rgba(251,191,36,0.6);">03/18 11:40</span>
+            </div>
+
+            <!-- #2 李二 -->
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(251,191,36,0.04); border:1px solid rgba(251,191,36,0.1);">
+              <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#d4a843,#6b4c1a); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#2</div>
+              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.85); font-weight:500;">李二</span>
+              <span style="font-size:12px; color:rgba(251,191,36,0.5);">03/18 16:08</span>
+            </div>
+
+            <!-- #3 王三 -->
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(251,191,36,0.03); border:1px solid rgba(251,191,36,0.08);">
+              <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#b8853a,#5a3d18); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#3</div>
+              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.8); font-weight:500;">王三</span>
+              <span style="font-size:12px; color:rgba(251,191,36,0.4);">03/18 21:12</span>
+            </div>
+
+            <!-- #4 赵四 -->
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
+              <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#4</div>
+              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.65);">赵四</span>
+              <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 09:03</span>
+            </div>
+
+            <!-- #5 周五 -->
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
+              <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#5</div>
+              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.65);">周五</span>
+              <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 11:26</span>
+            </div>
+
+            <!-- #6 吴六 -->
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
+              <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#6</div>
+              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.65);">吴六</span>
+              <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 13:44</span>
+            </div>
+
+            <!-- #7 郑七 -->
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
+              <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#7</div>
+              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.65);">郑七</span>
+              <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 18:22</span>
+            </div>
+
+            <!-- #8 你（高亮） -->
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.3);">
+              <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#8</div>
+              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.95); font-weight:600;">你（小团子）</span>
+              <span style="font-size:12px; color:rgba(96,165,250,0.7);">03/19 22:00</span>
+            </div>
+
+          </div>
+
+          <!-- 底部：召唤队友提示 -->
+          <div style="margin-top:16px; display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; background:rgba(129,140,248,0.05); border:1px solid rgba(129,140,248,0.12);">
+            <span style="font-size:16px; flex-shrink:0;">🙌</span>
+            <div style="flex:1;">
+              <p style="font-size:12px; color:rgba(226,232,240,0.5); margin:0; line-height:1.6;">把你的闯关报告发给组内同学，<br>邀请他们一起通关！</p>
+            </div>
+            <button class="poster-entry-btn" onclick="openPoster()" style="font-size:11px; padding:5px 12px; white-space:nowrap; flex-shrink:0;">分享海报</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 第7页：时间线 -->
+      <div class="rp-slide slide-timeline" style="background: linear-gradient(180deg, #0d0b14 0%, #0a0e1a 100%);">
+        <div class="slide-content" style="text-align:left; z-index:1; width:100%; max-width:420px;">
+          <div class="slide-eyebrow" style="text-align:center;">闯关时间线</div>
+
+          <div style="margin-top:24px; display:flex; flex-direction:column; gap:0; position:relative;">
+
+            <!-- 左侧连接竖线（穿过圆心） -->
+            <div style="position:absolute; left:14px; top:34px; bottom:80px; width:1px; background:linear-gradient(180deg, rgba(148,163,184,0.15) 0%, rgba(148,163,184,0.08) 80%, transparent 100%); z-index:0;"></div>
+
+            <!-- 第1关 -->
+            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
+              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">1</div>
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">安装 CatPaw</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">🥉 青铜</span>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/01 10:23</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 12h</span>
+                </div>
+                <div style="font-size:11px; color:rgba(148,163,184,0.35); margin-top:2px;">✓ 开发工具就位</div>
+              </div>
+            </div>
+
+            <!-- 第2关 -->
+            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
+              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">2</div>
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">安装开发环境</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">🥈 白银</span>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/04 15:40</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 3天</span>
+                </div>
+                <div style="font-size:11px; color:rgba(148,163,184,0.35); margin-top:2px;">✓ 编码环境搭建完毕</div>
+              </div>
+            </div>
+
+            <!-- 第3关 -->
+            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
+              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">3</div>
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">安装 Claude Code</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">🥇 黄金</span>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/07 09:10</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 3天</span>
+                </div>
+                <div style="font-size:11px; color:rgba(148,163,184,0.35); margin-top:2px;">✓ AI 编程助手接入</div>
+              </div>
+            </div>
+
+            <!-- 第4关 -->
+            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
+              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">4</div>
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">本地代码跑起来</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">💎 铂金</span>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/11 20:30</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 4天</span>
+                </div>
+                <div style="font-size:11px; color:rgba(96,165,250,0.5); margin-top:2px;">✓ 第一次在本地看到自己的页面</div>
+              </div>
+            </div>
+
+            <!-- 第5关 -->
+            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
+              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">5</div>
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">纯前端页面发布</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">💠 钻石</span>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/13 11:55</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 2天</span>
+                </div>
+                <div style="font-size:11px; color:rgba(148,163,184,0.35); margin-top:2px;">✓ 第一个上线的页面</div>
+              </div>
+            </div>
+
+            <!-- 第6关 -->
+            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
+              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">6</div>
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">前后端联调并发布</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">👑 大师</span>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/16 18:00</span>
+                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 3天</span>
+                </div>
+                <div style="font-size:11px; color:rgba(148,163,184,0.35); margin-top:2px;">✓ 前后端完整链路打通</div>
+              </div>
+            </div>
+
+            <!-- 第7关：终点高亮 -->
+            <div style="display:flex; gap:16px; padding:12px 14px; margin-top:6px; border-radius:12px; background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04)); border:1px solid rgba(251,191,36,0.2); position:relative; z-index:1;">
+              <div style="width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#f59e0b,#92400e); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; margin-top:2px;">🏆</div>
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                  <span style="font-size:14px; font-weight:700; color:#fbbf24;">前后端全栈开发</span>
+                  <span style="font-size:10px; color:rgba(251,191,36,0.7); background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); padding:1px 7px; border-radius:999px;">🏆 王者</span>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <span style="font-size:11px; color:rgba(251,191,36,0.6);">03/19 22:00</span>
+                  <span style="font-size:10px; color:rgba(251,191,36,0.35);">· 用时 3天</span>
+                </div>
+                <div style="font-size:11px; color:rgba(251,191,36,0.45); margin-top:2px;">✓ 从零到全栈，全部完成</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+<!-- 第8页：写在最后 -->
+<div class="rp-slide slide-quote" style="background: radial-gradient(ellipse at 50% 50%, rgba(251,191,36,0.07) 0%, transparent 60%), #080c16;">
+<div class="slide-content" style="text-align:center; z-index:1; max-width:480px; display:flex; flex-direction:column; align-items:center; gap:0;">
+  <!-- 顶部装饰引号 -->
+  <div style="font-size:72px; line-height:1; color:rgba(251,191,36,0.15); font-family:Georgia,serif; margin-bottom:-16px; align-self:flex-start; padding-left:4px;">"</div>
+
+  <div class="slide-eyebrow" style="color:rgba(251,191,36,0.7); margin-bottom:20px;">写在最后</div>
+
+  <p style="font-size:24px; font-weight:300; line-height:1.8; color:rgba(255,255,255,0.88); margin:0; letter-spacing:0.02em;">18天，从零到全栈。<br>每一关都是真实战斗，<br>每一次提交都在定义你的<br>工程师成长曲线。</p>
+
+  <!-- 底部分隔装饰 -->
+  <div style="display:flex; align-items:center; gap:10px; margin-top:36px; margin-bottom:28px;">
+    <div style="width:32px; height:1px; background:linear-gradient(90deg, transparent, rgba(251,191,36,0.3));"></div>
+    <span style="font-size:12px; color:rgba(251,191,36,0.35); letter-spacing:0.15em;">PDE 全栈闯关</span>
+    <div style="width:32px; height:1px; background:linear-gradient(90deg, rgba(251,191,36,0.3), transparent);"></div>
   </div>
-  <span class="badge-name">超速通关</span>
-  <span class="badge-level">Top 15%</span>
+
+  <button class="poster-entry-btn" onclick="openFullReport()" style="display:inline-flex; padding:10px 28px; font-size:14px;">查看完整闯关报告 ✦</button>
+</div>
 </div>
 
+    </div>
+
+    <!-- 完整报告模块 -->
+    <div class="view" id="v-full-report">
+      <div class="rp-header">
+        <button class="close-btn" onclick="closeFullReport()">✕</button>
+<span class="rp-header-title">我的闯关报告</span>
+<button class="poster-entry-btn" onclick="openPoster()">生成海报并分享</button>
+      </div>
+      <div class="full-report-scroll">
+        <div class="rp-grid" style="width:100%; max-width:660px; opacity:1; animation:none;">
+          <!-- 荣誉区 -->
+          <div class="hero-card col-span-2" style="flex-direction:column; align-items:stretch; gap:0; padding:28px 28px 24px;">
+
+            <!-- 第一行：头像 + 身份信息 -->
+            <div style="display:flex; align-items:center; gap:20px; position:relative; z-index:1;">
+              <div class="hero-avatar" style="width:72px; height:72px; flex-shrink:0;">
+                <span class="hero-avatar-text" id="frAvatarText">团</span>
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div class="hero-name" id="frUserName" style="margin-bottom:10px;">小团子</div>
+                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+                  <div class="hero-cert">
+                    <div class="cert-dot"></div>
+                    <span class="cert-text">PDE 全栈通关认证 · 王者段位</span>
+                  </div>
+                  <div style="display:inline-flex; align-items:center; gap:5px; padding:4px 11px; border-radius:999px; background:rgba(129,140,248,0.08); border:1px solid rgba(129,140,248,0.2);">
+                    <span id="frTitle" style="font-size:12px; font-weight:600; color:rgba(200,210,255,0.85);">🌙 深夜修仙极客</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 分隔线 -->
+            <div style="margin:20px 0 16px; height:1px; background:linear-gradient(90deg, rgba(255,255,255,0.08), transparent); position:relative; z-index:1;"></div>
+
+            <!-- KPI 三格 -->
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; position:relative; z-index:1;">
+              <div class="hero-kpi"><span class="hero-kpi-val" id="frKpiDuration">18天5小时</span><span class="hero-kpi-key">全程通关</span></div>
+              <div class="hero-kpi"><span class="hero-kpi-val" id="frKpiSubmits">34 次</span><span class="hero-kpi-key">累计提交</span></div>
+              <div class="hero-kpi"><span class="hero-kpi-val" id="frKpiRank">超越 85%</span><span class="hero-kpi-key">同批参与者</span></div>
+            </div>
+
+            <!-- 闯关心得 -->
+            <div style="margin-top:16px; padding:12px 16px 12px 20px; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); position:relative; z-index:1;">
+              <span style="position:absolute; top:4px; left:8px; font-size:32px; line-height:1; color:rgba(56,189,248,0.18); font-family:Georgia,serif;">&ldquo;</span>
+              <p class="reflection-text" id="reflectionText" style="font-size:14px; line-height:1.7; color:rgba(226,232,240,0.7); margin:0; font-style:italic;">这一路有卡关、有突破，也有意外惊喜，感谢坚持到最后的自己。</p>
+            </div>
+
+          </div>
+
+
+<!-- 统计宫格（全宽） -->
+<div class="rp-card col-span-2">
+<div class="rp-card-title">学习数据</div>
+<div class="rp-card-sub">从活跃、投入时段、稳定性三个维度看本次闯关表现。</div>
+<div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+<div class="stat-box">
+<div class="stat-main"><span class="stat-emoji">📅</span><span class="stat-val" id="frStatDays">连续 11 天</span></div>
+<span class="stat-key">活跃学习天数</span>
 </div>
+<div class="stat-box">
+<div class="stat-main"><span class="stat-emoji">🌙</span><span class="stat-val" id="frStatLate">凌晨 02:14</span></div>
+<span class="stat-key">最晚收工记录</span>
+</div>
+<div class="stat-box">
+<div class="stat-main"><span class="stat-emoji">✅</span><span class="stat-val" id="frStatFirstPass">6/7 关</span></div>
+<span class="stat-key">首次验收通过</span>
+</div>
+</div>
+</div>
+
+          <!-- 闯关历程（左） -->
+          <div class="rp-card">
+            <div class="rp-card-title">闯关时间线</div>
+            <div class="rp-card-sub">从第 1 关到第 7 关，用 18 天完成全链路实战升级。</div>
+            <div class="timeline">
+              <div class="tl-item">
+                <div class="tl-left"><div class="tl-dot">🐾</div><div class="tl-line"></div></div>
+                <div class="tl-right"><div class="tl-header"><span class="tl-name">第1关 · 安装 CatPaw</span><span class="tl-rank"><span class="tl-rank-emoji">🥉</span>青铜解锁</span></div><div class="tl-meta"><span>2025/03/01 10:23</span><span>耗时 12 小时</span></div></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-left"><div class="tl-dot">⚙️</div><div class="tl-line"></div></div>
+                <div class="tl-right"><div class="tl-header"><span class="tl-name">第2关 · 安装开发环境</span><span class="tl-rank"><span class="tl-rank-emoji">🥈</span>白银解锁</span></div><div class="tl-meta"><span>2025/03/04 15:40</span><span>耗时 2天5小时</span></div></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-left"><div class="tl-dot">🤖</div><div class="tl-line"></div></div>
+                <div class="tl-right"><div class="tl-header"><span class="tl-name">第3关 · 安装 Claude Code</span><span class="tl-rank"><span class="tl-rank-emoji">🥇</span>黄金解锁</span></div><div class="tl-meta"><span>2025/03/07 09:10</span><span>耗时 1天18小时</span></div></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-left"><div class="tl-dot">💻</div><div class="tl-line"></div></div>
+                <div class="tl-right">
+                  <div class="tl-header"><span class="tl-name">第4关 · 本地代码跑起来</span><span class="tl-rank"><span class="tl-rank-emoji">💎</span>铂金解锁</span></div>
+<div class="tl-meta"><span>2025/03/11 20:30</span><span>耗时 3天11小时</span></div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-left"><div class="tl-dot">🌐</div><div class="tl-line"></div></div>
+                <div class="tl-right"><div class="tl-header"><span class="tl-name">第5关 · 纯前端页面发布</span><span class="tl-rank"><span class="tl-rank-emoji">💠</span>钻石解锁</span></div><div class="tl-meta"><span>2025/03/13 11:55</span><span>耗时 1天16小时</span></div></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-left"><div class="tl-dot">🔗</div><div class="tl-line"></div></div>
+                <div class="tl-right"><div class="tl-header"><span class="tl-name">第6关 · 前后端联调并发布</span><span class="tl-rank"><span class="tl-rank-emoji">👑</span>大师解锁</span></div><div class="tl-meta"><span>2025/03/16 18:00</span><span>耗时 2天18小时</span></div></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-left"><div class="tl-dot last">🚀</div></div>
+                <div class="tl-right"><div class="tl-header"><span class="tl-name">第7关 · 前后端全栈开发</span><span class="tl-rank king"><span class="tl-rank-emoji">🏆</span>王者达成！</span></div><div class="tl-meta"><span>2025/03/19 22:00</span><span>耗时 3天4小时</span></div></div>
+              </div>
+            </div>
+          </div>
+
+<!-- 小组排名（右） -->
+<div class="rp-card group-rank-card">
+  <!-- 顶部：组名 + 你的排名 -->
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:16px;">
+    <div>
+      <div style="font-size:11px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:4px;">所在部门</div>
+      <div style="font-size:17px; font-weight:600; color:rgba(255,255,255,0.88);">前端冲刺 3 组</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:2px;">通关排名</div>
+      <div style="font-size:24px; font-weight:800; color:#818cf8; line-height:1;">#8</div>
+    </div>
+  </div>
+  <div style="height:1px; background:linear-gradient(90deg, rgba(129,140,248,0.2), transparent); margin-bottom:14px;"></div>
+
+  <!-- 排名列表 -->
+  <div class="group-rank-list" id="groupRankList" style="display:flex; flex-direction:column; gap:8px;">
+    <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.15);">
+      <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#f59e0b,#92400e); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#1</div>
+      <span style="flex:1; font-size:14px; color:rgba(255,255,255,0.85); font-weight:500;">张一</span>
+      <span style="font-size:12px; color:rgba(251,191,36,0.6);">03/18 11:40</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(251,191,36,0.04); border:1px solid rgba(251,191,36,0.1);">
+      <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#d4a843,#6b4c1a); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#2</div>
+      <span style="flex:1; font-size:14px; color:rgba(255,255,255,0.85); font-weight:500;">李二</span>
+      <span style="font-size:12px; color:rgba(251,191,36,0.5);">03/18 16:08</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(251,191,36,0.03); border:1px solid rgba(251,191,36,0.08);">
+      <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#b8853a,#5a3d18); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#3</div>
+      <span style="flex:1; font-size:14px; color:rgba(255,255,255,0.8); font-weight:500;">王三</span>
+      <span style="font-size:12px; color:rgba(251,191,36,0.4);">03/18 21:12</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
+      <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#4</div>
+      <span style="flex:1; font-size:14px; color:rgba(255,255,255,0.65);">赵四</span>
+      <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 09:03</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
+      <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#5</div>
+      <span style="flex:1; font-size:14px; color:rgba(255,255,255,0.65);">周五</span>
+      <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 11:26</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
+      <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#6</div>
+      <span style="flex:1; font-size:14px; color:rgba(255,255,255,0.65);">吴六</span>
+      <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 13:44</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
+      <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#7</div>
+      <span style="flex:1; font-size:14px; color:rgba(255,255,255,0.65);">郑七</span>
+      <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 18:22</span>
+    </div>
+    <!-- 自己（蓝色高亮） -->
+    <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.3);">
+      <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#8</div>
+      <span style="flex:1; font-size:14px; color:rgba(255,255,255,0.95); font-weight:600;">你（小团子）</span>
+      <span style="font-size:12px; color:rgba(96,165,250,0.7);">03/19 22:00</span>
+    </div>
+  </div>
+
+  <!-- 召唤队友提示 -->
+  <div style="margin-top:14px; display:flex; align-items:center; gap:8px; padding:9px 12px; border-radius:10px; background:rgba(129,140,248,0.05); border:1px solid rgba(129,140,248,0.12);">
+    <span style="font-size:14px; flex-shrink:0;">🙌</span>
+    <p style="flex:1; font-size:11px; color:rgba(226,232,240,0.45); margin:0; line-height:1.5;">把闯关报告发给组内同学，邀请他们一起通关！</p>
+    <button class="poster-entry-btn" onclick="openPoster()" style="font-size:10px; padding:4px 10px; white-space:nowrap; flex-shrink:0;">分享海报</button>
+  </div>
+</div>
+
+          <!-- 成就徽章（跨全宽） -->
+          <div class="rp-card col-span-2">
+            <div class="rp-card-title">成就徽章墙</div>
+            <div class="badge-summary">7枚核心徽章已点亮，覆盖速度、稳定性、精确度与全栈能力。</div>
+            <div class="badge-grid">
+              <div class="badge-item lit c-gold">
+                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <div class="badge-hex-glow"></div>
+                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
+                  <div class="badge-hex">
+                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
+                      <path d="M5 29 L5 12 L13 19 L20 7 L27 19 L35 12 L35 29 Z" fill="white" opacity="0.95"></path>
+                      <rect x="5" y="30" width="30" height="4" rx="2" fill="white" opacity="0.95"></rect>
+                      <circle cx="5" cy="12" r="2.5" fill="white"></circle>
+                      <circle cx="20" cy="7" r="2.5" fill="white"></circle>
+                      <circle cx="35" cy="12" r="2.5" fill="white"></circle>
+                    </svg>
+                  </div>
+                </div>
+                <span class="badge-name">全栈王者</span>
+                <span class="badge-level">7关全通</span>
+              </div>
+
+              <div class="badge-item lit c-cyan">
+                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <div class="badge-hex-glow"></div>
+                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
+                  <div class="badge-hex">
+                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
+                      <path d="M23 4 L10 22 H18 L16 36 L30 18 H22 Z" fill="white" opacity="0.95" stroke="rgba(255,255,255,0.3)" stroke-width="0.5" stroke-linejoin="round"></path>
+                    </svg>
+                  </div>
+                </div>
+                <span class="badge-name">闪电手</span>
+                <span class="badge-level">单关最快</span>
+              </div>
+
+              <div class="badge-item lit c-orange">
+                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <div class="badge-hex-glow"></div>
+                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
+                  <div class="badge-hex">
+                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
+                      <path d="M20 36C11 36 8 29 9 22C10 16 13 14 13 14C13 18 15 20 15 20C15 15 18 11 22 6C22 11 25 13 27 14C30 17 32 21 31 27C30 32 25 36 20 36Z" fill="white" opacity="0.95"></path>
+                      <path d="M20 31C17 31 16 28 16.5 25C17 23 18 22 18 22C18 24 19 25 20 25C21 23 21 21 22 19C22 21 23 24 24 25C25 27 24 31 20 31Z" fill="rgba(255,120,30,0.55)"></path>
+                    </svg>
+                  </div>
+                </div>
+                <span class="badge-name">连击达人</span>
+                <span class="badge-level">连续提交10+</span>
+              </div>
+
+              <div class="badge-item lit c-blue">
+                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <div class="badge-hex-glow"></div>
+                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
+                  <div class="badge-hex">
+                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
+                      <path d="M25 8C18 8 12 13 12 20C12 27 18 32 25 32C28 32 31 31 33 29C31 29.5 28.5 29.5 26.5 28C21 25 18 21 18 16C18 12.5 20 9.5 23 8.5C24 8.2 24.5 8 25 8Z" fill="white" opacity="0.95"></path>
+                      <circle cx="31" cy="9" r="1.6" fill="white" opacity="0.9"></circle>
+                      <circle cx="34" cy="15" r="1.1" fill="white" opacity="0.7"></circle>
+                      <circle cx="33" cy="22" r="1.3" fill="white" opacity="0.8"></circle>
+                    </svg>
+                  </div>
+                </div>
+                <span class="badge-name">夜行者</span>
+                <span class="badge-level">深夜通关</span>
+              </div>
+
+              <div class="badge-item lit c-red">
+                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <div class="badge-hex-glow"></div>
+                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
+                  <div class="badge-hex">
+                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
+                      <circle cx="20" cy="20" r="15" stroke="white" stroke-width="2" opacity="0.9"></circle>
+                      <circle cx="20" cy="20" r="9" stroke="white" stroke-width="2" opacity="0.9"></circle>
+                      <circle cx="20" cy="20" r="4" fill="white" opacity="0.95"></circle>
+                      <line x1="20" y1="3" x2="20" y2="8" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"></line>
+                      <line x1="20" y1="32" x2="20" y2="37" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"></line>
+                      <line x1="3" y1="20" x2="8" y2="20" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"></line>
+                      <line x1="32" y1="20" x2="37" y2="20" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"></line>
+                    </svg>
+                  </div>
+                </div>
+                <span class="badge-name">精准出击</span>
+                <span class="badge-level">提交即通过</span>
+              </div>
+
+              <div class="badge-item lit c-purple">
+                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <div class="badge-hex-glow"></div>
+                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
+                  <div class="badge-hex">
+                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
+                      <rect x="5" y="9" width="30" height="24" rx="3" stroke="white" stroke-width="2" opacity="0.9"></rect>
+                      <line x1="5" y1="16" x2="35" y2="16" stroke="white" stroke-width="2" opacity="0.9"></line>
+                      <line x1="13" y1="5" x2="13" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9"></line>
+                      <line x1="27" y1="5" x2="27" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9"></line>
+                      <path d="M13 25 L17 29 L27 20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"></path>
+                    </svg>
+                  </div>
+                </div>
+                <span class="badge-name">坚持不懈</span>
+                <span class="badge-level">连续7天在线</span>
+              </div>
+
+              <div class="badge-item lit c-pink">
+                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <div class="badge-hex-glow"></div>
+                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
+                  <div class="badge-hex">
+                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
+                      <path d="M20 4C20 4 29 8 29 19L29 26L20 33L11 26L11 19C11 8 20 4 20 4Z" fill="white" opacity="0.95"></path>
+                      <circle cx="20" cy="18" r="4.5" fill="rgba(236,72,153,0.5)"></circle>
+                      <path d="M11 24 L7 31 L13 29 Z" fill="white" opacity="0.75"></path>
+                      <path d="M29 24 L33 31 L27 29 Z" fill="white" opacity="0.75"></path>
+                      <path d="M17 33 L15 38 L20 36 L25 38 L23 33" fill="rgba(255,180,80,0.9)"></path>
+                    </svg>
+                  </div>
+                </div>
+                <span class="badge-name">超速通关</span>
+                <span class="badge-level">Top 15%</span>
+              </div>
+            </div>
           </div>
 
           <!-- 金句（跨全宽） -->
@@ -2019,7 +2792,6 @@ display: flex; gap: 12px; width: 368px;
             <p class="quote-text">18天，从零到全栈。每一关都是真实战斗，每一次提交都在定义你的工程师成长曲线。</p>
             <div class="quote-author">—— PDE 全栈闯关成就评语</div>
           </div>
-
         </div>
       </div>
     </div>
@@ -2046,24 +2818,20 @@ display: flex; gap: 12px; width: 368px;
             <div class="poster-avatar-wrap">
               <div class="poster-avatar-ring">
                 <div class="poster-avatar">
-                  <span class="poster-avatar-text">团</span>
-                  <div class="poster-avatar-badge">🏆</div>
+                  <span class="poster-avatar-text" id="posterAvatarText">团</span>
                 </div>
               </div>
-              <div class="poster-name">小团子</div>
-              <div class="poster-name-sub">7/7 关卡全部通关</div>
-            </div>
-            <div class="poster-badges">
-              <span class="poster-badge gold"><span class="poster-badge-ico">👑</span>最强王者</span>
-              <span class="poster-badge cyan"><span class="poster-badge-ico">⚡</span>闪电突击者</span>
-              <span class="poster-badge purple"><span class="poster-badge-ico">🏅</span>第 8 位通关</span>
+              <div class="poster-name" id="posterName">小团子</div>
+              <div class="poster-badges" style="justify-content:center; margin-top:2px;">
+                <span class="poster-badge indigo" id="posterTitle"><span class="poster-badge-ico">🌙</span>深夜修仙极客</span>
+              </div>
             </div>
             <div class="poster-stats">
-              <div class="poster-stat"><span class="poster-stat-val">18天5h</span><span class="poster-stat-key">总耗时</span></div>
-              <div class="poster-stat"><span class="poster-stat-val cyan">Top 15%</span><span class="poster-stat-key">超越 85%</span></div>
-              <div class="poster-stat"><span class="poster-stat-val green">第8位</span><span class="poster-stat-key">通关先锋</span></div>
+              <div class="poster-stat"><span class="poster-stat-val" id="posterStatDuration">18天5h</span><span class="poster-stat-key">总耗时</span></div>
+              <div class="poster-stat"><span class="poster-stat-val cyan" id="posterStatTop">Top 15%</span><span class="poster-stat-key" id="posterStatTopSub">超越 85%</span></div>
+              <div class="poster-stat"><span class="poster-stat-val green" id="posterStatRank">第8位</span><span class="poster-stat-key">通关先锋</span></div>
             </div>
-            <div class="poster-quote">善于快速理解新工具，遇到复杂挑战时选择深度研究而非蛮力突破</div>
+            <div class="poster-quote" id="posterQuote">善于快速理解新工具，遇到复杂挑战时选择深度研究而非蛮力突破</div>
           </div>
           <div class="poster-footer">
             <div class="poster-footer-invite">
@@ -2094,6 +2862,23 @@ display: flex; gap: 12px; width: 368px;
 <!-- Toast -->
 <div class="toast" id="toast" style="display:none"></div>
 
+<!-- 轻量心得输入弹层 -->
+<div class="reflection-overlay" id="reflectionOverlay" onclick="handleReflectionOverlayClick(event)">
+  <div class="reflection-modal">
+    <div class="reflection-modal-title">用一句话形容你的闯关体验</div>
+    <div class="reflection-modal-sub">填写后会融入你的闯关报告，也可以先跳过。</div>
+    <textarea id="reflectionInput" class="reflection-input" maxlength="60" placeholder="每次卡关都让我更像一名真正的工程师。"></textarea>
+    <div class="reflection-meta">
+      <button type="button" class="reflection-hint-btn" id="reflectionHintBtn" onclick="shuffleReflectionHint()">💡 换个灵感</button>
+      <span class="reflection-counter" id="reflectionCounter">0/60</span>
+    </div>
+    <div class="reflection-actions">
+      <button type="button" class="reflection-skip-btn" onclick="skipReflectionPrompt()">先跳过</button>
+      <button type="button" class="reflection-submit-btn" onclick="submitReflectionPrompt()">进入报告</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== 海报分享弹窗 ===== -->
 <div class="poster-overlay" id="posterOverlay" onclick="handleOverlayClick(event)">
   <div class="poster-modal-box" id="posterModalBox">
@@ -2114,24 +2899,20 @@ display: flex; gap: 12px; width: 368px;
           <div class="poster-avatar-wrap">
             <div class="poster-avatar-ring">
               <div class="poster-avatar">
-                <span class="poster-avatar-text">团</span>
-                <div class="poster-avatar-badge">🏆</div>
+                <span class="poster-avatar-text" id="posterAvatarText2">团</span>
               </div>
             </div>
-            <div class="poster-name">小团子</div>
-            <div class="poster-name-sub">7/7 关卡全部通关</div>
-          </div>
-          <div class="poster-badges">
-            <span class="poster-badge gold"><span class="poster-badge-ico">👑</span>最强王者</span>
-            <span class="poster-badge cyan"><span class="poster-badge-ico">⚡</span>闪电突击者</span>
-            <span class="poster-badge purple"><span class="poster-badge-ico">🏅</span>第 8 位通关</span>
+            <div class="poster-name" id="posterName2">小团子</div>
+            <div class="poster-badges" style="justify-content:center; margin-top:2px;">
+              <span class="poster-badge indigo" id="posterTitle2"><span class="poster-badge-ico">🌙</span>深夜修仙极客</span>
+            </div>
           </div>
           <div class="poster-stats">
-            <div class="poster-stat"><span class="poster-stat-val">18天5h</span><span class="poster-stat-key">总耗时</span></div>
-            <div class="poster-stat"><span class="poster-stat-val cyan">Top 15%</span><span class="poster-stat-key">超越 85%</span></div>
-            <div class="poster-stat"><span class="poster-stat-val green">第8位</span><span class="poster-stat-key">通关先锋</span></div>
+            <div class="poster-stat"><span class="poster-stat-val" id="posterStatDuration2">18天5h</span><span class="poster-stat-key">总耗时</span></div>
+            <div class="poster-stat"><span class="poster-stat-val cyan" id="posterStatTop2">Top 15%</span><span class="poster-stat-key" id="posterStatTopSub2">超越 85%</span></div>
+            <div class="poster-stat"><span class="poster-stat-val green" id="posterStatRank2">第8位</span><span class="poster-stat-key">通关先锋</span></div>
           </div>
-          <div class="poster-quote">善于快速理解新工具，遇到复杂挑战时选择深度研究而非蛮力突破</div>
+          <div class="poster-quote" id="posterQuote2">善于快速理解新工具，遇到复杂挑战时选择深度研究而非蛮力突破</div>
         </div>
         <div class="poster-footer">
           <div class="poster-footer-invite">
@@ -2154,23 +2935,144 @@ display: flex; gap: 12px; width: 368px;
 const RANK_PCT = 85
 const R = 33
 const CIRC = 2 * Math.PI * R  // 207.3
+const DEFAULT_REFLECTION_TEXT = '这一路有卡关、有突破，也有意外惊喜，感谢坚持到最后的自己。'
+let userReflectionText = ''
+
+// ===== 用户核心数据（后端接入后替换为接口数据） =====
+const userData = {
+  userName: '小团子',           // 用户姓名
+  avatarInitial: '团',          // 头像首字母
+  totalDuration: '18天5小时',   // 全程通关耗时
+  totalSubmits: '34 次',        // 累计提交次数
+  rankPct: 85,                  // 超越百分比（整数）
+  lateSubmitHour: 2,            // 最晚提交小时（0-23），用于称号判断
+  lateSubmitTime: '凌晨 02:14', // 最晚收工时间展示文案
+  maxContinuousDays: 11,        // 最长连续活跃天数
+  firstPassLevels: 6,           // 首次验收通过关数
+  hardestLevel: 6,              // 最难忘/耗时最多的关卡
+  hardestLevelSubmits: 8,       // 最难忘关卡的提交次数
+}
+
+// ===== 称号计算（按PRD优先级规则） =====
+function computeTitle() {
+  const h = userData.lateSubmitHour
+  if (h >= 0 && h < 4)  return '🌙 深夜修仙极客'
+  if (userData.rankPct >= 90) return '⚡ 闪电全栈侠'
+  if (userData.hardestLevelSubmits >= 8) return '🔥 死磕精神体'
+  if (userData.maxContinuousDays >= 7) return '📅 日更打卡王'
+  return '🚀 全栈探险家'
+}
+
+// ===== 渲染完整报告动态数据 =====
+function renderFullReport() {
+  const title = computeTitle()
+
+  // 荣誉区 - 姓名 & 头像
+  const nameEl = document.getElementById('frUserName')
+  if (nameEl) nameEl.textContent = userData.userName
+  const avatarEl = document.getElementById('frAvatarText')
+  if (avatarEl) avatarEl.textContent = userData.avatarInitial
+
+  // 荣誉区 - 称号
+  const titleEl = document.getElementById('frTitle')
+  if (titleEl) titleEl.textContent = title
+
+  // 荣誉区 - KPI
+  const durationEl = document.getElementById('frKpiDuration')
+  if (durationEl) durationEl.textContent = userData.totalDuration
+  const submitsEl = document.getElementById('frKpiSubmits')
+  if (submitsEl) submitsEl.textContent = userData.totalSubmits
+  const rankEl = document.getElementById('frKpiRank')
+  if (rankEl) rankEl.textContent = `超越 ${userData.rankPct}%`
+
+  // 荣誉区 - 心得（与心声页联动）
+  const text = getReflectionDisplayText()
+  const reflEl = document.getElementById('reflectionText')
+  if (reflEl) reflEl.textContent = text
+  const slideReflEl = document.getElementById('reflectionSlideText')
+  if (slideReflEl) slideReflEl.textContent = text
+
+  // 学习数据
+  const contDaysEl = document.getElementById('frStatDays')
+  if (contDaysEl) contDaysEl.textContent = `连续 ${userData.maxContinuousDays} 天`
+  const lateTimeEl = document.getElementById('frStatLate')
+  if (lateTimeEl) lateTimeEl.textContent = userData.lateSubmitTime
+  const firstPassEl = document.getElementById('frStatFirstPass')
+  if (firstPassEl) firstPassEl.textContent = `${userData.firstPassLevels}/7 关`
+
+  // 同步封面页称号（滑动报告第1页）
+  const slideTitleEl = document.getElementById('slideCoverTitle')
+  if (slideTitleEl) slideTitleEl.textContent = title
+
+  // 同步海报内容（弹窗版 + 独立页版）
+  const posterQuoteText = userReflectionText.trim() || '善于快速理解新工具，遇到复杂挑战时选择深度研究而非蛮力突破'
+  ;[
+    ['posterName',        userData.userName],
+    ['posterName2',       userData.userName],
+    ['posterAvatarText',  userData.avatarInitial],
+    ['posterAvatarText2', userData.avatarInitial],
+    ['posterTitle',       title],
+    ['posterTitle2',      title],
+    ['posterQuote',       posterQuoteText],
+    ['posterQuote2',      posterQuoteText],
+  ].forEach(([id, val]) => {
+    const el = document.getElementById(id)
+    if (!el) return
+    // posterTitle 节点含子元素（emoji span），只替换文本节点
+    if (id === 'posterTitle' || id === 'posterTitle2') {
+      // 保留 emoji span，更新后面的文本节点
+      const txt = el.childNodes[el.childNodes.length - 1]
+      if (txt && txt.nodeType === Node.TEXT_NODE) {
+        txt.textContent = ' ' + val.replace(/^[\p{Emoji}\uFE0F\s]+/u, '')
+      } else {
+        el.appendChild(document.createTextNode(' ' + val.replace(/^[\p{Emoji}\uFE0F\s]+/u, '')))
+      }
+      // 同步 emoji
+      const ico = el.querySelector('.poster-badge-ico')
+      if (ico) ico.textContent = val.match(/^([\p{Emoji}\uFE0F]+)/u)?.[1] ?? ''
+    } else {
+      el.textContent = val
+    }
+  })
+
+  // 同步海报 poster-stats
+  const pctNum = userData.rankPct
+  const rankNum = groupRankMetrics?.group?.myRank ?? 8
+  ;['posterStatDuration', 'posterStatDuration2'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = userData.totalDuration
+  })
+  ;['posterStatTop', 'posterStatTop2'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = `Top ${100 - pctNum}%`
+  })
+  ;['posterStatTopSub', 'posterStatTopSub2'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = `超越 ${pctNum}%`
+  })
+  ;['posterStatRank', 'posterStatRank2'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = `第${rankNum}位`
+  })
+}
 
 const groupRankMetrics = {
-  groupName: '前端冲刺 3 组',
-  myRank: 8,
-  totalMembers: 16,
-  passCount: 11,
-  members: [
-    { rank: 1, name: '张一', finishTime: '2025/03/18 11:40' },
-    { rank: 2, name: '李二', finishTime: '2025/03/18 16:08' },
-    { rank: 3, name: '王三', finishTime: '2025/03/18 21:12' },
-    { rank: 4, name: '赵四', finishTime: '2025/03/19 09:03' },
-    { rank: 5, name: '周五', finishTime: '2025/03/19 11:26' },
-    { rank: 6, name: '吴六', finishTime: '2025/03/19 13:44' },
-    { rank: 7, name: '郑七', finishTime: '2025/03/19 18:22' },
-    { rank: 8, name: '你（小团子）', finishTime: '2025/03/19 22:00', isMe: true }
-  ]
+group: {
+id: 'frontend-sprint-3',
+name: '前端冲刺 3 组',
+myUserId: 'u008',
+myRank: 8,
+totalMembers: 16,
+passCount: 11
+},
+rankings: [
+{ userId: 'u001', rank: 1, userName: '张一', finishAt: '2025/03/18 11:40' },
+{ userId: 'u002', rank: 2, userName: '李二', finishAt: '2025/03/18 16:08' },
+{ userId: 'u003', rank: 3, userName: '王三', finishAt: '2025/03/18 21:12' },
+{ userId: 'u004', rank: 4, userName: '赵四', finishAt: '2025/03/19 09:03' },
+{ userId: 'u005', rank: 5, userName: '周五', finishAt: '2025/03/19 11:26' },
+{ userId: 'u006', rank: 6, userName: '吴六', finishAt: '2025/03/19 13:44' },
+{ userId: 'u007', rank: 7, userName: '郑七', finishAt: '2025/03/19 18:22' },
+{ userId: 'u008', rank: 8, userName: '小团子', finishAt: '2025/03/19 22:00' }
+]
 }
+
 
 function escapeHtml(value) {
   return String(value == null ? '' : value)
@@ -2181,26 +3083,47 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;')
 }
 
-function applyGroupRankData(data) {
-  if (!data) return
-  const summaryEl = document.getElementById('groupRankSummary')
-  const metaEl = document.getElementById('groupRankMeta')
-  const listEl = document.getElementById('groupRankList')
+function applyGroupRankData(payload) {
+const summaryEl = document.getElementById('groupRankSummary')
+const metaEl = document.getElementById('groupRankMeta')
+const listEl = document.getElementById('groupRankList')
+if (!summaryEl || !metaEl || !listEl) return
 
-  if (summaryEl) summaryEl.textContent = `你是${data.groupName}第 ${data.myRank} 位通关的同学`
-  if (metaEl) metaEl.textContent = `${data.passCount}/${data.totalMembers} 已通关`
-  if (!listEl || !Array.isArray(data.members)) return
+const group = payload && payload.group ? payload.group : null
+const rankings = payload && Array.isArray(payload.rankings) ? payload.rankings : []
 
-  const rows = [...data.members].sort((a, b) => (Number(a.rank) || 999) - (Number(b.rank) || 999))
-  listEl.innerHTML = rows.map((member) => {
-    const rank = Number(member.rank) || '--'
-    const isTop = Number(member.rank) > 0 && Number(member.rank) <= 3
-    const isMe = Boolean(member.isMe)
-    const itemClass = `group-rank-item${isTop ? ' is-top' : ''}${isMe ? ' is-me' : ''}`
-    const time = member.finishTime ? escapeHtml(member.finishTime) : '进行中'
-    return `<div class="${itemClass}"><span class="group-rank-order">#${escapeHtml(rank)}</span><span class="group-rank-name">${escapeHtml(member.name || '未命名')}</span><span class="group-rank-time">${time}</span></div>`
-  }).join('')
+if (!group || !group.name) {
+summaryEl.textContent = '小组排名待同步'
+metaEl.textContent = '暂无小组数据'
+listEl.innerHTML = '<div class="group-rank-empty">暂无小组排名数据，待后端接入后自动展示。</div>'
+return
 }
+
+const myRankNum = Number(group.myRank)
+const myRankText = myRankNum > 0 ? `第 ${myRankNum} 位` : '尚未通关'
+summaryEl.textContent = `你是${group.name}${myRankText}通关的同学`
+
+if (metaEl) metaEl.style.display = 'none'
+
+if (!rankings.length) {
+listEl.innerHTML = '<div class="group-rank-empty">当前小组还没有通关记录，快成为第一位上榜同学吧。</div>'
+return
+}
+
+const rows = [...rankings].sort((a, b) => (Number(a.rank) || 999) - (Number(b.rank) || 999))
+listEl.innerHTML = rows.map((member) => {
+const rankNum = Number(member.rank)
+const rank = rankNum > 0 ? rankNum : '--'
+const isTop = rankNum > 0 && rankNum <= 3
+const isMe = Boolean(member.isMe) || (group.myUserId && member.userId === group.myUserId) || (myRankNum > 0 && rankNum === myRankNum)
+const itemClass = `group-rank-item${isTop ? ' is-top' : ''}${isMe ? ' is-me' : ''}`
+const name = member.userName || member.name || '未命名'
+const time = member.finishAt || member.finishTime || '进行中'
+const nameText = isMe ? `你（${name}）` : name
+return `<div class="${itemClass}"><span class="group-rank-order">#${escapeHtml(rank)}</span><span class="group-rank-name">${escapeHtml(nameText)}</span><span class="group-rank-time">${escapeHtml(time)}</span></div>`
+}).join('')
+}
+
 
 function showToast(msg, color) {
   const t = document.getElementById('toast')
@@ -2211,9 +3134,108 @@ function showToast(msg, color) {
   t._timer = setTimeout(() => { t.style.display = 'none' }, 2400)
 }
 
+function getReflectionDisplayText() {
+  const value = userReflectionText.trim()
+  return value || DEFAULT_REFLECTION_TEXT
+}
+
+function renderReflectionInReport() {
+  const text = getReflectionDisplayText()
+  const textEl = document.getElementById('reflectionText')
+  if (textEl) textEl.textContent = text
+  const slideEl = document.getElementById('reflectionSlideText')
+  if (slideEl) slideEl.textContent = text
+}
+
+var REFLECTION_HINTS = [
+  '每次卡关都让我更像一名真正的工程师。',
+  '解决问题的快乐，比答案本身更珍贵。',
+  '犯错是最好的学习方式。',
+  '终于理解了什么叫「沉浸式」！',
+  '越难越想挑战，停不下来。',
+  '思路打开了，原来还能这样解。',
+  '踩过的坑，都是成长的台阶。',
+  '回头看看，原来已经走了这么远。',
+  '这比刷手机有意义多了。',
+  '代码能跑的那一刻，一切都值了。'
+]
+var _hintIndex = Math.floor(Math.random() * REFLECTION_HINTS.length)
+
+function shuffleReflectionHint() {
+  _hintIndex = (_hintIndex + 1) % REFLECTION_HINTS.length
+  var input = document.getElementById('reflectionInput')
+  if (input && !input.value.trim()) {
+    input.placeholder = REFLECTION_HINTS[_hintIndex]
+  }
+  var btn = document.getElementById('reflectionHintBtn')
+  if (btn) {
+    btn.style.transform = 'scale(0.92)'
+    setTimeout(function () { btn.style.transform = '' }, 120)
+  }
+}
+
+function updateReflectionCounter() {
+  var input = document.getElementById('reflectionInput')
+  var counter = document.getElementById('reflectionCounter')
+  if (!input || !counter) return
+  var len = input.value.length
+  counter.textContent = len + '/60'
+  counter.classList.remove('near-limit', 'at-limit')
+  if (len >= 60) counter.classList.add('at-limit')
+  else if (len >= 45) counter.classList.add('near-limit')
+}
+
+function openReflectionPrompt() {
+  var overlay = document.getElementById('reflectionOverlay')
+  var input = document.getElementById('reflectionInput')
+  if (!overlay || !input) {
+    openReport()
+    return
+  }
+  input.value = userReflectionText
+  overlay.classList.add('active')
+  document.body.style.overflow = 'hidden'
+  updateReflectionCounter()
+  input.addEventListener('input', updateReflectionCounter)
+  requestAnimationFrame(function () { input.focus() })
+}
+
+function closeReflectionPrompt() {
+  const overlay = document.getElementById('reflectionOverlay')
+  if (!overlay) return
+  overlay.classList.remove('active')
+  document.body.style.overflow = ''
+}
+
+function handleReflectionOverlayClick(e) {
+  if (e.target === document.getElementById('reflectionOverlay')) {
+    closeReflectionPrompt()
+  }
+}
+
+function submitReflectionPrompt() {
+var input = document.getElementById('reflectionInput')
+var typed = input ? input.value.trim() : ''
+if (typed) {
+  userReflectionText = typed.slice(0, 60)
+} else {
+  // 用户未输入，取当前 placeholder 中的文案（去掉"比如："前缀）
+  var ph = input ? input.placeholder : ''
+  userReflectionText = ph.replace(/^比如[：:]\s*/, '').slice(0, 60)
+}
+closeReflectionPrompt()
+openReport()
+}
+
+function skipReflectionPrompt() {
+  userReflectionText = ''
+  closeReflectionPrompt()
+  openReport()
+}
+
 function setView(id) {
-  ['v-empty','v-broadcast','v-report','v-poster'].forEach(v => {
-    const el = document.getElementById(v)
+['v-empty','v-broadcast','v-report','v-full-report','v-poster'].forEach(v => {
+const el = document.getElementById(v)
     if (v === id) {
       el.style.display = 'flex'
       if (el.classList.contains('view')) el.classList.add('active')
@@ -2344,25 +3366,51 @@ if (entry) entry.classList.remove('visible')
 // ===== 报告 =====
 let ringAnimated = false
 
-function openReport() {
-  setView('v-report')
-  // 排名环动画
-  if (!ringAnimated) {
-    ringAnimated = true
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const fg = document.getElementById('ringFg')
-      fg.style.strokeDashoffset = CIRC * (1 - RANK_PCT / 100)
-    }))
-  }
-  // 报告卡片渐进入场
-  const cards = document.querySelectorAll('#v-report .rp-grid > *')
-  cards.forEach(c => { c.classList.remove('card-visible'); c.style.animationDelay = '' })
-  requestAnimationFrame(() => {
-    cards.forEach((c, i) => {
+function ensureRingAnimated() {
+  if (ringAnimated) return
+  const fg = document.getElementById('ringFg')
+  if (!fg) return
+  ringAnimated = true
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    fg.style.strokeDashoffset = CIRC * (1 - RANK_PCT / 100)
+  }))
+}
+
+function animateReportCards(containerSelector) {
+  var cards = document.querySelectorAll(containerSelector + ' .rp-grid > *')
+  cards.forEach(function(c) { c.classList.remove('card-visible'); c.style.animationDelay = '' })
+  requestAnimationFrame(function() {
+    cards.forEach(function(c, i) {
       c.style.animationDelay = (i * 120) + 'ms'
-      setTimeout(() => c.classList.add('card-visible'), i * 120)
+      setTimeout(function() { c.classList.add('card-visible') }, i * 120)
     })
   })
+}
+
+function openReport() {
+  renderFullReport()  // 同步心得、称号等所有动态数据
+  setView('v-report')
+  ensureRingAnimated()
+  // 页码指示器
+  initPageIndicator()
+  // 封面粒子
+  spawnCoverParticles()
+  // 报告卡片渐进入场
+  animateReportCards('#v-report')
+}
+
+function openFullReport() {
+  renderFullReport()
+  setView('v-full-report')
+  ensureRingAnimated()
+  clearCoverParticles()
+  animateReportCards('#v-full-report')
+}
+
+function closeFullReport() {
+  setView('v-report')
+  updateActivePageIndicator()
+  spawnCoverParticles()
 }
 
 function closeReport() {
@@ -2370,8 +3418,9 @@ function closeReport() {
   setView('v-broadcast')
   document.getElementById('skipBtn').style.visibility = 'hidden'
   document.getElementById('bcAction').classList.add('show')
-  const entry = document.querySelector('.achievement-entry')
+  var entry = document.querySelector('.achievement-entry')
   if (entry) entry.classList.add('visible')
+  clearCoverParticles()
 }
 
 // ===== 海报弹窗 =====
@@ -2542,7 +3591,7 @@ function forwardViaDaxiangBridge() {
     KNB.use('dxmp.forward', {
       title: '🏆 我在 PDE 挑战赛全部通关了！',
       image: 'https://p0.meituan.net/travelcube/3a5a1e3d4b7c2f8e9d1a0b6c4e2f7a8b.png',
-      content: '我完成了 PDE Camp 全部 7/7 关卡挑战，快来看我的专属成就报告！',
+      content: '我完成了 PDE Camp 全部 7/7 关卡挑战，快来看我的闯关报告！',
       link: pageUrl.replace(/^https?:\/\/[^/]+/, '') || '/',
       success: function() {
         showToast('已转发到大象 ✓')
@@ -2609,6 +3658,111 @@ async function shareToElephant() {
     btn.textContent = '转发到大象'
     btn.classList.remove('btn-disabled')
   }, 'image/png')
+}
+
+// ===== 页码指示器 =====
+var TOTAL_SLIDES = 0
+
+function initPageIndicator() {
+  var container = document.getElementById('pageIndicator')
+  if (!container) return
+  var slides = document.querySelectorAll('#v-report .rp-slide')
+  TOTAL_SLIDES = slides.length
+  if (TOTAL_SLIDES === 0) return
+  container.innerHTML = ''
+  for (var i = 0; i < TOTAL_SLIDES; i++) {
+    var dot = document.createElement('button')
+    dot.className = 'page-dot'
+    dot.setAttribute('aria-label', '第' + (i + 1) + '页')
+    dot.title = '第' + (i + 1) + '页'
+    dot.onclick = (function(idx) {
+      return function() { scrollToPage(idx) }
+    })(i)
+    container.appendChild(dot)
+  }
+  updateActiveDot()
+}
+
+function updateActiveDot() {
+  var report = document.getElementById('v-report')
+  if (!report) return
+  var dots = document.querySelectorAll('#pageIndicator .page-dot')
+  var slides = document.querySelectorAll('#v-report .rp-slide')
+  if (!dots.length || !slides.length) return
+  var scrollTop = report.scrollTop
+  var active = 0
+  for (var i = 0; i < slides.length; i++) {
+    if (slides[i].offsetTop - report.offsetTop - 60 <= scrollTop) {
+      active = i
+    }
+  }
+  dots.forEach(function(d, j) {
+    d.classList.toggle('active', j === active)
+  })
+  // 最后一页切换标题
+  var titleEl = document.getElementById('rpHeaderTitle')
+  if (titleEl) {
+    titleEl.textContent = '我的闯关历程'
+  }
+}
+
+function scrollToPage(idx) {
+  var slides = document.querySelectorAll('#v-report .rp-slide')
+  if (slides[idx]) {
+    slides[idx].scrollIntoView({ behavior: 'smooth' })
+  }
+}
+
+function scrollToLastPage() {
+openFullReport()
+}
+
+
+// 监听报告滚动更新页码
+document.addEventListener('DOMContentLoaded', function() {
+  var report = document.getElementById('v-report')
+  if (report) {
+    report.addEventListener('scroll', updateActiveDot, { passive: true })
+  }
+})
+
+// ===== 封面粒子 =====
+var _coverParticleTimer = null
+
+function spawnCoverParticles() {
+  var container = document.getElementById('coverParticles')
+  if (!container) return
+  container.innerHTML = ''
+  var count = 30
+  for (var i = 0; i < count; i++) {
+    var p = document.createElement('div')
+    p.className = 'cover-particle'
+    p.style.left = Math.random() * 100 + '%'
+    p.style.bottom = Math.random() * 40 + '%'
+    p.style.width = (1.5 + Math.random() * 3) + 'px'
+    p.style.height = p.style.width
+    p.style.animationDuration = (5 + Math.random() * 7) + 's'
+    p.style.animationDelay = Math.random() * 5 + 's'
+    p.style.opacity = 0.3 + Math.random() * 0.5
+    container.appendChild(p)
+  }
+  if (_coverParticleTimer) clearInterval(_coverParticleTimer)
+  _coverParticleTimer = setInterval(function() {
+    var particles = container.querySelectorAll('.cover-particle')
+    if (particles.length) {
+      var rp = particles[Math.floor(Math.random() * particles.length)]
+      rp.style.opacity = Math.random() > 0.5 ? '0.85' : '0.3'
+    }
+  }, 600)
+}
+
+function clearCoverParticles() {
+  var container = document.getElementById('coverParticles')
+  if (container) container.innerHTML = ''
+  if (_coverParticleTimer) {
+    clearInterval(_coverParticleTimer)
+    _coverParticleTimer = null
+  }
 }
 </script>
 </body>
