@@ -866,6 +866,17 @@ scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
 .group-rank-item.is-me .group-rank-order { background: rgba(56,189,248,0.24); color: #67e8f9; }
 .group-rank-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); }
 .group-rank-time { font-size: 11px; color: rgba(255,255,255,0.46); white-space: nowrap; }
+.group-rank-empty {
+  margin-top: 10px;
+  border: 1px dashed rgba(148,163,184,0.32);
+  border-radius: 10px;
+  padding: 14px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.48);
+  text-align: center;
+  background: rgba(15,23,42,0.22);
+}
 
 /* ══════════════════════════════════════
    高级游戏勋章风格
@@ -1484,8 +1495,8 @@ scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
   color: rgba(148, 163, 184, 0.76);
 }
 .reflection-input:focus {
-border-color: rgba(56, 189, 248, 0.7);
-box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16);
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16);
 }
 .reflection-meta {
   margin-top: 8px;
@@ -2014,22 +2025,13 @@ display: flex; gap: 12px; width: 368px;
             </div>
           </div>
 
-          <!-- 小组排名（右） -->
-          <div class="rp-card group-rank-card">
-            <div class="rp-card-title">小组排名</div>
-            <div class="rp-card-sub" id="groupRankSummary">你是前端冲刺 3 组第 8 位通关的同学</div>
-            <div class="group-rank-meta" id="groupRankMeta">11/16 已通关</div>
-            <div class="group-rank-list" id="groupRankList">
-              <div class="group-rank-item is-top"><span class="group-rank-order">#1</span><span class="group-rank-name">张一</span><span class="group-rank-time">2025/03/18 11:40</span></div>
-              <div class="group-rank-item is-top"><span class="group-rank-order">#2</span><span class="group-rank-name">李二</span><span class="group-rank-time">2025/03/18 16:08</span></div>
-              <div class="group-rank-item is-top"><span class="group-rank-order">#3</span><span class="group-rank-name">王三</span><span class="group-rank-time">2025/03/18 21:12</span></div>
-              <div class="group-rank-item"><span class="group-rank-order">#4</span><span class="group-rank-name">赵四</span><span class="group-rank-time">2025/03/19 09:03</span></div>
-              <div class="group-rank-item"><span class="group-rank-order">#5</span><span class="group-rank-name">周五</span><span class="group-rank-time">2025/03/19 11:26</span></div>
-              <div class="group-rank-item"><span class="group-rank-order">#6</span><span class="group-rank-name">吴六</span><span class="group-rank-time">2025/03/19 13:44</span></div>
-              <div class="group-rank-item"><span class="group-rank-order">#7</span><span class="group-rank-name">郑七</span><span class="group-rank-time">2025/03/19 18:22</span></div>
-              <div class="group-rank-item is-me"><span class="group-rank-order">#8</span><span class="group-rank-name">你（小团子）</span><span class="group-rank-time">2025/03/19 22:00</span></div>
-            </div>
-          </div>
+<!-- 小组排名（右） -->
+<div class="rp-card group-rank-card">
+<div class="rp-card-title">小组排名</div>
+<div class="rp-card-sub" id="groupRankSummary">你是前端冲刺 3 组第 8 位通关的同学</div>
+<div class="group-rank-meta" id="groupRankMeta">11/16 已通关</div>
+<div class="group-rank-list" id="groupRankList"></div>
+</div>
 
           <!-- 成就徽章（右） -->
           <div class="rp-card col-span-2">
@@ -2329,21 +2331,26 @@ const DEFAULT_REFLECTION_TEXT = '这一路有卡关、有突破，也有意外�
 let userReflectionText = ''
 
 const groupRankMetrics = {
-  groupName: '前端冲刺 3 组',
-  myRank: 8,
-  totalMembers: 16,
-  passCount: 11,
-  members: [
-    { rank: 1, name: '张一', finishTime: '2025/03/18 11:40' },
-    { rank: 2, name: '李二', finishTime: '2025/03/18 16:08' },
-    { rank: 3, name: '王三', finishTime: '2025/03/18 21:12' },
-    { rank: 4, name: '赵四', finishTime: '2025/03/19 09:03' },
-    { rank: 5, name: '周五', finishTime: '2025/03/19 11:26' },
-    { rank: 6, name: '吴六', finishTime: '2025/03/19 13:44' },
-    { rank: 7, name: '郑七', finishTime: '2025/03/19 18:22' },
-    { rank: 8, name: '你（小团子）', finishTime: '2025/03/19 22:00', isMe: true }
-  ]
+group: {
+id: 'frontend-sprint-3',
+name: '前端冲刺 3 组',
+myUserId: 'u008',
+myRank: 8,
+totalMembers: 16,
+passCount: 11
+},
+rankings: [
+{ userId: 'u001', rank: 1, userName: '张一', finishAt: '2025/03/18 11:40' },
+{ userId: 'u002', rank: 2, userName: '李二', finishAt: '2025/03/18 16:08' },
+{ userId: 'u003', rank: 3, userName: '王三', finishAt: '2025/03/18 21:12' },
+{ userId: 'u004', rank: 4, userName: '赵四', finishAt: '2025/03/19 09:03' },
+{ userId: 'u005', rank: 5, userName: '周五', finishAt: '2025/03/19 11:26' },
+{ userId: 'u006', rank: 6, userName: '吴六', finishAt: '2025/03/19 13:44' },
+{ userId: 'u007', rank: 7, userName: '郑七', finishAt: '2025/03/19 18:22' },
+{ userId: 'u008', rank: 8, userName: '小团子', finishAt: '2025/03/19 22:00' }
+]
 }
+
 
 function escapeHtml(value) {
   return String(value == null ? '' : value)
@@ -2354,26 +2361,49 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;')
 }
 
-function applyGroupRankData(data) {
-  if (!data) return
-  const summaryEl = document.getElementById('groupRankSummary')
-  const metaEl = document.getElementById('groupRankMeta')
-  const listEl = document.getElementById('groupRankList')
+function applyGroupRankData(payload) {
+const summaryEl = document.getElementById('groupRankSummary')
+const metaEl = document.getElementById('groupRankMeta')
+const listEl = document.getElementById('groupRankList')
+if (!summaryEl || !metaEl || !listEl) return
 
-  if (summaryEl) summaryEl.textContent = `你是${data.groupName}第 ${data.myRank} 位通关的同学`
-  if (metaEl) metaEl.textContent = `${data.passCount}/${data.totalMembers} 已通关`
-  if (!listEl || !Array.isArray(data.members)) return
+const group = payload && payload.group ? payload.group : null
+const rankings = payload && Array.isArray(payload.rankings) ? payload.rankings : []
 
-  const rows = [...data.members].sort((a, b) => (Number(a.rank) || 999) - (Number(b.rank) || 999))
-  listEl.innerHTML = rows.map((member) => {
-    const rank = Number(member.rank) || '--'
-    const isTop = Number(member.rank) > 0 && Number(member.rank) <= 3
-    const isMe = Boolean(member.isMe)
-    const itemClass = `group-rank-item${isTop ? ' is-top' : ''}${isMe ? ' is-me' : ''}`
-    const time = member.finishTime ? escapeHtml(member.finishTime) : '进行中'
-    return `<div class="${itemClass}"><span class="group-rank-order">#${escapeHtml(rank)}</span><span class="group-rank-name">${escapeHtml(member.name || '未命名')}</span><span class="group-rank-time">${time}</span></div>`
-  }).join('')
+if (!group || !group.name) {
+summaryEl.textContent = '小组排名待同步'
+metaEl.textContent = '暂无小组数据'
+listEl.innerHTML = '<div class="group-rank-empty">暂无小组排名数据，待后端接入后自动展示。</div>'
+return
 }
+
+const myRankNum = Number(group.myRank)
+const myRankText = myRankNum > 0 ? `第 ${myRankNum} 位` : '尚未通关'
+summaryEl.textContent = `你是${group.name}${myRankText}通关的同学`
+
+const passCount = Math.max(0, Number(group.passCount) || 0)
+const totalMembers = Math.max(0, Number(group.totalMembers) || 0)
+metaEl.textContent = totalMembers > 0 ? `${passCount}/${totalMembers} 已通关` : `${passCount} 人已通关`
+
+if (!rankings.length) {
+listEl.innerHTML = '<div class="group-rank-empty">当前小组还没有通关记录，快成为第一位上榜同学吧。</div>'
+return
+}
+
+const rows = [...rankings].sort((a, b) => (Number(a.rank) || 999) - (Number(b.rank) || 999))
+listEl.innerHTML = rows.map((member) => {
+const rankNum = Number(member.rank)
+const rank = rankNum > 0 ? rankNum : '--'
+const isTop = rankNum > 0 && rankNum <= 3
+const isMe = Boolean(member.isMe) || (group.myUserId && member.userId === group.myUserId) || (myRankNum > 0 && rankNum === myRankNum)
+const itemClass = `group-rank-item${isTop ? ' is-top' : ''}${isMe ? ' is-me' : ''}`
+const name = member.userName || member.name || '未命名'
+const time = member.finishAt || member.finishTime || '进行中'
+const nameText = isMe ? `你（${name}）` : name
+return `<div class="${itemClass}"><span class="group-rank-order">#${escapeHtml(rank)}</span><span class="group-rank-name">${escapeHtml(nameText)}</span><span class="group-rank-time">${escapeHtml(time)}</span></div>`
+}).join('')
+}
+
 
 function showToast(msg, color) {
   const t = document.getElementById('toast')
@@ -2414,7 +2444,6 @@ function shuffleReflectionHint() {
   if (input && !input.value.trim()) {
     input.placeholder = REFLECTION_HINTS[_hintIndex]
   }
-  // Animate button
   var btn = document.getElementById('reflectionHintBtn')
   if (btn) {
     btn.style.transform = 'scale(0.92)'
