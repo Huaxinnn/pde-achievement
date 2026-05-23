@@ -298,6 +298,72 @@ pointer-events: auto;
   }
 }
 
+/* 点击空白区域触发的小烟花 */
+.right-panel > .tap-fireworks-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 6;
+}
+.tap-firework {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+}
+.tap-firework-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(251,191,36,0.9);
+  box-shadow: 0 0 14px rgba(251,191,36,0.72);
+  transform: translate(-50%, -50%) scale(0.7);
+  animation: tapCoreFlash 760ms ease-out forwards;
+}
+.tap-firework-particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: hsl(var(--hue, 225), 96%, 72%);
+  box-shadow: 0 0 4px hsla(var(--hue, 225), 100%, 72%, 0.55);
+  transform: translate(-50%, -50%);
+  animation: tapFireworkBurst 860ms cubic-bezier(.24,.72,.3,1) forwards;
+}
+@keyframes tapCoreFlash {
+  0% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.1);
+  }
+}
+@keyframes tapFireworkBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.38);
+  }
+  16% {
+    opacity: 1;
+  }
+  52% {
+    opacity: 0.82;
+    transform: translate(calc(-50% + var(--dx, 0px) * 0.52), calc(-50% + var(--dy, 0px) * 0.3 - var(--arc, 8px))) scale(0.82);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx, 0px) * 0.9), calc(-50% + var(--dy, 0px) * 0.86 + var(--fall, 16px))) scale(0.12);
+  }
+}
+
 .skip-btn {
   position: absolute; top: 24px; right: 28px;
   font-size: 13px; color: rgba(255,255,255,0.35);
@@ -1445,6 +1511,19 @@ display: flex; gap: 12px; width: 368px;
 .poster-modal-actions button.btn-disabled { opacity: 0.5; pointer-events: none; }
 
 /* ===== 响应式适配 ===== */
+@media (max-height: 860px) {
+  html, body { overflow: auto; }
+  body {
+    padding: 12px;
+    align-items: flex-start;
+  }
+  .layout {
+    width: 100%;
+    max-width: 1120px;
+    height: min(820px, calc(100vh - 24px));
+  }
+}
+
 @media (max-width: 1220px) {
   html, body { overflow: auto; }
   body {
@@ -2008,6 +2087,7 @@ display: flex; gap: 12px; width: 368px;
       </div>
     </div>
 
+    <div class="tap-fireworks-layer" id="tapFireworksLayer" aria-hidden="true"></div>
   </div><!-- /right-panel -->
 </div><!-- /layout -->
 
@@ -2144,7 +2224,66 @@ function setView(id) {
   })
 }
 
+function spawnTapFirework(x, y) {
+  const layer = document.getElementById('tapFireworksLayer')
+  if (!layer) return
+
+  const burst = document.createElement('div')
+  burst.className = 'tap-firework'
+  burst.style.left = `${x}px`
+  burst.style.top = `${y}px`
+
+  const core = document.createElement('span')
+  core.className = 'tap-firework-core'
+  burst.appendChild(core)
+
+  const hues = [220, 232, 246]
+  const particleCount = 6
+  for (let i = 0; i < particleCount; i++) {
+    const p = document.createElement('span')
+    p.className = 'tap-firework-particle'
+    const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.04
+    const distance = 22 + Math.random() * 22
+    const dx = Math.cos(angle) * distance
+    const dy = Math.sin(angle) * distance
+    const hue = hues[Math.floor(Math.random() * hues.length)]
+    const arc = 4 + Math.random() * 6
+    const fall = 10 + Math.random() * 12
+    p.style.setProperty('--dx', `${dx.toFixed(1)}px`)
+    p.style.setProperty('--dy', `${dy.toFixed(1)}px`)
+    p.style.setProperty('--hue', String(hue))
+    p.style.setProperty('--arc', `${arc.toFixed(1)}px`)
+    p.style.setProperty('--fall', `${fall.toFixed(1)}px`)
+    p.style.animationDelay = `${Math.random() * 40}ms`
+    burst.appendChild(p)
+  }
+
+  layer.appendChild(burst)
+  setTimeout(() => burst.remove(), 980)
+}
+
+function shouldTriggerTapFirework(target) {
+  if (!target) return false
+  if (target.closest('button, a, input, textarea, select, label, .rp-card, .hero-card, .story-card, .quote-card, .poster-card, .poster-modal-box, .level-pass-card, .achievement-entry, .bc-line, .bc-action, .skip-btn, [onclick]')) {
+    return false
+  }
+  return true
+}
+
+function bindTapFireworks() {
+  const panel = document.querySelector('.right-panel')
+  if (!panel) return
+  panel.addEventListener('click', (e) => {
+    const activeView = panel.querySelector('.view.active')
+    if (!activeView || !activeView.contains(e.target)) return
+    if (!shouldTriggerTapFirework(e.target)) return
+    const rect = panel.getBoundingClientRect()
+    spawnTapFirework(e.clientX - rect.left, e.clientY - rect.top)
+  })
+}
+
 applyGroupRankData(groupRankMetrics)
+bindTapFireworks()
 
 // 页面加载后自动开始播报
 setTimeout(() => startBroadcast(), 400)
