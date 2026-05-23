@@ -404,7 +404,7 @@ pointer-events: auto;
   height: 380px;
   bottom: -180px;
   left: -110px;
-  background: radial-gradient(circle, rgba(52,211,153,0.1) 0%, transparent 72%);
+  background: radial-gradient(circle, rgba(129,140,248,0.16) 0%, transparent 72%);
 }
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(40px); }
@@ -427,7 +427,7 @@ pointer-events: auto;
   right: 28px;
   bottom: -1px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(251,191,36,0.6), transparent);
+  background: linear-gradient(90deg, transparent, rgba(129,140,248,0.55), rgba(251,191,36,0.45), rgba(129,140,248,0.55), transparent);
 }
 .rp-header-title { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.5px; }
 .close-btn {
@@ -466,8 +466,8 @@ pointer-events: auto;
 .rp-card {
   position: relative;
   overflow: hidden;
-  background: rgba(255,255,255,0.045);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: linear-gradient(145deg, rgba(15,23,42,0.8), rgba(30,41,59,0.72));
+  border: 1px solid rgba(148,163,184,0.24);
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 8px 26px rgba(0,0,0,0.2);
@@ -495,8 +495,8 @@ pointer-events: auto;
 }
 .rp-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(251,191,36,0.35);
-  box-shadow: 0 12px 34px rgba(0,0,0,0.28), 0 0 0 1px rgba(251,191,36,0.08) inset;
+  border-color: rgba(129,140,248,0.44);
+  box-shadow: 0 12px 34px rgba(0,0,0,0.28), 0 0 0 1px rgba(129,140,248,0.15) inset;
 }
 .rp-card:hover::after { left: 130%; }
 .rp-card-title {
@@ -527,17 +527,17 @@ pointer-events: auto;
 
 /* 荣誉区 */
 .hero-card {
-  background: linear-gradient(135deg, rgba(251,191,36,0.14) 0%, rgba(245,158,11,0.05) 100%);
-  border: 1px solid rgba(251,191,36,0.28);
+  background: linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(99,102,241,0.15) 58%, rgba(15,23,42,0.65) 100%);
+  border: 1px solid rgba(129,140,248,0.32);
   border-radius: 16px; padding: 28px 20px 22px;
   display: flex; align-items: center; gap: 20px;
   position: relative; overflow: hidden;
-  box-shadow: 0 14px 40px rgba(245,158,11,0.13);
+  box-shadow: 0 14px 40px rgba(30,58,138,0.24);
 }
 .hero-card::before {
   content: ''; position: absolute; top: -50px; right: -30px;
   width: 180px; height: 180px;
-  background: radial-gradient(circle, rgba(251,191,36,0.2) 0%, transparent 72%);
+  background: radial-gradient(circle, rgba(129,140,248,0.26) 0%, transparent 72%);
 }
 .hero-card::after {
   content: '';
@@ -555,18 +555,18 @@ pointer-events: auto;
 /* 头像：用首字母代替 emoji，渲染更可靠 */
 .hero-avatar {
   width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  border: 3px solid rgba(251,191,36,0.5);
+  background: linear-gradient(135deg, #4338ca, #2563eb);
+  border: 3px solid rgba(129,140,248,0.46);
   display: flex; align-items: center; justify-content: center;
   position: relative;
-  box-shadow: 0 0 24px rgba(251,191,36,0.3);
+  box-shadow: 0 0 24px rgba(99,102,241,0.34);
 }
 .hero-avatar::before {
   content: '';
   position: absolute;
   inset: -8px;
   border-radius: 50%;
-  border: 1px dashed rgba(251,191,36,0.45);
+  border: 1px dashed rgba(129,140,248,0.45);
   animation: orbitSpin 10s linear infinite;
 }
 @keyframes orbitSpin { to { transform: rotate(360deg); } }
@@ -614,8 +614,8 @@ pointer-events: auto;
 }
 .hero-kpi:hover {
   transform: translateY(-2px);
-  border-color: rgba(251,191,36,0.35);
-  background: rgba(251,191,36,0.09);
+  border-color: rgba(129,140,248,0.4);
+  background: rgba(129,140,248,0.14);
 }
 .hero-kpi-val { font-size: 14px; font-weight: 800; color: #fbbf24; line-height: 1.1; }
 .hero-kpi-key { font-size: 10px; color: rgba(255,255,255,0.5); }
@@ -639,14 +639,14 @@ pointer-events: auto;
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(100deg, transparent, rgba(251,191,36,0.08), transparent);
+  background: linear-gradient(100deg, transparent, rgba(129,140,248,0.14), transparent);
   opacity: 0;
   transition: opacity 0.2s ease;
   pointer-events: none;
 }
 .stat-box:hover {
   transform: translateY(-1px);
-  border-color: rgba(251,191,36,0.3);
+  border-color: rgba(129,140,248,0.44);
 }
 .stat-box:hover::after { opacity: 1; }
 .stat-main { display: flex; align-items: center; gap: 10px; min-width: 120px; }
@@ -654,11 +654,11 @@ pointer-events: auto;
   width: 30px; height: 30px; border-radius: 9px;
   display: flex; align-items: center; justify-content: center;
   font-size: 16px;
-  background: rgba(251,191,36,0.12);
-  border: 1px solid rgba(251,191,36,0.28);
+  background: rgba(99,102,241,0.16);
+  border: 1px solid rgba(129,140,248,0.34);
 }
 .stat-val { font-size: 16px; font-weight: 800; color: #fbbf24; line-height: 1; white-space: nowrap; }
-.stat-key { font-size: 11px; color: rgba(255,255,255,0.45); text-align: right; line-height: 1.45; }
+.stat-key { font-size: 11px; color: rgba(191,219,254,0.72); text-align: right; line-height: 1.45; }
 
 /* 段位路 */
 .rank-road { display: flex; align-items: flex-start; gap: 0; padding: 4px 0; }
@@ -941,7 +941,7 @@ pointer-events: auto;
   border-radius: 16px;
   padding: 18px 20px;
   border: 1px solid rgba(96,165,250,0.28);
-  background: linear-gradient(140deg, rgba(30,58,138,0.28), rgba(15,23,42,0.56) 55%, rgba(251,191,36,0.1));
+  background: linear-gradient(140deg, rgba(30,58,138,0.3), rgba(15,23,42,0.56) 52%, rgba(99,102,241,0.16));
   box-shadow: 0 10px 28px rgba(2,6,23,0.35);
 }
 .story-card::before {
@@ -952,7 +952,7 @@ pointer-events: auto;
   width: 45%;
   height: 210%;
   transform: rotate(18deg);
-  background: linear-gradient(180deg, rgba(96,165,250,0), rgba(96,165,250,0.2), rgba(251,191,36,0));
+  background: linear-gradient(180deg, rgba(96,165,250,0), rgba(129,140,248,0.24), rgba(99,102,241,0));
   pointer-events: none;
 }
 .story-eyebrow {
@@ -999,16 +999,16 @@ pointer-events: auto;
 
 /* 金句 */
 .quote-card {
-  background: linear-gradient(135deg,rgba(251,191,36,0.1),rgba(245,158,11,0.04));
-  border: 1px solid rgba(251,191,36,0.2);
+  background: linear-gradient(135deg, rgba(30,58,138,0.22), rgba(79,70,229,0.14), rgba(15,23,42,0.56));
+  border: 1px solid rgba(129,140,248,0.3);
   border-radius: 16px;
   padding: 20px 22px 18px;
   position: relative;
-  box-shadow: 0 10px 28px rgba(245,158,11,0.12);
+  box-shadow: 0 10px 28px rgba(30,58,138,0.2);
 }
 .quote-card::before {
   content: '"'; position: absolute; top: -12px; left: 16px;
-  font-size: 72px; color: rgba(251,191,36,0.14);
+  font-size: 72px; color: rgba(129,140,248,0.2);
   font-family: Georgia, serif; line-height: 1;
 }
 .quote-card::after {
@@ -1017,12 +1017,12 @@ pointer-events: auto;
   top: 14px;
   right: 18px;
   font-size: 14px;
-  color: rgba(251,191,36,0.8);
-  text-shadow: 0 0 8px rgba(251,191,36,0.55);
+  color: rgba(251,191,36,0.82);
+  text-shadow: 0 0 8px rgba(251,191,36,0.5);
 }
 .quote-text {
   font-size: 15px;
-  color: rgba(255,255,255,0.8);
+  color: rgba(226,232,240,0.9);
   line-height: 1.8;
   font-style: italic;
   position: relative;
@@ -1033,7 +1033,7 @@ pointer-events: auto;
   margin-top: 10px;
   text-align: right;
   font-size: 11px;
-  color: rgba(255,255,255,0.45);
+  color: rgba(191,219,254,0.66);
 }
 
 /* 排名 */
@@ -1044,20 +1044,20 @@ pointer-events: auto;
   position: absolute;
   inset: -10px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(52,211,153,0.18) 0%, transparent 68%);
+  background: radial-gradient(circle, rgba(129,140,248,0.24) 0%, transparent 68%);
   z-index: -1;
 }
 .ring-svg { transform: rotate(-90deg); }
 .ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 6; }
 .ring-fg {
-  fill: none; stroke: #34d399; stroke-width: 6; stroke-linecap: round;
+  fill: none; stroke: #818cf8; stroke-width: 6; stroke-linecap: round;
   transition: stroke-dashoffset 1.5s cubic-bezier(0.16,1,0.3,1);
 }
 .ring-label {
   position: absolute; inset: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
 }
-.ring-pct { font-size: 19px; font-weight: 800; color: #34d399; line-height: 1; }
+.ring-pct { font-size: 19px; font-weight: 800; color: #fbbf24; line-height: 1; }
 .ring-unit { font-size: 10px; color: rgba(255,255,255,0.32); }
 .ranking-info { flex: 1; }
 .ranking-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 6px; line-height: 1.2; }
@@ -1068,9 +1068,9 @@ pointer-events: auto;
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  color: #34d399;
-  background: rgba(52,211,153,0.08);
-  border: 1px solid rgba(52,211,153,0.24);
+  color: rgba(191,219,254,0.92);
+  background: rgba(99,102,241,0.14);
+  border: 1px solid rgba(129,140,248,0.34);
   border-radius: 999px;
   padding: 4px 10px;
 }
@@ -1224,26 +1224,26 @@ pointer-events: auto;
   white-space: nowrap;
   min-width: 0;
 }
-.poster-badge.gold  { background: rgba(180,130,0,0.18);  border: 1px solid rgba(251,191,36,0.55); color: #fbbf24; }
-.poster-badge.cyan  { background: rgba(0,180,200,0.12);  border: 1px solid rgba(0,210,220,0.4);   color: #67e8f9; }
-.poster-badge.purple{ background: rgba(120,60,220,0.15); border: 1px solid rgba(167,139,250,0.4); color: #c4b5fd; }
-.poster-badge-ico { font-size: 10px; flex-shrink: 0; }
+.poster-badge.gold  { background: rgba(56,189,248,0.14); border: 1px solid rgba(125,211,252,0.4); color: #bae6fd; }
+.poster-badge.cyan  { background: rgba(59,130,246,0.13); border: 1px solid rgba(96,165,250,0.42); color: #bfdbfe; }
+.poster-badge.purple{ background: rgba(99,102,241,0.14); border: 1px solid rgba(165,180,252,0.44); color: #c7d2fe; }
+.poster-badge-ico { font-size: 10px; flex-shrink: 0; opacity: 0.85; }
 
 /* 数据统计卡 */
 .poster-stats {
   display: grid; grid-template-columns: repeat(3,1fr); gap: 0;
   width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(135deg, rgba(30,58,138,0.22), rgba(15,23,42,0.2));
+  border: 1px solid rgba(96,165,250,0.24);
   border-radius: 12px; overflow: hidden;
 }
 .poster-stat { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 12px 4px; }
-.poster-stat:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.07); }
-.poster-stat-val { font-size: 18px; font-weight: 800; color: #fff; }
-.poster-stat-val.cyan  { color: #67e8f9; }
-.poster-stat-val.green { color: #34d399; }
-.poster-stat-key { font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; display: flex; align-items: center; gap: 3px; }
-.poster-stat-key .stat-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,0.8); flex-shrink: 0; }
+.poster-stat:not(:last-child) { border-right: 1px solid rgba(148,163,184,0.2); }
+.poster-stat-val { font-size: 18px; font-weight: 800; color: #e2e8f0; }
+.poster-stat-val.cyan  { color: #bae6fd; }
+.poster-stat-val.green { color: #c7d2fe; }
+.poster-stat-key { font-size: 11px; color: rgba(226,232,240,0.62); text-align: center; display: flex; align-items: center; gap: 3px; }
+.poster-stat-key .stat-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #93c5fd; box-shadow: 0 0 4px rgba(96,165,250,0.8); flex-shrink: 0; }
 
 /* 引言 */
 .poster-quote {
@@ -1662,7 +1662,7 @@ display: flex; gap: 12px; width: 368px;
       <div class="rp-header">
         <button class="close-btn" onclick="closeReport()">✕</button>
         <span class="rp-header-title">我的专属成就报告</span>
-        <button class="poster-entry-btn" onclick="openPoster()">🖼 生成并分享</button>
+        <button class="poster-entry-btn" onclick="openPoster()">生成海报并分享</button>
       </div>
       <div class="rp-scroll">
         <div class="rp-grid">
@@ -1703,19 +1703,19 @@ display: flex; gap: 12px; width: 368px;
           <!-- 统计宫格（左） -->
           <div class="rp-card">
             <div class="rp-card-title">学习数据</div>
-            <div class="rp-card-sub">从投入、效率、节奏三个维度看本次闯关表现。</div>
+            <div class="rp-card-sub">从活跃、投入时段、稳定性三个维度看本次闯关表现。</div>
             <div class="stats-grid">
               <div class="stat-box">
-                <div class="stat-main"><span class="stat-emoji">⏱</span><span class="stat-val">18天5小时</span></div>
-                <span class="stat-key">完成总耗时</span>
+                <div class="stat-main"><span class="stat-emoji">📅</span><span class="stat-val">连续 11 天</span></div>
+                <span class="stat-key">活跃学习天数</span>
               </div>
+<div class="stat-box">
+<div class="stat-main"><span class="stat-emoji">🌙</span><span class="stat-val">凌晨 02:14</span></div>
+<span class="stat-key">最晚收工记录</span>
+</div>
               <div class="stat-box">
-                <div class="stat-main"><span class="stat-emoji">🚀</span><span class="stat-val">34 次</span></div>
-                <span class="stat-key">累计提交次数</span>
-              </div>
-              <div class="stat-box">
-                <div class="stat-main"><span class="stat-emoji">⚡</span><span class="stat-val">12小时</span></div>
-                <span class="stat-key">最快单关通关</span>
+                <div class="stat-main"><span class="stat-emoji">✅</span><span class="stat-val">6/7 关</span></div>
+                <span class="stat-key">首次验收通过</span>
               </div>
             </div>
           </div>
