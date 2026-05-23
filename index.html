@@ -733,6 +733,48 @@ pointer-events: auto;
 }
 .tl-rank-emoji { font-size: 13px; line-height: 1; }
 
+/* 小组排名 */
+.group-rank-card { display: flex; flex-direction: column; }
+.group-rank-meta {
+  margin-top: 2px;
+  font-size: 11px;
+  color: rgba(96,165,250,0.9);
+  font-weight: 600;
+}
+.group-rank-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.group-rank-item {
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 9px 10px;
+}
+.group-rank-item.is-top { border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.08); }
+.group-rank-item.is-me { border-color: rgba(56,189,248,0.5); box-shadow: inset 0 0 0 1px rgba(56,189,248,0.24); }
+.group-rank-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.88);
+  background: rgba(148,163,184,0.24);
+}
+.group-rank-item.is-top .group-rank-order { background: rgba(251,191,36,0.26); color: #fbbf24; }
+.group-rank-item.is-me .group-rank-order { background: rgba(56,189,248,0.24); color: #67e8f9; }
+.group-rank-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); }
+.group-rank-time { font-size: 11px; color: rgba(255,255,255,0.46); white-space: nowrap; }
+
 /* ══════════════════════════════════════
    高级游戏勋章风格
    结构：外旋光环 > 六边形外框 > 内圆主体 > SVG 图标
@@ -1595,8 +1637,8 @@ display: flex; gap: 12px; width: 368px;
             </div>
           </div>
 
-          <!-- 闯关历程 + 段位（合并，跨全宽） -->
-          <div class="rp-card col-span-2">
+          <!-- 闯关历程（左） -->
+          <div class="rp-card">
             <div class="rp-card-title">闯关历程</div>
             <div class="rp-card-sub">从第 1 关到第 7 关，用 18 天完成全链路实战升级。</div>
             <div class="timeline-summary">
@@ -1633,6 +1675,23 @@ display: flex; gap: 12px; width: 368px;
                 <div class="tl-left"><div class="tl-dot last">🚀</div></div>
                 <div class="tl-right"><div class="tl-header"><span class="tl-name">第7关 · 前后端全栈开发</span><span class="tl-rank king"><span class="tl-rank-emoji">🏆</span>王者达成！</span></div><div class="tl-meta"><span>2025/03/19 22:00</span><span>耗时 3天4小时</span></div></div>
               </div>
+            </div>
+          </div>
+
+          <!-- 小组排名（右） -->
+          <div class="rp-card group-rank-card">
+            <div class="rp-card-title">小组排名</div>
+            <div class="rp-card-sub" id="groupRankSummary">你是前端冲刺 3 组第 8 位通关的同学</div>
+            <div class="group-rank-meta" id="groupRankMeta">11/16 已通关</div>
+            <div class="group-rank-list" id="groupRankList">
+              <div class="group-rank-item is-top"><span class="group-rank-order">#1</span><span class="group-rank-name">张一</span><span class="group-rank-time">2025/03/18 11:40</span></div>
+              <div class="group-rank-item is-top"><span class="group-rank-order">#2</span><span class="group-rank-name">李二</span><span class="group-rank-time">2025/03/18 16:08</span></div>
+              <div class="group-rank-item is-top"><span class="group-rank-order">#3</span><span class="group-rank-name">王三</span><span class="group-rank-time">2025/03/18 21:12</span></div>
+              <div class="group-rank-item"><span class="group-rank-order">#4</span><span class="group-rank-name">赵四</span><span class="group-rank-time">2025/03/19 09:03</span></div>
+              <div class="group-rank-item"><span class="group-rank-order">#5</span><span class="group-rank-name">周五</span><span class="group-rank-time">2025/03/19 11:26</span></div>
+              <div class="group-rank-item"><span class="group-rank-order">#6</span><span class="group-rank-name">吴六</span><span class="group-rank-time">2025/03/19 13:44</span></div>
+              <div class="group-rank-item"><span class="group-rank-order">#7</span><span class="group-rank-name">郑七</span><span class="group-rank-time">2025/03/19 18:22</span></div>
+              <div class="group-rank-item is-me"><span class="group-rank-order">#8</span><span class="group-rank-name">你（小团子）</span><span class="group-rank-time">2025/03/19 22:00</span></div>
             </div>
           </div>
 
@@ -1912,6 +1971,53 @@ const RANK_PCT = 85
 const R = 33
 const CIRC = 2 * Math.PI * R  // 207.3
 
+const groupRankMetrics = {
+  groupName: '前端冲刺 3 组',
+  myRank: 8,
+  totalMembers: 16,
+  passCount: 11,
+  members: [
+    { rank: 1, name: '张一', finishTime: '2025/03/18 11:40' },
+    { rank: 2, name: '李二', finishTime: '2025/03/18 16:08' },
+    { rank: 3, name: '王三', finishTime: '2025/03/18 21:12' },
+    { rank: 4, name: '赵四', finishTime: '2025/03/19 09:03' },
+    { rank: 5, name: '周五', finishTime: '2025/03/19 11:26' },
+    { rank: 6, name: '吴六', finishTime: '2025/03/19 13:44' },
+    { rank: 7, name: '郑七', finishTime: '2025/03/19 18:22' },
+    { rank: 8, name: '你（小团子）', finishTime: '2025/03/19 22:00', isMe: true }
+  ]
+}
+
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function applyGroupRankData(data) {
+  if (!data) return
+  const summaryEl = document.getElementById('groupRankSummary')
+  const metaEl = document.getElementById('groupRankMeta')
+  const listEl = document.getElementById('groupRankList')
+
+  if (summaryEl) summaryEl.textContent = `你是${data.groupName}第 ${data.myRank} 位通关的同学`
+  if (metaEl) metaEl.textContent = `${data.passCount}/${data.totalMembers} 已通关`
+  if (!listEl || !Array.isArray(data.members)) return
+
+  const rows = [...data.members].sort((a, b) => (Number(a.rank) || 999) - (Number(b.rank) || 999))
+  listEl.innerHTML = rows.map((member) => {
+    const rank = Number(member.rank) || '--'
+    const isTop = Number(member.rank) > 0 && Number(member.rank) <= 3
+    const isMe = Boolean(member.isMe)
+    const itemClass = `group-rank-item${isTop ? ' is-top' : ''}${isMe ? ' is-me' : ''}`
+    const time = member.finishTime ? escapeHtml(member.finishTime) : '进行中'
+    return `<div class="${itemClass}"><span class="group-rank-order">#${escapeHtml(rank)}</span><span class="group-rank-name">${escapeHtml(member.name || '未命名')}</span><span class="group-rank-time">${time}</span></div>`
+  }).join('')
+}
+
 function showToast(msg, color) {
   const t = document.getElementById('toast')
   t.textContent = msg
@@ -1933,6 +2039,8 @@ function setView(id) {
     }
   })
 }
+
+applyGroupRankData(groupRankMetrics)
 
 // 页面加载后自动开始播报
 setTimeout(() => startBroadcast(), 400)
