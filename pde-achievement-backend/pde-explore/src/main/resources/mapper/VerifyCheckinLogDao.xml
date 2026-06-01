@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.pde.dao.VerifyCheckinLogDao">
+
+    <resultMap id="BaseResultMap" type="com.meituan.pde.entity.VerifyCheckinLog">
+        <id column="id" property="id"/>
+        <result column="user_mis" property="userMis"/>
+        <result column="stage_id" property="stageId"/>
+        <result column="version_info" property="versionInfo"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_mis, stage_id, version_info, created_at
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO verify_checkin_log (user_mis, stage_id, version_info)
+        VALUES (#{userMis}, #{stageId}, #{versionInfo})
+    </insert>
+
+    <!-- 时间由 Java 侧计算后传入，兼容 SQLite 和 MySQL -->
+    <select id="countCheckinAfter" resultType="int">
+        SELECT COUNT(*)
+        FROM verify_checkin_log
+        WHERE user_mis = #{userMis}
+          AND stage_id = #{stageId}
+          AND created_at >= #{minTime, jdbcType=TIMESTAMP}
+    </select>
+
+</mapper>

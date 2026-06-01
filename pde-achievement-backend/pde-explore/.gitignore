@@ -1,0 +1,28 @@
+# Maven 编译产物
+target/
+*.class
+
+# 数据库文件（本地数据，不应提交）
+*.db
+
+# IDE 文件
+.idea/
+*.iml
+.eclipse/
+.settings/
+.classpath
+.project
+
+# macOS
+.DS_Store
+
+# 日志
+*.log
+logs/
+
+# 环境配置（如包含敏感信息）
+# application-local.properties
+
+# 临时查日志文件
+查日志专用.md
+.gstack/

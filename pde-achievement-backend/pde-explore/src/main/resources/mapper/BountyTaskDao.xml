@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.pde.dao.BountyTaskDao">
+
+    <resultMap id="BaseResultMap" type="com.meituan.pde.entity.BountyTask">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="type" property="type"/>
+        <result column="status" property="status"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="design_deadline" property="designDeadline" jdbcType="TIMESTAMP"/>
+        <result column="voting_end" property="votingEnd" jdbcType="TIMESTAMP"/>
+        <result column="dev_deadline" property="devDeadline" jdbcType="TIMESTAMP"/>
+        <result column="dev_min_stage" property="devMinStage"/>
+        <result column="reward_desc" property="rewardDesc"/>
+        <result column="cover_url" property="coverUrl"/>
+        <result column="ref_link" property="refLink"/>
+        <result column="like_count" property="likeCount"/>
+        <result column="is_featured" property="isFeatured"/>
+        <result column="featured_by" property="featuredBy"/>
+        <result column="featured_reason" property="featuredReason"/>
+        <result column="featured_at" property="featuredAt" jdbcType="TIMESTAMP"/>
+        <result column="deleted_flag" property="deletedFlag"/>
+        <result column="add_time" property="addTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, title, description, type, status, created_by, design_deadline, voting_end,
+        dev_deadline, dev_min_stage, reward_desc, cover_url, ref_link, like_count,
+        is_featured, featured_by, featured_reason, featured_at, deleted_flag, add_time, create_time, update_time
+    </sql>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bounty_task
+        WHERE deleted_flag = 0
+        <if test="type != null and type != ''">
+            AND type = #{type}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        ORDER BY id DESC
+    </select>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bounty_task
+        WHERE id = #{id} AND deleted_flag = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO bounty_task (title, description, type, status, created_by, design_deadline,
+            voting_end, dev_deadline, dev_min_stage, reward_desc, cover_url, ref_link)
+        VALUES (#{title}, #{description}, #{type}, #{status}, #{createdBy}, #{designDeadline},
+            #{votingEnd}, #{devDeadline}, #{devMinStage}, #{rewardDesc}, #{coverUrl}, #{refLink})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE bounty_task SET status = #{status} WHERE id = #{id} AND deleted_flag = 0
+    </update>
+
+    <update id="updateTask">
+        UPDATE bounty_task
+        SET title = #{title}, description = #{description},
+            design_deadline = #{designDeadline}, voting_end = #{votingEnd},
+            dev_deadline = #{devDeadline}, dev_min_stage = #{devMinStage},
+            reward_desc = #{rewardDesc}
+        WHERE id = #{id} AND deleted_flag = 0
+    </update>
+
+    <update id="softDelete">
+        UPDATE bounty_task SET deleted_flag = 1 WHERE id = #{id} AND deleted_flag = 0
+    </update>
+
+    <update id="updateFeatured">
+        UPDATE bounty_task
+        SET is_featured = 1, featured_by = #{featuredBy}, featured_reason = #{featuredReason}, featured_at = NOW()
+        WHERE id = #{id} AND deleted_flag = 0
+    </update>
+
+    <update id="updateIdea">
+        UPDATE bounty_task
+        SET title = #{title}, description = #{description},
+            cover_url = #{coverUrl}, ref_link = #{refLink}
+        WHERE id = #{id} AND deleted_flag = 0
+    </update>
+
+    <update id="incrementLikeCount">
+        UPDATE bounty_task SET like_count = like_count + 1 WHERE id = #{id} AND deleted_flag = 0
+    </update>
+
+    <update id="decrementLikeCount">
+        UPDATE bounty_task SET like_count = GREATEST(like_count - 1, 0) WHERE id = #{id} AND deleted_flag = 0
+    </update>
+
+    <select id="findSimilarIdeas" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bounty_task
+        WHERE deleted_flag = 0 AND type = 'idea'
+        AND title LIKE CONCAT('%', #{keyword}, '%')
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+        ORDER BY id DESC
+        LIMIT 5
+    </select>
+
+    <select id="findSimilarIdeasByKeywords" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bounty_task
+        WHERE deleted_flag = 0 AND type = 'idea'
+        AND (
+            <foreach collection="keywords" item="kw" separator=" OR ">
+                title LIKE CONCAT('%', #{kw}, '%')
+            </foreach>
+        )
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+        ORDER BY id DESC
+        LIMIT 5
+    </select>
+
+</mapper>

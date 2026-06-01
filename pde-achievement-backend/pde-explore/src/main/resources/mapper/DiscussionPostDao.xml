@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.pde.dao.DiscussionPostDao">
+    <resultMap id="BaseResultMap" type="com.meituan.pde.entity.DiscussionPost">
+        <id column="id" property="id"/>
+        <result column="stage_id" property="stageId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="user_mis" property="userMis"/>
+        <result column="content" property="content"/>
+        <result column="like_count" property="likeCount"/>
+        <result column="deleted_flag" property="deletedFlag"/>
+        <result column="add_time" property="addTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, stage_id, parent_id, user_mis, content, like_count, deleted_flag, add_time, create_time, update_time
+    </sql>
+
+    <select id="findTopByStageId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM stage_discussion_post
+        WHERE stage_id = #{stageId} AND parent_id = 0 AND deleted_flag = 0
+        ORDER BY id DESC
+    </select>
+
+    <select id="findRepliesByParentIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM stage_discussion_post
+        WHERE deleted_flag = 0
+        AND parent_id IN
+        <foreach collection="parentIds" item="pid" open="(" separator="," close=")">
+            #{pid}
+        </foreach>
+        ORDER BY id ASC
+    </select>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM stage_discussion_post
+        WHERE id = #{id} AND deleted_flag = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO stage_discussion_post (stage_id, parent_id, user_mis, content, like_count)
+        VALUES (#{stageId}, #{parentId}, #{userMis}, #{content}, 0)
+    </insert>
+
+    <update id="incrementLikeCount">
+        UPDATE stage_discussion_post SET like_count = like_count + 1 WHERE id = #{id} AND deleted_flag = 0
+    </update>
+
+    <update id="decrementLikeCount">
+        UPDATE stage_discussion_post SET like_count = GREATEST(like_count - 1, 0) WHERE id = #{id} AND deleted_flag = 0
+    </update>
+
+    <update id="deleteById">
+        UPDATE stage_discussion_post SET deleted_flag = 1 WHERE id = #{id} AND user_mis = #{userMis} AND deleted_flag = 0
+    </update>
+</mapper>

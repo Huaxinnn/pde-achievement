@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.pde.dao.OrgInfoDao">
+
+    <resultMap id="BaseResultMap" type="com.meituan.pde.entity.OrgInfo">
+        <id column="id" property="id"/>
+        <result column="org_id" property="orgId"/>
+        <result column="org_name" property="orgName"/>
+        <result column="emp_count" property="empCount"/>
+        <result column="deleted_flag" property="deletedFlag"/>
+        <result column="add_time" property="addTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- MySQL only: ON DUPLICATE KEY UPDATE. SQLite 本地开发时此语句会失败，
+         ProgressService/OrgInfoRefreshService 均有 try-catch 兜底，不影响核心流程。-->
+    <insert id="upsert">
+        INSERT INTO org_info (org_id, org_name, emp_count)
+        VALUES (#{orgId}, #{orgName}, #{empCount})
+        ON DUPLICATE KEY UPDATE
+            org_name = IF(VALUES(org_name) != '', VALUES(org_name), org_name),
+            emp_count = IF(#{empCount} > 0, VALUES(emp_count), emp_count)
+    </insert>
+
+    <select id="findAllOrgIds" resultType="java.lang.String">
+        SELECT DISTINCT user_org_id
+        FROM user_stage_progress
+        WHERE user_org_id != '' AND deleted_flag = 0
+        UNION
+        SELECT DISTINCT user_org_id
+        FROM user_step_progress
+        WHERE user_org_id != '' AND deleted_flag = 0
+    </select>
+
+    <select id="findOrgIdNameMap" resultType="java.util.Map">
+        SELECT user_org_id AS orgId, user_org AS orgName
+        FROM user_stage_progress
+        WHERE user_org_id != '' AND user_org != '' AND deleted_flag = 0
+        GROUP BY user_org_id
+        UNION
+        SELECT user_org_id AS orgId, user_org AS orgName
+        FROM user_step_progress
+        WHERE user_org_id != '' AND user_org != '' AND deleted_flag = 0
+        GROUP BY user_org_id
+    </select>
+
+    <select id="findByOrgId" resultMap="BaseResultMap">
+        SELECT id, org_id, org_name, emp_count, deleted_flag, add_time, create_time, update_time
+        FROM org_info
+        WHERE org_id = #{orgId} AND deleted_flag = 0
+    </select>
+
+    <select id="findEmpCountByOrgId" resultType="java.lang.Long">
+        SELECT emp_count
+        FROM org_info
+        WHERE org_id = #{orgId} AND deleted_flag = 0
+        LIMIT 1
+    </select>
+
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.pde.dao.StageFaqDao">
+    <resultMap id="BaseResultMap" type="com.meituan.pde.entity.StageFaq">
+        <id column="id" property="id"/>
+        <result column="stage_id" property="stageId"/>
+        <result column="question" property="question"/>
+        <result column="answer" property="answer"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="add_time" property="addTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, stage_id, question, answer, sort_order, add_time, create_time, update_time
+    </sql>
+
+    <select id="findByStageId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM stage_faq
+        WHERE stage_id = #{stageId} AND deleted_flag = 0
+        ORDER BY sort_order ASC
+    </select>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM stage_faq
+        WHERE id = #{id} AND deleted_flag = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO stage_faq (stage_id, question, answer, sort_order)
+        VALUES (#{stageId}, #{question}, #{answer}, #{sortOrder})
+    </insert>
+
+    <update id="update">
+        UPDATE stage_faq
+        SET stage_id = #{stageId}, question = #{question}, answer = #{answer},
+            sort_order = #{sortOrder}
+        WHERE id = #{id}
+    </update>
+</mapper>

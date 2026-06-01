@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.pde.dao.StageDao">
+    <resultMap id="BaseResultMap" type="com.meituan.pde.entity.Stage">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="verify_type" property="verifyType"/>
+        <result column="verify_hint" property="verifyHint"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="is_active" property="isActive"/>
+        <result column="add_time" property="addTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, title, description, verify_type, verify_hint, sort_order, is_active, add_time, create_time, update_time
+    </sql>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM stage
+        WHERE is_active = 1 AND deleted_flag = 0
+        ORDER BY sort_order ASC
+    </select>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM stage
+        WHERE id = #{id} AND deleted_flag = 0
+    </select>
+
+    <insert id="insert">
+        INSERT INTO stage (id, name, title, description, verify_type, verify_hint, sort_order, is_active)
+        VALUES (#{id}, #{name}, #{title}, #{description}, #{verifyType}, #{verifyHint}, #{sortOrder}, #{isActive})
+    </insert>
+
+    <update id="update">
+        UPDATE stage
+        SET name = #{name}, title = #{title}, description = #{description},
+            verify_type = #{verifyType}, verify_hint = #{verifyHint},
+            sort_order = #{sortOrder}, is_active = #{isActive}
+        WHERE id = #{id}
+    </update>
+</mapper>

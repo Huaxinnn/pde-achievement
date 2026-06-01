@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.pde.dao.BountyMemberDao">
+
+    <resultMap id="BaseResultMap" type="com.meituan.pde.entity.BountyMember">
+        <id column="id" property="id"/>
+        <result column="user_mis" property="userMis"/>
+        <result column="user_name" property="userName"/>
+        <result column="dept" property="dept"/>
+        <result column="role" property="role"/>
+        <result column="custom_role" property="customRole"/>
+        <result column="reason" property="reason"/>
+        <result column="deleted_flag" property="deletedFlag"/>
+        <result column="add_time" property="addTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_mis, user_name, dept, role, custom_role, reason, deleted_flag, add_time, create_time, update_time
+    </sql>
+
+    <select id="findByUserMis" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bounty_member
+        WHERE user_mis = #{userMis} AND deleted_flag = 0
+        LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO bounty_member (user_mis, user_name, dept, role, custom_role, reason)
+        VALUES (#{userMis}, #{userName}, #{dept}, #{role}, #{customRole}, #{reason})
+    </insert>
+
+    <update id="updateByUserMis">
+        UPDATE bounty_member
+        SET dept = #{dept}, role = #{role}, custom_role = #{customRole},
+            reason = #{reason}, user_name = #{userName}
+        WHERE user_mis = #{userMis} AND deleted_flag = 0
+    </update>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM bounty_member WHERE deleted_flag = 0
+    </select>
+
+    <select id="countBefore" resultType="int">
+        SELECT COUNT(*) FROM bounty_member
+        WHERE deleted_flag = 0
+          AND id &lt; (SELECT id FROM bounty_member WHERE user_mis = #{userMis} AND deleted_flag = 0 LIMIT 1)
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bounty_member
+        WHERE deleted_flag = 0
+        ORDER BY add_time ASC
+        LIMIT 500
+    </select>
+
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.pde.dao.BountyVoteDao">
+
+    <resultMap id="BaseResultMap" type="com.meituan.pde.entity.BountyVote">
+        <id column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="submission_id" property="submissionId"/>
+        <result column="user_mis" property="userMis"/>
+        <result column="deleted_flag" property="deletedFlag"/>
+        <result column="add_time" property="addTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, task_id, submission_id, user_mis, deleted_flag, add_time, create_time, update_time
+    </sql>
+
+    <select id="findByTaskId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bounty_vote
+        WHERE task_id = #{taskId} AND deleted_flag = 0
+    </select>
+
+    <select id="findByTaskIdAndUser" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bounty_vote
+        WHERE task_id = #{taskId} AND user_mis = #{userMis} AND deleted_flag = 0
+    </select>
+
+    <select id="findByTaskIdAndSubmissionAndUser" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM bounty_vote
+        WHERE task_id = #{taskId} AND submission_id = #{submissionId}
+          AND user_mis = #{userMis} AND deleted_flag = 0
+        LIMIT 1
+    </select>
+
+    <select id="countByTaskIdAndUser" resultType="int">
+        SELECT COUNT(*) FROM bounty_vote
+        WHERE task_id = #{taskId} AND user_mis = #{userMis} AND deleted_flag = 0
+    </select>
+
+    <select id="findLikedTaskIdsByUser" resultType="java.lang.Long">
+        SELECT task_id FROM bounty_vote
+        WHERE user_mis = #{userMis} AND submission_id = 0 AND deleted_flag = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO bounty_vote (task_id, submission_id, user_mis)
+        VALUES (#{taskId}, #{submissionId}, #{userMis})
+    </insert>
+
+    <delete id="deleteByTaskIdAndSubmissionAndUser">
+        DELETE FROM bounty_vote
+        WHERE task_id = #{taskId} AND submission_id = #{submissionId}
+          AND user_mis = #{userMis}
+    </delete>
+
+    <!-- 批量查询某用户对指定 task 列表投过票的 taskId（排除 submission_id=0 的点赞） -->
+    <select id="findVotedTaskIdsByUser" resultType="java.lang.Long">
+        SELECT DISTINCT task_id FROM bounty_vote
+        WHERE user_mis = #{userMis} AND submission_id > 0 AND deleted_flag = 0
+        AND task_id IN
+        <foreach collection="taskIds" item="tid" open="(" separator="," close=")">
+            #{tid}
+        </foreach>
+    </select>
+
+</mapper>

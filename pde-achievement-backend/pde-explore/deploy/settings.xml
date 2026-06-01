@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <localRepository>${user.home}/.m2/repository</localRepository>
+
+    <profiles>
+        <profile>
+            <id>meituan-build</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>
+                <!-- 线上仓库，专供 hrorg-sdk 等离线仓库没有的包 -->
+                <repository>
+                    <id>meituan-online</id>
+                    <url>http://pixel.sankuai.com/repository/mtdp</url>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+
+    <pluginGroups>
+        <pluginGroup>org.apache.maven.plugins</pluginGroup>
+        <pluginGroup>org.unidal.maven.plugins</pluginGroup>
+        <pluginGroup>com.dianping.maven.plugins</pluginGroup>
+        <pluginGroup>org.jvnet.hudson.tools</pluginGroup>
+    </pluginGroups>
+
+    <activeProfiles>
+        <activeProfile>meituan-build</activeProfile>
+    </activeProfiles>
+
+    <mirrors>
+        <!-- 离线仓库拦截大部分包，!meituan-online 排除线上仓库使其不被拦截 -->
+        <mirror>
+            <id>meituan-offline</id>
+            <url>http://maven.offline.sankuai.com/nexus/content/groups/public</url>
+            <mirrorOf>*,!meituan-online</mirrorOf>
+        </mirror>
+    </mirrors>
+</settings>

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.meituan.mdp</groupId>
+        <artifactId>mdp-parent</artifactId>
+        <version>1.8.9</version>
+    </parent>
+
+    <groupId>com.meituan</groupId>
+    <artifactId>pde-backend</artifactId>
+    <version>1.0.0</version>
+    <name>pde-backend</name>
+    <description>PDE闯关系统后端服务</description>
+
+    <properties>
+        <java.version>8</java.version>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <!-- 单独锁定 sso-java-sdk 版本，满足 mdp 集成 sso 的要求，无需升级 mdp-parent -->
+            <!--            <dependency>-->
+            <!--                <groupId>com.sankuai.inf.sso</groupId>-->
+            <!--                <artifactId>sso-java-sdk</artifactId>-->
+            <!--                <version>2.7.0.3</version>-->
+            <!--            </dependency>-->
+            <dependency>
+                <groupId>com.dianping.zebra</groupId>
+                <artifactId>zebra-api</artifactId>
+                <version>4.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dianping.zebra</groupId>
+                <artifactId>zebra-calcite</artifactId>
+                <version>4.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dianping.zebra</groupId>
+                <artifactId>zebra-dao</artifactId>
+                <version>4.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dianping.zebra</groupId>
+                <artifactId>zebra-ds-monitor-client</artifactId>
+                <version>4.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dianping.zebra</groupId>
+                <artifactId>zebra-tool</artifactId>
+                <version>4.2.0</version>
+            </dependency>
+            <!-- Org SDK 版本管理，排除日志冲突依赖 -->
+            <dependency>
+                <groupId>com.sankuai.meituan.org</groupId>
+                <artifactId>open-sdk</artifactId>
+                <version>5.0.40</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.meituan.mafka</groupId>
+                        <artifactId>mafka-client_2.10</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- SSO Filter 自动配置 + UserUtils（替换 spring-boot-starter-web） -->
+        <dependency>
+            <groupId>com.meituan.mdp.boot</groupId>
+            <artifactId>mdp-boot-starter-web-tob</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-validator</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>validation-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.dianping.rhino</groupId>
+            <artifactId>rhino-client</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
+        <!-- Org 员工信息 SDK -->
+        <dependency>
+            <groupId>com.sankuai.meituan.org</groupId>
+            <artifactId>open-sdk</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dianping.lion</groupId>
+            <artifactId>lion-client</artifactId>
+            <version>0.14.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sankuai.inf.dayu</groupId>
+            <artifactId>dye-routing-all</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+
+        <!-- Zebra 数据源 -->
+        <dependency>
+            <groupId>com.meituan.mdp.boot</groupId>
+            <artifactId>mdp-boot-starter-zebra</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dianping.zebra</groupId>
+            <artifactId>zebra-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dianping.zebra</groupId>
+            <artifactId>zebra-ds-monitor-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dianping.zebra</groupId>
+            <artifactId>zebra-dao</artifactId>
+        </dependency>
+
+        <!-- Pigeon RPC -->
+        <dependency>
+            <groupId>com.meituan.mdp.boot</groupId>
+            <artifactId>mdp-boot-starter-pigeon</artifactId>
+        </dependency>
+
+        <!-- MyBatis（版本由 mdp-parent 统一管理） -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Spring Boot Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <!-- 公共资源配置（先声明先复制） -->
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- 环境专属配置（后声明后复制，配合 overwrite=true 覆盖公共资源中的同名文件） -->
+            <resource>
+                <directory>src/main/profiles/${activeProfile}</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- maven-resources-plugin：开启 overwrite，确保后声明的 profile 资源能覆盖同名的公共资源文件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <overwrite>true</overwrite>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>test</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <activeProfile>test</activeProfile>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <activeProfile>prod</activeProfile>
+            </properties>
+        </profile>
+    </profiles>
+</project>
