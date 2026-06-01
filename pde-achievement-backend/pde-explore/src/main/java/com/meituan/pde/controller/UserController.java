@@ -24,7 +24,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,6 +36,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -43,6 +47,35 @@ public class UserController {
     private static final Long REFLECTION_STAGE_ID = 0L;
     private static final String DEFAULT_REFLECTION_TEXT = "每次卡关都让我更像一名真正的工程师。";
     private static final Date DEFAULT_PASSED_AT = parseDefaultPassedAt();
+
+    /** 固定东八区，避免依赖 JVM 系统时区 */
+    private static final ZoneId ZONE_CST = ZoneId.of("Asia/Shanghai");
+    private static final DateTimeFormatter DT_FMT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZONE_CST);
+    private static final DateTimeFormatter TIME_FMT =
+            DateTimeFormatter.ofPattern("HH:mm").withZone(ZONE_CST);
+
+    // ---------------------------------------------------------------
+    // 轻量本地缓存：对排行榜结果缓存 5 分钟，key = userMis
+    // 避免每次访问成就报告都触发全量排行榜计算（findAllPassed + batchSSO）
+    // ---------------------------------------------------------------
+    private static final long LEADERBOARD_CACHE_TTL_MS = 5 * 60 * 1000L;
+
+    private static class CachedLeaderboard {
+        final LeaderboardService.LeaderboardResponse data;
+        final long expireAt;
+
+        CachedLeaderboard(LeaderboardService.LeaderboardResponse data) {
+            this.data = data;
+            this.expireAt = System.currentTimeMillis() + LEADERBOARD_CACHE_TTL_MS;
+        }
+
+        boolean isExpired() {
+            return System.currentTimeMillis() > expireAt;
+        }
+    }
+
+    private final ConcurrentHashMap<String, CachedLeaderboard> leaderboardCache = new ConcurrentHashMap<>();
 
     @Autowired
     private SsoService ssoService;
@@ -96,6 +129,7 @@ public class UserController {
         List<Stage> stages = stageDao.findAll();
         List<UserStageProgress> stageProgressList = userStageProgressDao.findByUserMis(mis);
 
+        // ---- 构建已通关关卡 map ----
         Map<Long, UserStageProgress> passedProgressByStage = new HashMap<>();
         for (UserStageProgress progress : stageProgressList) {
             if (progress == null || progress.getStageId() == null || progress.getStageId() <= 0) {
@@ -112,6 +146,12 @@ public class UserController {
 
         int completedCount = passedProgressByStage.size();
 
+        // ---- [FIX-P0] 一次性批量拉取该用户所有步骤记录，按 stageId 分组，避免 N+1 查询 ----
+        List<UserStepProgress> allStepRecords = userStepProgressDao.findAllByUserMis(mis);
+        Map<Long, List<UserStepProgress>> stepsByStage = allStepRecords.stream()
+                .filter(s -> s.getStageId() != null)
+                .collect(Collectors.groupingBy(UserStepProgress::getStageId));
+
         List<Long> levelDurationHours = new ArrayList<>();
         List<Map<String, Object>> levelTimeline = new ArrayList<>();
         List<Date> allStepTimes = new ArrayList<>();
@@ -125,7 +165,9 @@ public class UserController {
                 continue;
             }
             Long stageId = stage.getId();
-            List<UserStepProgress> steps = userStepProgressDao.findByUserMisAndStageId(mis, stageId);
+            // 直接从内存 map 取，不再发 DB 请求
+            List<UserStepProgress> steps = stepsByStage.getOrDefault(stageId, Collections.emptyList());
+
             Date firstStepTime = null;
             for (UserStepProgress step : steps) {
                 if (step == null || step.getCompletedAt() == null) {
@@ -193,7 +235,8 @@ public class UserController {
         String totalDurationText = formatDuration(totalDurationHours);
         int totalDays = totalDurationHours > 0 ? (int) (totalDurationHours / 24) : 0;
 
-        LeaderboardService.LeaderboardResponse groupLeaderboard = leaderboardService.getGroupLeaderboard(mis, 50);
+        // ---- [FIX-P0] 排行榜结果缓存 5 分钟，避免每次请求都做全量计算+批量SSO ----
+        LeaderboardService.LeaderboardResponse groupLeaderboard = getCachedGroupLeaderboard(mis);
         int globalRank = safeInt(groupLeaderboard.getGlobalRank());
         int totalPassCount = safeInt(groupLeaderboard.getTotalPassCount());
         int rankPctRaw = safeInt(groupLeaderboard.getRankPct());
@@ -268,6 +311,21 @@ public class UserController {
         response.put("defaultReflectionText", DEFAULT_REFLECTION_TEXT);
 
         return response;
+    }
+
+    /**
+     * 获取排行榜缓存结果（TTL 5 分钟）。
+     * 缓存命中直接返回，过期后重新计算并更新缓存。
+     */
+    private LeaderboardService.LeaderboardResponse getCachedGroupLeaderboard(String mis) {
+        CachedLeaderboard cached = leaderboardCache.get(mis);
+        if (cached != null && !cached.isExpired()) {
+            log.debug("排行榜缓存命中，mis: {}", mis);
+            return cached.data;
+        }
+        LeaderboardService.LeaderboardResponse fresh = leaderboardService.getGroupLeaderboard(mis, 50);
+        leaderboardCache.put(mis, new CachedLeaderboard(fresh));
+        return fresh;
     }
 
     /**
@@ -378,8 +436,7 @@ public class UserController {
     }
 
     private int countActiveDays(List<Date> stepTimes) {
-        Set<LocalDate> dateSet = toDateSet(stepTimes);
-        return dateSet.size();
+        return toDateSet(stepTimes).size();
     }
 
     private int calcMaxContinuousDays(List<Date> stepTimes) {
@@ -407,6 +464,7 @@ public class UserController {
         return maxStreak;
     }
 
+    /** [FIX-P1] 显式指定东八区，避免 JVM 系统时区影响活跃天数计算 */
     private Set<LocalDate> toDateSet(List<Date> stepTimes) {
         Set<LocalDate> dateSet = new HashSet<>();
         if (stepTimes == null) {
@@ -417,7 +475,7 @@ public class UserController {
                 continue;
             }
             LocalDate localDate = Instant.ofEpochMilli(stepTime.getTime())
-                    .atZone(ZoneId.systemDefault())
+                    .atZone(ZONE_CST)
                     .toLocalDate();
             dateSet.add(localDate);
         }
@@ -458,25 +516,28 @@ public class UserController {
         return days + "天" + hours + "小时";
     }
 
+    /** [FIX-P1] 改用线程安全的 DateTimeFormatter，并显式使用东八区 */
     private String formatDateTime(Date date) {
         if (date == null) {
             return "";
         }
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+        return DT_FMT.format(date.toInstant());
     }
 
+    /** [FIX-P1] 改用线程安全的 DateTimeFormatter，并显式使用东八区 */
     private String formatTime(Date date) {
         if (date == null) {
             return "";
         }
-        return new SimpleDateFormat("HH:mm").format(date);
+        return TIME_FMT.format(date.toInstant());
     }
 
+    /** [FIX-P1] 显式使用东八区提取小时数，避免服务器时区影响凌晨判断 */
     private int extractHour(Date date) {
         if (date == null) {
             return -1;
         }
-        return Integer.parseInt(new SimpleDateFormat("HH").format(date));
+        return LocalDateTime.ofInstant(date.toInstant(), ZONE_CST).getHour();
     }
 
     private int safeInt(Integer value) {

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.pde.dao.UserStageProgressDao">
+    <resultMap id="BaseResultMap" type="com.meituan.pde.entity.UserStageProgress">
+        <id column="id" property="id"/>
+        <result column="user_mis" property="userMis"/>
+        <result column="user_org" property="userOrg"/>
+        <result column="user_org_id" property="userOrgId"/>
+        <result column="stage_id" property="stageId"/>
+        <result column="verify_status" property="verifyStatus"/>
+        <result column="submitted_value" property="submittedValue"/>
+        <result column="passed_at" property="passedAt" jdbcType="TIMESTAMP"/>
+        <result column="lane" property="lane"/>
+        <result column="url" property="url"/>
+        <result column="reviewed_at" property="reviewedAt" jdbcType="TIMESTAMP"/>
+        <result column="reviewed_by" property="reviewedBy"/>
+        <result column="reject_reason" property="rejectReason"/>
+        <result column="deleted_flag" property="deletedFlag"/>
+        <result column="add_time" property="addTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_mis, user_org, user_org_id, stage_id, verify_status, submitted_value, passed_at, lane, url, reviewed_at, reviewed_by, reject_reason, deleted_flag, add_time, create_time, update_time
+    </sql>
+
+    <select id="findByUserMisAndStageId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_stage_progress
+        WHERE user_mis = #{userMis} AND stage_id = #{stageId} AND deleted_flag = 0
+    </select>
+
+    <select id="findByUserMis" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_stage_progress
+        WHERE user_mis = #{userMis} AND deleted_flag = 0
+        ORDER BY stage_id ASC
+    </select>
+
+    <select id="findMaxPassedStageIdByUserMis" resultType="java.lang.Long">
+        SELECT MAX(stage_id)
+        FROM user_stage_progress
+        WHERE user_mis = #{userMis} AND verify_status = 'passed' AND deleted_flag = 0
+    </select>
+
+    <select id="findRecentPassed" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_stage_progress
+        WHERE verify_status = 'passed' AND deleted_flag = 0
+        ORDER BY passed_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findAllPassed" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_stage_progress
+        WHERE verify_status = 'passed' AND deleted_flag = 0 AND stage_id > 0
+        ORDER BY user_mis ASC, stage_id ASC, passed_at ASC
+    </select>
+
+    <select id="findLatestOrgIdByUserMis" resultType="java.lang.String">
+        SELECT user_org_id
+        FROM user_stage_progress
+        WHERE user_mis = #{userMis} AND user_org_id != '' AND deleted_flag = 0
+        ORDER BY update_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="findLatestOrgByUserMis" resultType="java.lang.String">
+        SELECT user_org
+        FROM user_stage_progress
+        WHERE user_mis = #{userMis} AND user_org != '' AND deleted_flag = 0
+        ORDER BY update_time DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_stage_progress (user_mis, user_org, user_org_id, stage_id, verify_status, submitted_value, passed_at, lane, url)
+        VALUES (#{userMis}, #{userOrg}, #{userOrgId}, #{stageId}, #{verifyStatus}, #{submittedValue}, #{passedAt}, #{lane}, #{url})
+    </insert>
+
+    <update id="update">
+        UPDATE user_stage_progress
+        SET user_org = #{userOrg},
+            user_org_id = #{userOrgId},
+            verify_status = #{verifyStatus},
+            submitted_value = #{submittedValue},
+            passed_at = #{passedAt},
+            lane = #{lane},
+            url = #{url}
+        WHERE user_mis = #{userMis} AND stage_id = #{stageId} AND deleted_flag = 0
+    </update>
+
+    <select id="findPendingManual" resultMap="BaseResultMap">
+        SELECT usp.id, usp.user_mis, usp.user_org, usp.stage_id, usp.verify_status, usp.submitted_value, usp.passed_at,
+               usp.lane, usp.url, usp.reviewed_at, usp.reviewed_by, usp.reject_reason,
+               usp.deleted_flag, usp.add_time, usp.create_time, usp.update_time
+        FROM user_stage_progress usp
+        JOIN stage s ON s.id = usp.stage_id AND s.deleted_flag = 0
+        WHERE s.verify_type = 'manual' AND usp.deleted_flag = 0
+        <if test="status != null and status != 'all'">
+            AND usp.verify_status = #{status}
+        </if>
+        ORDER BY usp.create_time DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countPendingManual" resultType="int">
+        SELECT COUNT(*)
+        FROM user_stage_progress usp
+        JOIN stage s ON s.id = usp.stage_id AND s.deleted_flag = 0
+        WHERE s.verify_type = 'manual' AND usp.deleted_flag = 0
+        <if test="status != null and status != 'all'">
+            AND usp.verify_status = #{status}
+        </if>
+    </select>
+
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM user_stage_progress
+        WHERE id = #{id} AND deleted_flag = 0
+    </select>
+
+    <select id="findMisWithEmptyOrg" resultType="java.lang.String">
+        SELECT DISTINCT user_mis FROM user_stage_progress
+        WHERE (user_org = '' OR user_org IS NULL) AND deleted_flag = 0
+        ORDER BY user_mis
+        LIMIT #{limit}
+    </select>
+
+    <select id="findMisWithEmptyOrgId" resultType="java.lang.String">
+        SELECT DISTINCT user_mis FROM user_stage_progress
+        WHERE (user_org_id = '' OR user_org_id IS NULL) AND deleted_flag = 0
+        ORDER BY user_mis
+        LIMIT #{limit}
+    </select>
+
+    <update id="updateOrgByMis">
+        UPDATE user_stage_progress SET user_org = #{userOrg}
+        WHERE user_mis = #{userMis} AND (user_org = '' OR user_org IS NULL) AND deleted_flag = 0
+    </update>
+
+    <update id="updateOrgIdByMis">
+        UPDATE user_stage_progress SET user_org_id = #{userOrgId}
+        WHERE user_mis = #{userMis} AND (user_org_id = '' OR user_org_id IS NULL) AND deleted_flag = 0
+    </update>
+
+    <select id="countEmptyOrg" resultType="int">
+        SELECT COUNT(DISTINCT user_mis) FROM user_stage_progress WHERE (user_org = '' OR user_org IS NULL) AND deleted_flag = 0
+    </select>
+
+    <update id="updateReview">
+        UPDATE user_stage_progress
+        SET verify_status = #{verifyStatus},
+            user_org = #{userOrg},
+            user_org_id = #{userOrgId},
+            reviewed_at = #{reviewedAt},
+            reviewed_by = #{reviewedBy},
+            reject_reason = #{rejectReason},
+            passed_at = #{passedAt}
+        WHERE id = #{id} AND deleted_flag = 0
+    </update>
+</mapper>

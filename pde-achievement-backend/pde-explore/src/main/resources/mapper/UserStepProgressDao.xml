@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.meituan.pde.dao.UserStepProgressDao">
+    <resultMap id="BaseResultMap" type="com.meituan.pde.entity.UserStepProgress">
+        <id column="id" property="id"/>
+        <result column="user_mis" property="userMis"/>
+        <result column="user_org" property="userOrg"/>
+        <result column="user_org_id" property="userOrgId"/>
+        <result column="step_id" property="stepId"/>
+        <result column="completed_at" property="completedAt" jdbcType="TIMESTAMP"/>
+        <result column="deleted_flag" property="deletedFlag"/>
+        <result column="add_time" property="addTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 扩展 resultMap：含联查得到的 stageId，供 findAllByUserMis 使用 -->
+    <resultMap id="WithStageResultMap" type="com.meituan.pde.entity.UserStepProgress" extends="BaseResultMap">
+        <result column="stage_id_alias" property="stageId"/>
+    </resultMap>
+
+    <select id="findByUserMisAndStageId" resultMap="BaseResultMap">
+        SELECT usp.id, usp.user_mis, usp.user_org, usp.step_id, usp.completed_at, usp.deleted_flag, usp.create_time, usp.update_time
+        FROM user_step_progress usp
+        INNER JOIN stage_step ss ON usp.step_id = ss.id
+        WHERE usp.user_mis = #{userMis} AND ss.stage_id = #{stageId} AND usp.deleted_flag = 0
+    </select>
+
+    <select id="findAllByUserMis" resultMap="WithStageResultMap">
+        SELECT usp.id, usp.user_mis, usp.user_org, usp.user_org_id, usp.step_id, usp.completed_at,
+               usp.deleted_flag, usp.create_time, usp.update_time, ss.stage_id AS stage_id_alias
+        FROM user_step_progress usp
+        INNER JOIN stage_step ss ON usp.step_id = ss.id
+        WHERE usp.user_mis = #{userMis} AND usp.deleted_flag = 0
+    </select>
+
+    <select id="countByUserMisAndStageId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM user_step_progress usp
+        INNER JOIN stage_step ss ON usp.step_id = ss.id
+        WHERE usp.user_mis = #{userMis} AND ss.stage_id = #{stageId} AND usp.deleted_flag = 0
+    </select>
+
+    <select id="existsByUserMisAndStepId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM user_step_progress
+        WHERE user_mis = #{userMis} AND step_id = #{stepId} AND deleted_flag = 0
+    </select>
+
+    <select id="findInProgressUserStages" resultType="java.util.Map">
+        SELECT usp.user_mis AS userMis, ss.stage_id AS stageId, MAX(usp.completed_at) AS lastActiveAt
+        FROM user_step_progress usp
+        INNER JOIN stage_step ss ON usp.step_id = ss.id
+        WHERE usp.deleted_flag = 0
+          AND NOT EXISTS (
+              SELECT 1 FROM user_stage_progress usgp
+              WHERE usgp.user_mis = usp.user_mis
+                AND usgp.stage_id = ss.stage_id
+                AND usgp.verify_status = 'passed'
+                AND usgp.deleted_flag = 0
+          )
+        GROUP BY usp.user_mis, ss.stage_id
+        ORDER BY lastActiveAt DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findMisWithEmptyOrg" resultType="java.lang.String">
+        SELECT DISTINCT user_mis FROM user_step_progress
+        WHERE (user_org = '' OR user_org IS NULL) AND deleted_flag = 0
+        ORDER BY user_mis
+        LIMIT #{limit}
+    </select>
+
+    <select id="findMisWithEmptyOrgId" resultType="java.lang.String">
+        SELECT DISTINCT user_mis FROM user_step_progress
+        WHERE (user_org_id = '' OR user_org_id IS NULL) AND deleted_flag = 0
+        ORDER BY user_mis
+        LIMIT #{limit}
+    </select>
+
+    <update id="updateOrgByMis">
+        UPDATE user_step_progress SET user_org = #{userOrg}
+        WHERE user_mis = #{userMis} AND (user_org = '' OR user_org IS NULL) AND deleted_flag = 0
+    </update>
+
+    <update id="updateOrgIdByMis">
+        UPDATE user_step_progress SET user_org_id = #{userOrgId}
+        WHERE user_mis = #{userMis} AND (user_org_id = '' OR user_org_id IS NULL) AND deleted_flag = 0
+    </update>
+
+    <select id="countEmptyOrg" resultType="int">
+        SELECT COUNT(DISTINCT user_mis) FROM user_step_progress WHERE (user_org = '' OR user_org IS NULL) AND deleted_flag = 0
+    </select>
+
+    <insert id="insertIgnore" useGeneratedKeys="true" keyProperty="id">
+        INSERT IGNORE INTO user_step_progress (user_mis, user_org, user_org_id, step_id)
+        VALUES (#{userMis}, #{userOrg}, #{userOrgId}, #{stepId})
+    </insert>
+</mapper>
