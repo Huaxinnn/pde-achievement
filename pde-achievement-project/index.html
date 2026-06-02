@@ -884,7 +884,7 @@ pointer-events: auto;
 }
 .tl-rank-emoji { font-size: 13px; line-height: 1; }
 
-/* 小组排名 */
+/* 部门排名 */
 .group-rank-card { display: flex; flex-direction: column; }
 .group-rank-meta {
   margin-top: 2px;
@@ -1897,9 +1897,9 @@ display: flex; gap: 12px; width: 368px;
 "你做到了！从零开始，到独立开发并发布一个真实项目。恭喜你达到最强王者段位，你已经是一名真正的 PDE 了！"
 </div>
 <div class="lpc-kpis">
-  <div class="lpc-kpi"><div class="lpc-kpi-val">18天5h</div><div class="lpc-kpi-key">通关耗时</div></div>
-  <div class="lpc-kpi"><div class="lpc-kpi-val">34次</div><div class="lpc-kpi-key">累计提交</div></div>
-  <div class="lpc-kpi"><div class="lpc-kpi-val">85%</div><div class="lpc-kpi-key">超越学员</div></div>
+  <div class="lpc-kpi"><div class="lpc-kpi-val" id="lpcDuration">18天5h</div><div class="lpc-kpi-key">通关耗时</div></div>
+  <div class="lpc-kpi"><div class="lpc-kpi-val" id="lpcSubmits">11天</div><div class="lpc-kpi-key">活跃学习</div></div>
+  <div class="lpc-kpi"><div class="lpc-kpi-val" id="lpcRankPct">85%</div><div class="lpc-kpi-key">超越学员</div></div>
 </div>
 <div class="lpc-all-pass">全部关卡已通关！ ✦</div>
 </div>
@@ -1950,26 +1950,26 @@ display: flex; gap: 12px; width: 368px;
             <span class="bc-main-title">恭喜达到最强王者段位</span>
           </div>
         </div>
-        <div class="bc-line" id="bl1">
-          <span class="bc-label">完成时间</span>
-          <span class="bc-value">18 天 5 小时</span>
-        </div>
-        <div class="bc-line" id="bl2">
-          <span class="bc-label">累计提交次数</span>
-          <span class="bc-value">34 次</span>
-        </div>
-        <div class="bc-line bc-nth" id="bl3">
-          <span class="bc-label">你是 PDE 全栈闯关</span>
-          <span class="bc-value">第 <em>127</em> 位通关者</span>
-          <span class="bc-nth-badge">🎖 永久载入通关荣誉榜</span>
-        </div>
-        <div class="bc-line bc-rank" id="bl4">
-          <span class="bc-label">你超越了</span>
-          <span class="bc-value">参与者中 <em>前 15%</em> 的同学</span>
-        </div>
-        <div class="bc-line bc-quote" id="bl5">
-          <span class="bc-value">"18天，从零到全栈。每一关都是一次真实的突破。"</span>
-        </div>
+<div class="bc-line" id="bl1">
+<span class="bc-label">完成时间</span>
+<span class="bc-value" id="bcDuration">18 天 5 小时</span>
+</div>
+<div class="bc-line" id="bl2">
+<span class="bc-label">活跃学习天数</span>
+<span class="bc-value" id="bcSubmits">11 天</span>
+</div>
+<div class="bc-line bc-nth" id="bl3">
+<span class="bc-label">你是 PDE 全栈闯关</span>
+<span class="bc-value" id="bcGlobalRankText">第 <em>127</em> 位通关者</span>
+<span class="bc-nth-badge">🎖 永久载入通关荣誉榜</span>
+</div>
+<div class="bc-line bc-rank" id="bl4">
+<span class="bc-label">你超越了</span>
+<span class="bc-value" id="bcTopPctText">参与者中 <em>前 15%</em> 的同学</span>
+</div>
+<div class="bc-line bc-quote" id="bl5">
+<span class="bc-value" id="bcQuote">"18天，从零到全栈。每一关都是一次真实的突破。"</span>
+</div>
       </div>
       <div class="bc-action" id="bcAction">
         <button class="report-btn" onclick="openReflectionPrompt()">
@@ -1995,7 +1995,7 @@ display: flex; gap: 12px; width: 368px;
         <div class="slide-cover-particles" id="coverParticles"></div>
         <div class="slide-content" style="text-align:center; z-index:1;">
           <div class="slide-eyebrow">PDE全栈·闯关历程</div>
-          <div class="slide-desc" style="margin-top:10px;">18天5小时，从第一行代码到全栈通关</div>
+          <div class="slide-desc" id="slideCoverDesc" style="margin-top:10px;">18天5小时，从第一行代码到全栈通关</div>
           <!-- 身份信息卡（头像破框 + 信息区一体） -->
           <div style="margin-top:40px; display:inline-flex; flex-direction:column; align-items:center; position:relative;">
             <!-- 头像，叠在卡片顶部 -->
@@ -2005,7 +2005,7 @@ display: flex; gap: 12px; width: 368px;
             <!-- 卡片主体 -->
             <div style="display:flex; flex-direction:column; align-items:center; gap:0; padding:28px 32px 18px; border-radius:18px; background:linear-gradient(160deg,rgba(30,41,59,0.6),rgba(15,23,42,0.7)); border:1px solid rgba(129,140,248,0.2); box-shadow:0 8px 28px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06); min-width:240px; position:relative; z-index:1;">
               <!-- 姓名 -->
-              <div class="hero-name" style="margin:0 0 12px; font-size:22px;">小团子</div>
+              <div class="hero-name" id="slideCoverName" style="margin:0 0 12px; font-size:22px;">小团子</div>
               <!-- 分隔线 -->
               <div style="width:80%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); margin-bottom:12px;"></div>
               <!-- 认证行 -->
@@ -2017,7 +2017,7 @@ display: flex; gap: 12px; width: 368px;
               <div style="display:inline-flex; align-items:center; gap:7px; padding:5px 14px; border-radius:999px; background:rgba(129,140,248,0.08); border:1px solid rgba(129,140,248,0.2);">
 <span style="font-size:10px; color:rgba(148,163,184,0.55); letter-spacing:1px; font-weight:600;">专属称号</span>
 <span style="width:1px; height:10px; background:rgba(255,255,255,0.15);"></span>
-<span id="slideCoverTitle" style="font-size:13px; font-weight:800; color:rgba(255,255,255,0.9); letter-spacing:0.5px;">🌙 深夜修仙极客</span>
+<span id="slideCoverTitle" style="font-size:13px; font-weight:800; color:rgba(255,255,255,0.9); letter-spacing:0.5px;"></span>
               </div>
             </div>
           </div>
@@ -2030,36 +2030,8 @@ display: flex; gap: 12px; width: 368px;
         <div class="slide-content" style="text-align:left; z-index:1; width:100%; max-width:420px;">
           <div class="slide-eyebrow" style="text-align:center;">数字背后</div>
 
-          <!-- 叙事文案区：节奏感排版 -->
-          <div style="margin-top:40px; display:flex; flex-direction:column; gap:0;">
-
-            <!-- 引言句：小字，低调开场 -->
-            <p style="font-size:15px; font-weight:300; line-height:1.8; color:rgba(226,232,240,0.45); margin:0 0 24px; letter-spacing:0.3px;">
-              大多数人睡着的时候，你还在敲键盘。
-            </p>
-
-            <!-- 数字句1：大字突出，核心事实 -->
-            <p style="font-size:20px; font-weight:300; line-height:1.7; color:rgba(226,232,240,0.8); margin:0 0 16px;">
-              <em style="font-style:normal; font-weight:800; color:#fff; font-size:28px; letter-spacing:-0.5px;">18 天</em>，你按下了
-              <em style="font-style:normal; font-weight:800; color:#fff; font-size:28px; letter-spacing:-0.5px;">34 次</em>提交。
-            </p>
-
-            <!-- 数字句2：带颜色高亮，情感最深处 -->
-            <p style="font-size:20px; font-weight:300; line-height:1.7; color:rgba(226,232,240,0.8); margin:0 0 32px;">
-              凌晨 <em style="font-style:normal; font-weight:800; color:#60a5fa; font-size:26px; letter-spacing:-0.3px;">02:14</em>，是你留在这段旅程里最深的印记。
-            </p>
-
-            <!-- 分隔线 -->
-            <div style="width:100%; height:1px; background:linear-gradient(90deg, rgba(255,255,255,0.12), transparent); margin-bottom:28px;"></div>
-
-            <!-- 收尾句：金色强调，沉稳收束 -->
-            <p style="font-size:17px; font-weight:300; line-height:1.8; color:rgba(226,232,240,0.65); margin:0; letter-spacing:0.2px;">
-              就这样，你超越了同期
-              <em style="font-style:normal; font-weight:800; color:#fbbf24; font-size:22px;">85%</em>
-              的学员。
-            </p>
-
-          </div>
+          <!-- 叙事文案区：由 renderNarrativeTexts() 动态注入，勿手动编辑 -->
+          <div id="slide2Narrative" style="margin-top:40px; display:flex; flex-direction:column; gap:0;"></div>
         </div>
       </div>
 
@@ -2068,35 +2040,8 @@ display: flex; gap: 12px; width: 368px;
         <div class="slide-content" style="text-align:left; z-index:1; width:100%; max-width:420px;">
           <div class="slide-eyebrow" style="color:rgba(251,191,36,0.8); text-align:center;">你最难忘的一关</div>
 
-          <!-- 叙事文案区：与称号联动，节奏感排版 -->
-          <div style="margin-top:40px; display:flex; flex-direction:column; gap:0;">
-
-            <!-- 引言句：小字，低调开场 -->
-            <p style="font-size:15px; font-weight:300; line-height:1.8; color:rgba(226,232,240,0.45); margin:0 0 24px; letter-spacing:0.3px;">
-              有一关，你花的时间比其他所有关卡都多。
-            </p>
-
-            <!-- 核心句1：关卡高亮 -->
-            <p style="font-size:20px; font-weight:300; line-height:1.7; color:rgba(226,232,240,0.8); margin:0 0 16px;">
-              那就是<em style="font-style:normal; font-weight:800; color:#fbbf24; font-size:28px; letter-spacing:-0.5px;">第 6 关</em>。
-            </p>
-
-            <!-- 核心句2：行为描述，数字高亮 -->
-            <p style="font-size:20px; font-weight:300; line-height:1.7; color:rgba(226,232,240,0.8); margin:0 0 32px;">
-              你提交了
-              <em style="font-style:normal; font-weight:800; color:#fff; font-size:28px; letter-spacing:-0.5px;">8 次</em>，
-              凌晨 <em style="font-style:normal; font-weight:800; color:#60a5fa; font-size:24px;">02:14</em> 才最终收官。
-            </p>
-
-            <!-- 分隔线 -->
-            <div style="width:100%; height:1px; background:linear-gradient(90deg, rgba(251,191,36,0.2), transparent); margin-bottom:28px;"></div>
-
-            <!-- 收尾句：情感收束 -->
-            <p style="font-size:17px; font-weight:300; line-height:1.8; color:rgba(226,232,240,0.65); margin:0; letter-spacing:0.2px;">
-              但你没有放弃——用连续提交，把它磨成了里程碑。
-            </p>
-
-          </div>
+          <!-- 叙事文案区：由 renderNarrativeTexts() 动态注入，勿手动编辑 -->
+          <div id="slide3Narrative" style="margin-top:40px; display:flex; flex-direction:column; gap:0;"></div>
         </div>
       </div>
 
@@ -2126,117 +2071,7 @@ display: flex; gap: 12px; width: 368px;
       <div class="rp-slide slide-badges" style="background: radial-gradient(ellipse at 40% 50%, rgba(99,102,241,0.08) 0%, transparent 50%), radial-gradient(ellipse at 60% 50%, rgba(251,191,36,0.06) 0%, transparent 50%), #0c0f1a;">
         <div class="slide-content" style="text-align:center; z-index:1; width:100%;">
           <div class="slide-eyebrow">你的专属成就</div>
-          <div class="badge-grid" style="max-width:480px; margin:24px auto 0; border:none;">
-
-<!-- 全栈王者 -->
-<div class="badge-item lit c-gold">
-  <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-    <div class="badge-hex-glow"></div>
-    <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/></svg>
-    <div class="badge-hex">
-      <svg viewBox="0 0 40 40" fill="none" width="38" height="38">
-        <path d="M5 29 L5 12 L13 19 L20 7 L27 19 L35 12 L35 29 Z" fill="white" opacity="0.95"/>
-        <rect x="5" y="30" width="30" height="4" rx="2" fill="white" opacity="0.95"/>
-        <circle cx="5" cy="12" r="2.5" fill="white"/>
-        <circle cx="20" cy="7" r="2.5" fill="white"/>
-        <circle cx="35" cy="12" r="2.5" fill="white"/>
-      </svg>
-    </div>
-  </div>
-  <span class="badge-name">全栈王者</span>
-  <span class="badge-level">7关全通</span>
-</div>
-
-<!-- 闪电手 -->
-<div class="badge-item lit c-cyan">
-  <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-    <div class="badge-hex-glow"></div>
-    <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/></svg>
-    <div class="badge-hex">
-      <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-        <path d="M23 4 L10 22 H18 L16 36 L30 18 H22 Z" fill="white" opacity="0.95" stroke="rgba(255,255,255,0.3)" stroke-width="0.5" stroke-linejoin="round"/>
-      </svg>
-    </div>
-  </div>
-  <span class="badge-name">闪电手</span>
-  <span class="badge-level">单关最快</span>
-</div>
-
-<!-- 连击达人 -->
-<div class="badge-item lit c-orange">
-  <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-    <div class="badge-hex-glow"></div>
-    <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/></svg>
-    <div class="badge-hex">
-      <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-        <path d="M20 36C11 36 8 29 9 22C10 16 13 14 13 14C13 18 15 20 15 20C15 15 18 11 22 6C22 11 25 13 27 14C30 17 32 21 31 27C30 32 25 36 20 36Z" fill="white" opacity="0.95"/>
-        <path d="M20 31C17 31 16 28 16.5 25C17 23 18 22 18 22C18 24 19 25 20 25C21 23 21 21 22 19C22 21 23 24 24 25C25 27 24 31 20 31Z" fill="rgba(255,120,30,0.55)"/>
-      </svg>
-    </div>
-  </div>
-  <span class="badge-name">连击达人</span>
-  <span class="badge-level">连续提交10+</span>
-</div>
-
-<!-- 夜行者 -->
-<div class="badge-item lit c-blue">
-  <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-    <div class="badge-hex-glow"></div>
-    <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/></svg>
-    <div class="badge-hex">
-      <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-        <path d="M25 8C18 8 12 13 12 20C12 27 18 32 25 32C28 32 31 31 33 29C31 29.5 28.5 29.5 26.5 28C21 25 18 21 18 16C18 12.5 20 9.5 23 8.5C24 8.2 24.5 8 25 8Z" fill="white" opacity="0.95"/>
-        <circle cx="31" cy="9" r="1.6" fill="white" opacity="0.9"/>
-        <circle cx="34" cy="15" r="1.1" fill="white" opacity="0.7"/>
-        <circle cx="33" cy="22" r="1.3" fill="white" opacity="0.8"/>
-      </svg>
-    </div>
-  </div>
-  <span class="badge-name">夜行者</span>
-  <span class="badge-level">凌晨提交</span>
-</div>
-
-<!-- 精准出击 -->
-<div class="badge-item lit c-red">
-  <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-    <div class="badge-hex-glow"></div>
-    <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/></svg>
-    <div class="badge-hex">
-      <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-        <circle cx="20" cy="20" r="13" stroke="white" stroke-width="1.8" opacity="0.9"/>
-        <circle cx="20" cy="20" r="8" stroke="white" stroke-width="1.8" opacity="0.75"/>
-        <circle cx="20" cy="20" r="3" fill="white" opacity="0.95"/>
-        <line x1="20" y1="4" x2="20" y2="9" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-        <line x1="20" y1="31" x2="20" y2="36" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-        <line x1="4" y1="20" x2="9" y2="20" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-        <line x1="31" y1="20" x2="36" y2="20" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-      </svg>
-    </div>
-  </div>
-  <span class="badge-name">精准出击</span>
-  <span class="badge-level">提交即通过</span>
-</div>
-
-<!-- 坚持不懈 -->
-<div class="badge-item lit c-purple">
-  <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-    <div class="badge-hex-glow"></div>
-    <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/></svg>
-    <div class="badge-hex">
-      <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-        <rect x="5" y="9" width="30" height="24" rx="3" stroke="white" stroke-width="2" opacity="0.9"/>
-        <line x1="5" y1="16" x2="35" y2="16" stroke="white" stroke-width="2" opacity="0.9"/>
-        <line x1="13" y1="5" x2="13" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
-        <line x1="27" y1="5" x2="27" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
-        <path d="M13 25 L17 29 L27 20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
-      </svg>
-    </div>
-  </div>
-  <span class="badge-name">坚持不懈</span>
-  <span class="badge-level">连续7天在线</span>
-</div>
-
-          </div>
+          <div id="slideBadgeGrid" class="badge-grid" style="max-width:480px; margin:24px auto 0; border:none;"></div>
         </div>
       </div>
 
@@ -2246,81 +2081,24 @@ display: flex; gap: 12px; width: 368px;
 
           <div class="slide-eyebrow" style="text-align:center;">同行者</div>
 
-          <!-- 顶部：组名 + 你的排名 -->
+          <!-- 顶部：组名 + 你的排名（由 applyGroupRankData 动态填充） -->
           <div style="margin-top:28px; display:flex; align-items:flex-end; justify-content:space-between;">
             <div>
               <div style="font-size:12px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:5px;">所在部门</div>
-              <div style="font-size:18px; font-weight:600; color:rgba(255,255,255,0.88);">前端冲刺 3 组</div>
+              <div id="slideGroupName" style="font-size:18px; font-weight:600; color:rgba(255,255,255,0.88);">前端冲刺 3 组</div>
+              <div id="slideGroupMeta" class="group-rank-meta"></div>
             </div>
             <div style="text-align:right;">
               <div style="font-size:12px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:3px;">通关排名</div>
-              <div style="font-size:26px; font-weight:800; color:#818cf8; line-height:1;">#8</div>
+              <div id="slideGroupRank" style="font-size:26px; font-weight:800; color:#818cf8; line-height:1;">#8</div>
             </div>
           </div>
 
           <!-- 细分隔线 -->
           <div style="margin:18px 0 0; height:1px; background:linear-gradient(90deg, rgba(129,140,248,0.2), transparent);"></div>
 
-          <!-- 排名列表 -->
-          <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px; overflow-y:auto; max-height:340px; padding-right:2px;">
-
-            <!-- #1 张一 -->
-            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.15);">
-              <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#f59e0b,#92400e); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#1</div>
-              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.85); font-weight:500;">张一</span>
-              <span style="font-size:12px; color:rgba(251,191,36,0.6);">03/18 11:40</span>
-            </div>
-
-            <!-- #2 李二 -->
-            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(251,191,36,0.04); border:1px solid rgba(251,191,36,0.1);">
-              <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#d4a843,#6b4c1a); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#2</div>
-              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.85); font-weight:500;">李二</span>
-              <span style="font-size:12px; color:rgba(251,191,36,0.5);">03/18 16:08</span>
-            </div>
-
-            <!-- #3 王三 -->
-            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(251,191,36,0.03); border:1px solid rgba(251,191,36,0.08);">
-              <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#b8853a,#5a3d18); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#3</div>
-              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.8); font-weight:500;">王三</span>
-              <span style="font-size:12px; color:rgba(251,191,36,0.4);">03/18 21:12</span>
-            </div>
-
-            <!-- #4 赵四 -->
-            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
-              <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#4</div>
-              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.65);">赵四</span>
-              <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 09:03</span>
-            </div>
-
-            <!-- #5 周五 -->
-            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
-              <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#5</div>
-              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.65);">周五</span>
-              <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 11:26</span>
-            </div>
-
-            <!-- #6 吴六 -->
-            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
-              <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#6</div>
-              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.65);">吴六</span>
-              <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 13:44</span>
-            </div>
-
-            <!-- #7 郑七 -->
-            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);">
-              <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:rgba(255,255,255,0.5); flex-shrink:0;">#7</div>
-              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.65);">郑七</span>
-              <span style="font-size:12px; color:rgba(148,163,184,0.4);">03/19 18:22</span>
-            </div>
-
-            <!-- #8 你（高亮） -->
-            <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.3);">
-              <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff; flex-shrink:0;">#8</div>
-              <span style="flex:1; font-size:15px; color:rgba(255,255,255,0.95); font-weight:600;">你（小团子）</span>
-              <span style="font-size:12px; color:rgba(96,165,250,0.7);">03/19 22:00</span>
-            </div>
-
-          </div>
+          <!-- 排名列表（由 applyGroupRankData 动态渲染，与完整报告共享数据源） -->
+          <div id="slideGroupRankList" style="margin-top:16px; display:flex; flex-direction:column; gap:8px; overflow-y:auto; max-height:340px; padding-right:2px;"></div>
 
           <!-- 底部：召唤队友提示 -->
           <div style="margin-top:16px; display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; background:rgba(129,140,248,0.05); border:1px solid rgba(129,140,248,0.12);">
@@ -2339,124 +2117,7 @@ display: flex; gap: 12px; width: 368px;
         <div class="slide-content" style="text-align:left; z-index:1; width:100%; max-width:420px;">
           <div class="slide-eyebrow" style="text-align:center;">闯关时间线</div>
 
-          <div style="margin-top:24px; display:flex; flex-direction:column; gap:0; position:relative;">
-
-            <!-- 左侧连接竖线（穿过圆心） -->
-            <div style="position:absolute; left:14px; top:34px; bottom:80px; width:1px; background:linear-gradient(180deg, rgba(148,163,184,0.15) 0%, rgba(148,163,184,0.08) 80%, transparent 100%); z-index:0;"></div>
-
-            <!-- 第1关 -->
-            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
-              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">1</div>
-              <div style="flex:1;">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
-                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">安装 CatPaw</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">🥉 青铜</span>
-                </div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/01 10:23</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 12h</span>
-                </div>
-                <div style="font-size:11px; color:rgba(148,163,184,0.35); margin-top:2px;">✓ 开发工具就位</div>
-              </div>
-            </div>
-
-            <!-- 第2关 -->
-            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
-              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">2</div>
-              <div style="flex:1;">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
-                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">安装开发环境</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">🥈 白银</span>
-                </div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/04 15:40</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 3天</span>
-                </div>
-                <div style="font-size:11px; color:rgba(148,163,184,0.35); margin-top:2px;">✓ 编码环境搭建完毕</div>
-              </div>
-            </div>
-
-            <!-- 第3关 -->
-            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
-              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">3</div>
-              <div style="flex:1;">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
-                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">安装 Claude Code</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">🥇 黄金</span>
-                </div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/07 09:10</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 3天</span>
-                </div>
-                <div style="font-size:11px; color:rgba(148,163,184,0.35); margin-top:2px;">✓ AI 编程助手接入</div>
-              </div>
-            </div>
-
-            <!-- 第4关 -->
-            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
-              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">4</div>
-              <div style="flex:1;">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
-                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">本地代码跑起来</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">💎 铂金</span>
-                </div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/11 20:30</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 4天</span>
-                </div>
-                <div style="font-size:11px; color:rgba(96,165,250,0.5); margin-top:2px;">✓ 第一次在本地看到自己的页面</div>
-              </div>
-            </div>
-
-            <!-- 第5关 -->
-            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
-              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">5</div>
-              <div style="flex:1;">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
-                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">纯前端页面发布</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">💠 钻石</span>
-                </div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/13 11:55</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 2天</span>
-                </div>
-                <div style="font-size:11px; color:rgba(148,163,184,0.35); margin-top:2px;">✓ 第一个上线的页面</div>
-              </div>
-            </div>
-
-            <!-- 第6关 -->
-            <div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;">
-              <div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">6</div>
-              <div style="flex:1;">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
-                  <span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">前后端联调并发布</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">👑 大师</span>
-                </div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                  <span style="font-size:11px; color:rgba(148,163,184,0.45);">03/16 18:00</span>
-                  <span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 3天</span>
-                </div>
-                <div style="font-size:11px; color:rgba(148,163,184,0.35); margin-top:2px;">✓ 前后端完整链路打通</div>
-              </div>
-            </div>
-
-            <!-- 第7关：终点高亮 -->
-            <div style="display:flex; gap:16px; padding:12px 14px; margin-top:6px; border-radius:12px; background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04)); border:1px solid rgba(251,191,36,0.2); position:relative; z-index:1;">
-              <div style="width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#f59e0b,#92400e); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; margin-top:2px;">🏆</div>
-              <div style="flex:1;">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
-                  <span style="font-size:14px; font-weight:700; color:#fbbf24;">前后端全栈开发</span>
-                  <span style="font-size:10px; color:rgba(251,191,36,0.7); background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); padding:1px 7px; border-radius:999px;">🏆 王者</span>
-                </div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                  <span style="font-size:11px; color:rgba(251,191,36,0.6);">03/19 22:00</span>
-                  <span style="font-size:10px; color:rgba(251,191,36,0.35);">· 用时 3天</span>
-                </div>
-                <div style="font-size:11px; color:rgba(251,191,36,0.45); margin-top:2px;">✓ 从零到全栈，全部完成</div>
-              </div>
-            </div>
-
-          </div>
+          <div id="slideTimelineList" style="margin-top:24px; display:flex; flex-direction:column; gap:0; position:relative;"></div>
         </div>
       </div>
 
@@ -2468,7 +2129,7 @@ display: flex; gap: 12px; width: 368px;
 
   <div class="slide-eyebrow" style="color:rgba(251,191,36,0.7); margin-bottom:20px;">写在最后</div>
 
-  <p style="font-size:24px; font-weight:300; line-height:1.8; color:rgba(255,255,255,0.88); margin:0; letter-spacing:0.02em;">18天，从零到全栈。<br>每一关都是真实战斗，<br>每一次提交都在定义你的<br>工程师成长曲线。</p>
+  <p id="slide8Quote" style="font-size:24px; font-weight:300; line-height:1.8; color:rgba(255,255,255,0.88); margin:0; letter-spacing:0.02em;">18天，从零到全栈。<br>每一关都是真实战斗，<br>每一次提交都在定义你的<br>工程师成长曲线。</p>
 
   <!-- 底部分隔装饰 -->
   <div style="display:flex; align-items:center; gap:10px; margin-top:36px; margin-bottom:28px;">
@@ -2520,7 +2181,7 @@ display: flex; gap: 12px; width: 368px;
             <!-- KPI 三格 -->
             <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; position:relative; z-index:1;">
               <div class="hero-kpi"><span class="hero-kpi-val" id="frKpiDuration">18天5小时</span><span class="hero-kpi-key">全程通关</span></div>
-              <div class="hero-kpi"><span class="hero-kpi-val" id="frKpiSubmits">34 次</span><span class="hero-kpi-key">累计提交</span></div>
+              <div class="hero-kpi"><span class="hero-kpi-val" id="frKpiSubmits">11 天</span><span class="hero-kpi-key">活跃学习</span></div>
               <div class="hero-kpi"><span class="hero-kpi-val" id="frKpiRank">超越 85%</span><span class="hero-kpi-key">同批参与者</span></div>
             </div>
 
@@ -2547,8 +2208,8 @@ display: flex; gap: 12px; width: 368px;
 <span class="stat-key">最晚收工记录</span>
 </div>
 <div class="stat-box">
-<div class="stat-main"><span class="stat-emoji">✅</span><span class="stat-val" id="frStatFirstPass">6/7 关</span></div>
-<span class="stat-key">首次验收通过</span>
+<div class="stat-main"><span class="stat-emoji">💪</span><span class="stat-val" id="frStatFirstPass">第 6 关</span></div>
+<span class="stat-key">最难关</span>
 </div>
 </div>
 </div>
@@ -2556,53 +2217,22 @@ display: flex; gap: 12px; width: 368px;
           <!-- 闯关历程（左） -->
           <div class="rp-card">
             <div class="rp-card-title">闯关时间线</div>
-            <div class="rp-card-sub">从第 1 关到第 7 关，用 18 天完成全链路实战升级。</div>
-            <div class="timeline">
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">🐾</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第1关 · 安装 CatPaw</span><span class="tl-rank"><span class="tl-rank-emoji">🥉</span>青铜解锁</span></div><div class="tl-meta"><span>2025/03/01 10:23</span><span>耗时 12 小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">⚙️</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第2关 · 安装开发环境</span><span class="tl-rank"><span class="tl-rank-emoji">🥈</span>白银解锁</span></div><div class="tl-meta"><span>2025/03/04 15:40</span><span>耗时 2天5小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">🤖</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第3关 · 安装 Claude Code</span><span class="tl-rank"><span class="tl-rank-emoji">🥇</span>黄金解锁</span></div><div class="tl-meta"><span>2025/03/07 09:10</span><span>耗时 1天18小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">💻</div><div class="tl-line"></div></div>
-                <div class="tl-right">
-                  <div class="tl-header"><span class="tl-name">第4关 · 本地代码跑起来</span><span class="tl-rank"><span class="tl-rank-emoji">💎</span>铂金解锁</span></div>
-<div class="tl-meta"><span>2025/03/11 20:30</span><span>耗时 3天11小时</span></div>
-                </div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">🌐</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第5关 · 纯前端页面发布</span><span class="tl-rank"><span class="tl-rank-emoji">💠</span>钻石解锁</span></div><div class="tl-meta"><span>2025/03/13 11:55</span><span>耗时 1天16小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot">🔗</div><div class="tl-line"></div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第6关 · 前后端联调并发布</span><span class="tl-rank"><span class="tl-rank-emoji">👑</span>大师解锁</span></div><div class="tl-meta"><span>2025/03/16 18:00</span><span>耗时 2天18小时</span></div></div>
-              </div>
-              <div class="tl-item">
-                <div class="tl-left"><div class="tl-dot last">🚀</div></div>
-                <div class="tl-right"><div class="tl-header"><span class="tl-name">第7关 · 前后端全栈开发</span><span class="tl-rank king"><span class="tl-rank-emoji">🏆</span>王者达成！</span></div><div class="tl-meta"><span>2025/03/19 22:00</span><span>耗时 3天4小时</span></div></div>
-              </div>
-            </div>
+            <div class="rp-card-sub" id="fullTimelineSub">从第 1 关到第 7 关，用 18 天完成全链路实战升级。</div>
+            <div class="timeline" id="fullTimelineList"></div>
           </div>
 
-<!-- 小组排名（右） -->
+<!-- 部门排名（右） -->
 <div class="rp-card group-rank-card">
   <!-- 顶部：组名 + 你的排名 -->
   <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:16px;">
     <div>
       <div style="font-size:11px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:4px;">所在部门</div>
-      <div style="font-size:17px; font-weight:600; color:rgba(255,255,255,0.88);">前端冲刺 3 组</div>
+      <div id="fullGroupName" style="font-size:17px; font-weight:600; color:rgba(255,255,255,0.88);">前端冲刺 3 组</div>
+      <div id="fullGroupMeta" class="group-rank-meta"></div>
     </div>
     <div style="text-align:right;">
       <div style="font-size:11px; color:rgba(148,163,184,0.45); letter-spacing:0.3px; margin-bottom:2px;">通关排名</div>
-      <div style="font-size:24px; font-weight:800; color:#818cf8; line-height:1;">#8</div>
+      <div id="fullGroupRank" style="font-size:24px; font-weight:800; color:#818cf8; line-height:1;">#8</div>
     </div>
   </div>
   <div style="height:1px; background:linear-gradient(90deg, rgba(129,140,248,0.2), transparent); margin-bottom:14px;"></div>
@@ -2664,132 +2294,12 @@ display: flex; gap: 12px; width: 368px;
           <div class="rp-card col-span-2">
             <div class="rp-card-title">成就徽章墙</div>
             <div class="badge-summary">7枚核心徽章已点亮，覆盖速度、稳定性、精确度与全栈能力。</div>
-            <div class="badge-grid">
-              <div class="badge-item lit c-gold">
-                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                  <div class="badge-hex-glow"></div>
-                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
-                  <div class="badge-hex">
-                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-                      <path d="M5 29 L5 12 L13 19 L20 7 L27 19 L35 12 L35 29 Z" fill="white" opacity="0.95"></path>
-                      <rect x="5" y="30" width="30" height="4" rx="2" fill="white" opacity="0.95"></rect>
-                      <circle cx="5" cy="12" r="2.5" fill="white"></circle>
-                      <circle cx="20" cy="7" r="2.5" fill="white"></circle>
-                      <circle cx="35" cy="12" r="2.5" fill="white"></circle>
-                    </svg>
-                  </div>
-                </div>
-                <span class="badge-name">全栈王者</span>
-                <span class="badge-level">7关全通</span>
-              </div>
-
-              <div class="badge-item lit c-cyan">
-                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                  <div class="badge-hex-glow"></div>
-                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
-                  <div class="badge-hex">
-                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-                      <path d="M23 4 L10 22 H18 L16 36 L30 18 H22 Z" fill="white" opacity="0.95" stroke="rgba(255,255,255,0.3)" stroke-width="0.5" stroke-linejoin="round"></path>
-                    </svg>
-                  </div>
-                </div>
-                <span class="badge-name">闪电手</span>
-                <span class="badge-level">单关最快</span>
-              </div>
-
-              <div class="badge-item lit c-orange">
-                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                  <div class="badge-hex-glow"></div>
-                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
-                  <div class="badge-hex">
-                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-                      <path d="M20 36C11 36 8 29 9 22C10 16 13 14 13 14C13 18 15 20 15 20C15 15 18 11 22 6C22 11 25 13 27 14C30 17 32 21 31 27C30 32 25 36 20 36Z" fill="white" opacity="0.95"></path>
-                      <path d="M20 31C17 31 16 28 16.5 25C17 23 18 22 18 22C18 24 19 25 20 25C21 23 21 21 22 19C22 21 23 24 24 25C25 27 24 31 20 31Z" fill="rgba(255,120,30,0.55)"></path>
-                    </svg>
-                  </div>
-                </div>
-                <span class="badge-name">连击达人</span>
-                <span class="badge-level">连续提交10+</span>
-              </div>
-
-              <div class="badge-item lit c-blue">
-                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                  <div class="badge-hex-glow"></div>
-                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
-                  <div class="badge-hex">
-                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-                      <path d="M25 8C18 8 12 13 12 20C12 27 18 32 25 32C28 32 31 31 33 29C31 29.5 28.5 29.5 26.5 28C21 25 18 21 18 16C18 12.5 20 9.5 23 8.5C24 8.2 24.5 8 25 8Z" fill="white" opacity="0.95"></path>
-                      <circle cx="31" cy="9" r="1.6" fill="white" opacity="0.9"></circle>
-                      <circle cx="34" cy="15" r="1.1" fill="white" opacity="0.7"></circle>
-                      <circle cx="33" cy="22" r="1.3" fill="white" opacity="0.8"></circle>
-                    </svg>
-                  </div>
-                </div>
-                <span class="badge-name">夜行者</span>
-                <span class="badge-level">深夜通关</span>
-              </div>
-
-              <div class="badge-item lit c-red">
-                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                  <div class="badge-hex-glow"></div>
-                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
-                  <div class="badge-hex">
-                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-                      <circle cx="20" cy="20" r="15" stroke="white" stroke-width="2" opacity="0.9"></circle>
-                      <circle cx="20" cy="20" r="9" stroke="white" stroke-width="2" opacity="0.9"></circle>
-                      <circle cx="20" cy="20" r="4" fill="white" opacity="0.95"></circle>
-                      <line x1="20" y1="3" x2="20" y2="8" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"></line>
-                      <line x1="20" y1="32" x2="20" y2="37" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"></line>
-                      <line x1="3" y1="20" x2="8" y2="20" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"></line>
-                      <line x1="32" y1="20" x2="37" y2="20" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"></line>
-                    </svg>
-                  </div>
-                </div>
-                <span class="badge-name">精准出击</span>
-                <span class="badge-level">提交即通过</span>
-              </div>
-
-              <div class="badge-item lit c-purple">
-                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                  <div class="badge-hex-glow"></div>
-                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
-                  <div class="badge-hex">
-                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-                      <rect x="5" y="9" width="30" height="24" rx="3" stroke="white" stroke-width="2" opacity="0.9"></rect>
-                      <line x1="5" y1="16" x2="35" y2="16" stroke="white" stroke-width="2" opacity="0.9"></line>
-                      <line x1="13" y1="5" x2="13" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9"></line>
-                      <line x1="27" y1="5" x2="27" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9"></line>
-                      <path d="M13 25 L17 29 L27 20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"></path>
-                    </svg>
-                  </div>
-                </div>
-                <span class="badge-name">坚持不懈</span>
-                <span class="badge-level">连续7天在线</span>
-              </div>
-
-              <div class="badge-item lit c-pink">
-                <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                  <div class="badge-hex-glow"></div>
-                  <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
-                  <div class="badge-hex">
-                    <svg viewBox="0 0 40 40" fill="none" width="36" height="36">
-                      <path d="M20 4C20 4 29 8 29 19L29 26L20 33L11 26L11 19C11 8 20 4 20 4Z" fill="white" opacity="0.95"></path>
-                      <circle cx="20" cy="18" r="4.5" fill="rgba(236,72,153,0.5)"></circle>
-                      <path d="M11 24 L7 31 L13 29 Z" fill="white" opacity="0.75"></path>
-                      <path d="M29 24 L33 31 L27 29 Z" fill="white" opacity="0.75"></path>
-                      <path d="M17 33 L15 38 L20 36 L25 38 L23 33" fill="rgba(255,180,80,0.9)"></path>
-                    </svg>
-                  </div>
-                </div>
-                <span class="badge-name">超速通关</span>
-                <span class="badge-level">Top 15%</span>
-              </div>
-            </div>
+            <div id="fullBadgeGrid" class="badge-grid"></div>
           </div>
 
           <!-- 金句（跨全宽） -->
           <div class="quote-card col-span-2">
-            <p class="quote-text">18天，从零到全栈。每一关都是真实战斗，每一次提交都在定义你的工程师成长曲线。</p>
+            <p class="quote-text" id="fullReportQuote">18天，从零到全栈。每一关都是真实战斗，每一次提交都在定义你的工程师成长曲线。</p>
             <div class="quote-author">—— PDE 全栈闯关成就评语</div>
           </div>
         </div>
@@ -2845,11 +2355,10 @@ display: flex; gap: 12px; width: 368px;
         <div class="pv-aside">
           <div class="pv-tip">
             <strong>💡 使用说明</strong>
-            点击"保存图片"将海报下载到本地；"复制图片"可直接粘贴到 IM 或朋友圈。<br><br>
+            点击"下载海报"将海报保存到本地；"转发到大象"可快速分享。<br><br>
             需要联网加载截图工具，首次点击稍等片刻。
           </div>
-          <button class="dl-btn" id="dlBtn" onclick="downloadPoster()">⬇ 保存图片</button>
-          <button class="copy-btn" id="copyBtn" onclick="copyPoster()">复制海报</button>
+          <button class="dl-btn" id="dlBtn" onclick="downloadPoster()">下载海报</button>
           <button class="elephant-btn" id="elephantBtn" onclick="shareToElephant()">转发到大象</button>
         </div>
       </div>
@@ -2885,82 +2394,505 @@ display: flex; gap: 12px; width: 368px;
     <!-- 关闭按钮，放在海报卡片外侧 -->
     <button class="poster-close-btn" type="button" aria-label="关闭" onclick="closePosterModal()"></button>
 
-    <!-- 海报卡片（截图目标） -->
-    <div class="poster-modal-card" id="posterModalCard">
-      <div class="poster-card" id="posterCardModal">
-        <div class="poster-corner-br"></div>
-        <div class="poster-corner-bl"></div>
-        <div class="poster-glow"></div>
-        <div class="poster-body">
-          <div class="poster-logo">
-            <span class="poster-logo-tag">PDE</span>
-            <span class="poster-logo-sub">Camp · 通关成就</span>
-          </div>
-          <div class="poster-avatar-wrap">
-            <div class="poster-avatar-ring">
-              <div class="poster-avatar">
-                <span class="poster-avatar-text" id="posterAvatarText2">团</span>
-              </div>
-            </div>
-            <div class="poster-name" id="posterName2">小团子</div>
-            <div class="poster-badges" style="justify-content:center; margin-top:2px;">
-              <span class="poster-badge indigo" id="posterTitle2"><span class="poster-badge-ico">🌙</span>深夜修仙极客</span>
-            </div>
-          </div>
-          <div class="poster-stats">
-            <div class="poster-stat"><span class="poster-stat-val" id="posterStatDuration2">18天5h</span><span class="poster-stat-key">总耗时</span></div>
-            <div class="poster-stat"><span class="poster-stat-val cyan" id="posterStatTop2">Top 15%</span><span class="poster-stat-key" id="posterStatTopSub2">超越 85%</span></div>
-            <div class="poster-stat"><span class="poster-stat-val green" id="posterStatRank2">第8位</span><span class="poster-stat-key">通关先锋</span></div>
-          </div>
-          <div class="poster-quote" id="posterQuote2">善于快速理解新工具，遇到复杂挑战时选择深度研究而非蛮力突破</div>
-        </div>
-        <div class="poster-footer">
-          <div class="poster-footer-invite">
-            <span class="poster-footer-invite-label">邀请你一起来闯关</span>
-            <span class="poster-footer-invite-url">pdecamp.sankuai.com</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 海报卡片（截图目标，打开时由 #posterCard 自动克隆填入） -->
+    <div class="poster-modal-card" id="posterModalCard"></div>
 
     <!-- 操作按钮 -->
     <div class="poster-modal-actions">
-      <button class="pma-copy" id="pmaCopyBtn" onclick="copyPosterModal()">复制海报</button>
+      <button class="pma-copy" id="pmaCopyBtn" onclick="downloadPosterModal()">下载海报</button>
       <button class="pma-elephant" id="pmaElephantBtn" onclick="shareToElephantModal()">转发到大象</button>
     </div>
   </div>
 </div>
 
+<script src="./mockdata.js"></script>
 <script>
-const RANK_PCT = 85
 const R = 33
 const CIRC = 2 * Math.PI * R  // 207.3
 const DEFAULT_REFLECTION_TEXT = '这一路有卡关、有突破，也有意外惊喜，感谢坚持到最后的自己。'
 let userReflectionText = ''
 
-// ===== 用户核心数据（后端接入后替换为接口数据） =====
-const userData = {
-  userName: '小团子',           // 用户姓名
-  avatarInitial: '团',          // 头像首字母
-  totalDuration: '18天5小时',   // 全程通关耗时
-  totalSubmits: '34 次',        // 累计提交次数
-  rankPct: 85,                  // 超越百分比（整数）
-  lateSubmitHour: 2,            // 最晚提交小时（0-23），用于称号判断
-  lateSubmitTime: '凌晨 02:14', // 最晚收工时间展示文案
-  maxContinuousDays: 11,        // 最长连续活跃天数
-  firstPassLevels: 6,           // 首次验收通过关数
-  hardestLevel: 6,              // 最难忘/耗时最多的关卡
-  hardestLevelSubmits: 8,       // 最难忘关卡的提交次数
+// ===== Mock 数据入口（集中在 mockdata.js，避免散落在页面代码里） =====
+const MOCK_DATA_STORE = window.PDE_MOCK_DATA || { defaultUserId: '', users: [] }
+const DEFAULT_UI_DATA = {
+  leftPanel: { duration: '', submits: '', rankPct: '' },
+  broadcast: { duration: '', submits: '', globalRank: '', topPct: '', quote: '' },
+  downloads: { posterFileName: '' }
 }
 
-// ===== 称号计算（按PRD优先级规则） =====
+const DEFAULT_TIMELINE_DATA = {
+  fullReportSub: '从第 1 关到第 7 关，用 18 天完成全链路实战升级。',
+  items: [
+    {
+      level: 1,
+      name: '安装 CatPaw',
+      icon: '🐾',
+      rankEmoji: '🥉',
+      rankSlideLabel: '🥉 青铜',
+      rankUnlockLabel: '青铜解锁',
+      finishedAtShort: '03/01 10:23',
+      finishedAtFull: '2025/03/01 10:23',
+      durationShort: '12h',
+      durationFull: '12 小时',
+      note: '开发工具就位'
+    },
+    {
+      level: 2,
+      name: '安装开发环境',
+      icon: '⚙️',
+      rankEmoji: '🥈',
+      rankSlideLabel: '🥈 白银',
+      rankUnlockLabel: '白银解锁',
+      finishedAtShort: '03/04 15:40',
+      finishedAtFull: '2025/03/04 15:40',
+      durationShort: '3天',
+      durationFull: '2天5小时',
+      note: '编码环境搭建完毕'
+    },
+    {
+      level: 3,
+      name: '安装 Claude Code',
+      icon: '🤖',
+      rankEmoji: '🥇',
+      rankSlideLabel: '🥇 黄金',
+      rankUnlockLabel: '黄金解锁',
+      finishedAtShort: '03/07 09:10',
+      finishedAtFull: '2025/03/07 09:10',
+      durationShort: '3天',
+      durationFull: '1天18小时',
+      note: 'AI 编程助手接入'
+    },
+    {
+      level: 4,
+      name: '本地代码跑起来',
+      icon: '💻',
+      rankEmoji: '💎',
+      rankSlideLabel: '💎 铂金',
+      rankUnlockLabel: '铂金解锁',
+      finishedAtShort: '03/11 20:30',
+      finishedAtFull: '2025/03/11 20:30',
+      durationShort: '4天',
+      durationFull: '3天11小时',
+      note: '第一次在本地看到自己的页面',
+      noteHighlight: true
+    },
+    {
+      level: 5,
+      name: '纯前端页面发布',
+      icon: '🌐',
+      rankEmoji: '💠',
+      rankSlideLabel: '💠 钻石',
+      rankUnlockLabel: '钻石解锁',
+      finishedAtShort: '03/13 11:55',
+      finishedAtFull: '2025/03/13 11:55',
+      durationShort: '2天',
+      durationFull: '1天16小时',
+      note: '第一个上线的页面'
+    },
+    {
+      level: 6,
+      name: '前后端联调并发布',
+      icon: '🔗',
+      rankEmoji: '👑',
+      rankSlideLabel: '👑 大师',
+      rankUnlockLabel: '大师解锁',
+      finishedAtShort: '03/16 18:00',
+      finishedAtFull: '2025/03/16 18:00',
+      durationShort: '3天',
+      durationFull: '2天18小时',
+      note: '前后端完整链路打通'
+    },
+    {
+      level: 7,
+      name: '前后端全栈开发',
+      icon: '🚀',
+      rankEmoji: '🏆',
+      rankSlideLabel: '🏆 王者',
+      rankUnlockLabel: '王者达成！',
+      finishedAtShort: '03/19 22:00',
+      finishedAtFull: '2025/03/19 22:00',
+      durationShort: '3天',
+      durationFull: '3天4小时',
+      note: '从零到全栈，全部完成',
+      isFinal: true
+    }
+  ]
+}
+
+let uiData = JSON.parse(JSON.stringify(DEFAULT_UI_DATA))
+let timelineMetrics = deepClone(DEFAULT_TIMELINE_DATA)
+let posterDownloadFileName = ''
+
+// ===== 用户核心数据（运行时由 mockdata.js 回填） =====
+let userData = {
+  // === \u6765\u81ea\u540e\u7aef\u5b9e\u9645\u5b57\u6bb5 ===
+  userName: '',            // \u6765\u81ea\u540e\u7aef /api/user/me \u7684 name \u5b57\u6bb5
+  avatarInitial: '',       // \u524d\u7aef\u6839\u636e userName \u8ba1\u7b97
+  totalDuration: '',       // \u7531 user_stage_progress.started_at + completed_at \u8ba1\u7b97\uff0c\u524d\u7aef\u683c\u5f0f\u5316\u5b57\u7b26\u4e32
+  totalDays: 0,            // \u7531 totalDuration \u8ba1\u7b97\u5f97\u5929\u6570\uff08\u6574\u6570\uff09
+  rankPct: 0,              // \u5bf9\u9f50 /api/leaderboard/meituan \u8fd4\u56de\u7684 rankPct
+  lateSubmitHour: 23,      // \u7531 user_step_progress.completed_at \u53d6\u6240\u6709\u5b8c\u6210\u65f6\u95f4\u4e2d\u6700\u665a\u5c0f\u65f6\u6570
+  lateSubmitTime: '',      // lateSubmitHour \u683c\u5f0f\u5316\u5b57\u7b26\u4e32\uff0c\u5982\u300c\u51cc\u6668 02:14\u300d
+  maxContinuousDays: 0,    // \u7531 user_step_progress.completed_at \u8ba1\u7b97\u6700\u957f\u8fde\u7eed\u5929\u6570
+  activeDays: 0,           // \u7531 user_step_progress.completed_at \u8ba1\u7b97\u4e0d\u91cd\u590d\u65e5\u671f\u6570
+  passedLevels: 0,         // user_stage_progress \u4e2d status=passed \u7684\u5173\u6570\uff08\u5f53\u524d\u5e94 7\uff09
+  levelDurationHours: [],  // \u6bcf\u5173 started_at \u2192 completed_at \u5c0f\u65f6\u6570\uff0c7 \u5143\u7d20\u6570\u7ec4
+  hardestLevel: 1,         // \u6700\u8017\u65f6\u5173 \u5c55\u793a\u7528
+  hardestLevelDays: 0,     // \u6700\u8017\u65f6\u5173\u5929\u6570
+  fastestLevel: 1,         // \u6700\u5feb\u901a\u5173\u5c55\u793a\u7528
+  fastestLevelTime: ''     // \u6700\u5feb\u901a\u5173\u65f6\u95f4\u5b57\u7b26\u4e32
+  // === \u5f53\u524d\u540e\u7aef\u65e0\u6b64\u6570\u636e\uff0c\u6682\u4e0d\u8d4b\u5024 ===
+  // totalSubmits         \u2014 \u6bcf\u5173\u63d0\u4ea4\u6b21\u6570\u9700\u8981\u65e5\u5fd7\u8868\uff0c\u5f53\u524d\u4ec5\u8bb0\u5f55\u6700\u540e\u4e00\u6b21\u63d0\u4ea4
+  // totalSubmitsNum      \u2014 \u540c\u4e0a
+  // firstPassLevels      \u2014 \u9996\u6b21\u9a8c\u6536\u901a\u8fc7\u5173\u6570\uff0c\u9700\u8981\u63d0\u4ea4\u65e5\u5fd7\u8868
+  // hardestLevelSubmits  \u2014 \u5355\u5173\u6700\u5927\u63d0\u4ea4\u6b21\u6570\uff0c\u9700\u8981\u63d0\u4ea4\u65e5\u5fd7\u8868
+  // levelSubmits         \u2014 \u6bcf\u5173\u63d0\u4ea4\u6b21\u6570\u6570\u7ec4\uff0c\u9700\u8981\u63d0\u4ea4\u65e5\u5fd7\u8868
+}
+
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj || {}))
+}
+
+function getMockProfileByUserId(userId) {
+  const list = Array.isArray(MOCK_DATA_STORE.users) ? MOCK_DATA_STORE.users : []
+  if (!list.length) return null
+  if (userId) {
+    const matched = list.find((item) => item.userId === userId)
+    if (matched) return matched
+  }
+  const defaultMatched = list.find((item) => item.userId === MOCK_DATA_STORE.defaultUserId)
+  return defaultMatched || list[0]
+}
+
+function getPosterDownloadName() {
+  const fallback = `PDE王者成就-${userData.userName || '学员'}.png`
+  const raw = posterDownloadFileName || fallback
+  return raw.replace(/[\\/:*?"<>|]/g, '_')
+}
+
+function toFiniteNumber(value, fallback) {
+  const n = Number(value)
+  return Number.isFinite(n) ? n : fallback
+}
+
+function clampNumber(value, min, max) {
+  return Math.min(max, Math.max(min, value))
+}
+
+function getDisplayRankPct() {
+  // PRD 展示口径：向下取整，最低展示 50%，最高 100%
+  const pct = Math.floor(toFiniteNumber(userData.rankPct, 0))
+  return clampNumber(pct, 50, 100)
+}
+
+function getDisplayTopPct() {
+  // 与 rankPct 展示口径保持一致：Top = 100 - rankPct
+  return 100 - getDisplayRankPct()
+}
+
+function toTopPctByRankPct(rankPct) {
+  const pct = Math.floor(toFiniteNumber(rankPct, 0))
+  return clampNumber(100 - pct, 0, 50)
+}
+
+function normalizeGroupRankPayload(rawGroupPayload, fallbackMetrics, currentMis) {
+  const fallback = fallbackMetrics && typeof fallbackMetrics === 'object'
+    ? deepClone(fallbackMetrics)
+    : { group: null, rankings: [] }
+
+  if (!rawGroupPayload || typeof rawGroupPayload !== 'object') {
+    return fallback
+  }
+
+  const rankings = Array.isArray(rawGroupPayload.rankings)
+    ? rawGroupPayload.rankings
+    : (Array.isArray(rawGroupPayload.list) ? rawGroupPayload.list : (fallback.rankings || []))
+
+  const rawGroup = rawGroupPayload.group && typeof rawGroupPayload.group === 'object'
+    ? rawGroupPayload.group
+    : {}
+
+  const myRank = Math.floor(toFiniteNumber(rawGroup.myRank, toFiniteNumber(rawGroupPayload.myRank, 0)))
+  const totalMembers = Math.floor(toFiniteNumber(rawGroup.totalMembers, toFiniteNumber(rawGroupPayload.totalMembers, 0)))
+  const passCount = Math.floor(toFiniteNumber(rawGroup.passCount, toFiniteNumber(rawGroupPayload.passCount, rankings.length)))
+
+  return {
+    group: {
+      id: rawGroup.id || rawGroupPayload.groupId || '',
+      name: rawGroup.name || rawGroupPayload.name || '',
+      myRank: myRank > 0 ? myRank : 0,
+      totalMembers: totalMembers > 0 ? totalMembers : 0,
+      passCount: passCount > 0 ? passCount : 0,
+      myMis: rawGroup.myMis || rawGroup.myUserId || rawGroupPayload.myMis || currentMis || ''
+    },
+    rankings: deepClone(rankings)
+  }
+}
+
+function setTextWithEmphasis(el, prefix, value, suffix) {
+  if (!el) return
+  el.textContent = ''
+  el.appendChild(document.createTextNode(prefix))
+  const em = document.createElement('em')
+  em.textContent = String(value)
+  el.appendChild(em)
+  el.appendChild(document.createTextNode(suffix))
+}
+
+function applyStaticViewData() {
+  const setText = (id, value) => {
+    const el = document.getElementById(id)
+    if (!el || value == null) return
+    el.textContent = value
+  }
+
+  const displayRankPct = getDisplayRankPct()
+
+  setText('lpcDuration', uiData.leftPanel.duration || userData.totalDuration)
+  setText('lpcSubmits', uiData.leftPanel.submits || `${userData.activeDays}天`)
+  setText('lpcRankPct', `${displayRankPct}%`)
+  setText('bcDuration', uiData.broadcast.duration || userData.totalDuration)
+  setText('bcSubmits', uiData.broadcast.submits || `${userData.activeDays} 天`)
+
+  const rankEl = document.getElementById('bcGlobalRankText')
+  if (rankEl) {
+    const globalRank = Math.floor(toFiniteNumber(uiData.broadcast.globalRank, 0))
+    setTextWithEmphasis(rankEl, '第 ', globalRank > 0 ? globalRank : '--', ' 位通关者')
+  }
+
+  const topPctEl = document.getElementById('bcTopPctText')
+  if (topPctEl) {
+    const rawTopPct = toFiniteNumber(uiData.broadcast.topPct, NaN)
+    const topPct = Number.isFinite(rawTopPct)
+      ? clampNumber(Math.floor(rawTopPct), 0, 50)
+      : getDisplayTopPct()
+    setTextWithEmphasis(topPctEl, '参与者中 ', `前 ${topPct}%`, ' 的同学')
+  }
+
+  setText('bcQuote', uiData.broadcast.quote || `"${userData.totalDays || 18}天，从零到全栈。每一关都是一次真实的突破。"`)
+  setText('slideCoverDesc', `${userData.totalDuration || '18天5小时'}，从第一行代码到全栈通关`)
+  
+  const slide8QuoteEl = document.getElementById('slide8Quote')
+  if (slide8QuoteEl) {
+    slide8QuoteEl.innerHTML = `${userData.totalDays || 18}天，从零到全栈。<br>每一关都是真实战斗，<br>每一次提交都在定义你的<br>工程师成长曲线。`
+  }
+  
+  const fullReportQuoteEl = document.getElementById('fullReportQuote')
+  if (fullReportQuoteEl) {
+    fullReportQuoteEl.textContent = `${userData.totalDays || 18}天，从零到全栈。每一关都是真实战斗，每一次提交都在定义你的工程师成长曲线。`
+  }
+
+  setText('slideCoverName', userData.userName)
+}
+
+function normalizeTimelineMetrics(raw) {
+  const source = raw && typeof raw === 'object' ? raw : {}
+  const fallback = DEFAULT_TIMELINE_DATA
+  const fallbackItems = Array.isArray(fallback.items) ? fallback.items : []
+  const sourceItems = Array.isArray(source.items) && source.items.length ? source.items : fallbackItems
+  return {
+    fullReportSub: source.fullReportSub || fallback.fullReportSub,
+    items: deepClone(sourceItems)
+  }
+}
+
+function applyMockProfile(profile) {
+  if (!profile) return
+  const profileUserData = deepClone(profile.userData)
+  // 兼容后端接入后直接使用 name 字段（后端 /api/user/me 返回 name，而非 userName）
+  if (profileUserData.name && !profileUserData.userName) {
+    profileUserData.userName = profileUserData.name
+  }
+  // 兼容后端排行榜 mis 字段（前端内部统一使用 mis）
+  userData = Object.assign({}, userData, profileUserData)
+  groupRankMetrics = deepClone(profile.groupRankMetrics || { group: null, rankings: [] })
+  timelineMetrics = normalizeTimelineMetrics(profile.timelineMetrics)
+
+  const sourceUiData = profile.uiData || {}
+  uiData = {
+    leftPanel: Object.assign({}, DEFAULT_UI_DATA.leftPanel, sourceUiData.leftPanel || {}),
+    broadcast: Object.assign({}, DEFAULT_UI_DATA.broadcast, sourceUiData.broadcast || {}),
+    downloads: Object.assign({}, DEFAULT_UI_DATA.downloads, sourceUiData.downloads || {})
+  }
+
+  // 对齐后端新增字段消费：globalRank / rankPct / group
+  const leaderboardPayload = profile.leaderboard || profile.leaderboards || {}
+  const meituanBoard = leaderboardPayload.meituan || profile.leaderboardMeituan
+  const groupBoard = leaderboardPayload.group || profile.leaderboardGroup
+
+  if (meituanBoard && typeof meituanBoard === 'object') {
+    const rankPct = toFiniteNumber(meituanBoard.rankPct, NaN)
+    const globalRank = Math.floor(toFiniteNumber(meituanBoard.globalRank, toFiniteNumber(meituanBoard.myRank, 0)))
+    if (Number.isFinite(rankPct)) {
+      userData.rankPct = clampNumber(Math.floor(rankPct), 0, 100)
+      if (!uiData.broadcast.topPct) {
+        uiData.broadcast.topPct = String(toTopPctByRankPct(rankPct))
+      }
+    }
+    if (globalRank > 0) {
+      uiData.broadcast.globalRank = String(globalRank)
+    }
+  }
+
+  if (groupBoard && typeof groupBoard === 'object') {
+    groupRankMetrics = normalizeGroupRankPayload(
+      groupBoard,
+      groupRankMetrics,
+      profileUserData.mis || profile.userMis || profile.userId || ''
+    )
+  }
+
+  posterDownloadFileName = uiData.downloads.posterFileName || ''
+  applyStaticViewData()
+  applyGroupRankData(groupRankMetrics)
+}
+
+// ===== 称号计算（按 PRD Demo 口径） =====
+// 优先级：深夜修仙极客 > 闪电突破者 > 稳扎稳打型 > 稳定推进型
 function computeTitle() {
   const h = userData.lateSubmitHour
-  if (h >= 0 && h < 4)  return '🌙 深夜修仙极客'
-  if (userData.rankPct >= 90) return '⚡ 闪电全栈侠'
-  if (userData.hardestLevelSubmits >= 8) return '🔥 死磕精神体'
-  if (userData.maxContinuousDays >= 7) return '📅 日更打卡王'
-  return '🚀 全栈探险家'
+  // P1: 凌晨 00:00~04:00 有步骤完成记录（用步骤完成时间近似）
+  if (h >= 0 && h < 4) return '🌙 深夜修仙极客'
+  // P2: 单关平均耗时 ≤ 1.5天（totalDays/7 ≤ 1.5）
+  if (userData.totalDays / 7 <= 1.5) return '⚡ 闪电突破者'
+  // P3: 活跃学习天数 ≥ 10
+  if (userData.activeDays >= 10) return '📅 稳扎稳打型'
+  // P4: 兜底
+  return '🚀 稳定推进型'
+}
+
+// ===== 徽章配置数据与渲染函数 =====
+// 统一数据源，滑动报告第5页和完整报告徽章墙共用，消除双份 DOM
+// 注意：此定义必须在 renderFullReport 之前，因为函数内部调用了 renderBadges 和引用了 BADGE_DATA
+const BADGE_DATA = [
+  {
+    key: 'gold', name: '全栈王者', level: '7关全通',
+    svg: '<path d="M5 29 L5 12 L13 19 L20 7 L27 19 L35 12 L35 29 Z" fill="white" opacity="0.95"/><rect x="5" y="30" width="30" height="4" rx="2" fill="white" opacity="0.95"/><circle cx="5" cy="12" r="2.5" fill="white"/><circle cx="20" cy="7" r="2.5" fill="white"/><circle cx="35" cy="12" r="2.5" fill="white"/>'
+  },
+  {
+    key: 'cyan', name: '闪电手', level: '5-7关≤12h',
+    svg: '<path d="M23 4 L10 22 H18 L16 36 L30 18 H22 Z" fill="white" opacity="0.95" stroke="rgba(255,255,255,0.3)" stroke-width="0.5" stroke-linejoin="round"/>'
+  },
+  {
+    key: 'orange', name: '连击达人', level: '单关提交≥5次',
+    svg: '<path d="M20 36C11 36 8 29 9 22C10 16 13 14 13 14C13 18 15 20 15 20C15 15 18 11 22 6C22 11 25 13 27 14C30 17 32 21 31 27C30 32 25 36 20 36Z" fill="white" opacity="0.95"/><path d="M20 31C17 31 16 28 16.5 25C17 23 18 22 18 22C18 24 19 25 20 25C21 23 21 21 22 19C22 21 23 24 24 25C25 27 24 31 20 31Z" fill="rgba(255,120,30,0.55)"/>'
+  },
+  {
+    key: 'blue', name: '夜行者', level: '凌晨提交',
+    svg: '<path d="M25 8C18 8 12 13 12 20C12 27 18 32 25 32C28 32 31 31 33 29C31 29.5 28.5 29.5 26.5 28C21 25 18 21 18 16C18 12.5 20 9.5 23 8.5C24 8.2 24.5 8 25 8Z" fill="white" opacity="0.95"/><circle cx="31" cy="9" r="1.6" fill="white" opacity="0.9"/><circle cx="34" cy="15" r="1.1" fill="white" opacity="0.7"/><circle cx="33" cy="22" r="1.3" fill="white" opacity="0.8"/>'
+  },
+  {
+    key: 'red', name: '精准出击', level: '首验通过≥5关',
+    svg: '<circle cx="20" cy="20" r="13" stroke="white" stroke-width="2" opacity="0.9"/><circle cx="20" cy="20" r="8" stroke="white" stroke-width="2" opacity="0.9"/><circle cx="20" cy="20" r="3" fill="white" opacity="0.95"/><line x1="20" y1="3" x2="20" y2="8" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/><line x1="20" y1="32" x2="20" y2="37" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/><line x1="3" y1="20" x2="8" y2="20" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/><line x1="32" y1="20" x2="37" y2="20" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>'
+  },
+  {
+    key: 'purple', name: '坚持不懈', level: '连续活跃≥4天',
+    svg: '<rect x="5" y="9" width="30" height="24" rx="3" stroke="white" stroke-width="2" opacity="0.9"/><line x1="5" y1="16" x2="35" y2="16" stroke="white" stroke-width="2" opacity="0.9"/><line x1="13" y1="5" x2="13" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><line x1="27" y1="5" x2="27" y2="12" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><path d="M13 25 L17 29 L27 20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>'
+  },
+  {
+    key: 'pink', name: '超速通关', level: 'Top 15%',
+    svg: '<path d="M20 4C20 4 29 8 29 19L29 26L20 33L11 26L11 19C11 8 20 4 20 4Z" fill="white" opacity="0.95"/><circle cx="20" cy="18" r="4.5" fill="rgba(236,72,153,0.5)"/><path d="M11 24 L7 31 L13 29 Z" fill="white" opacity="0.75"/><path d="M29 24 L33 31 L27 29 Z" fill="white" opacity="0.75"/><path d="M17 33 L15 38 L20 36 L25 38 L23 33" fill="rgba(255,180,80,0.9)"/>'
+  }
+]
+
+// 按 PRD 规则计算当前用户已解锁徽章
+function getUnlockedBadgeKeys() {
+  const passedLevels = Number(userData.passedLevels || 0)
+  const durations = Array.isArray(userData.levelDurationHours) ? userData.levelDurationHours.map(Number) : []
+  const lateHour = Number(userData.lateSubmitHour)
+  const maxContinuousDays = Number(userData.maxContinuousDays || 0)
+  const rankPct = Number(userData.rankPct || 0)
+
+  const unlocked = new Set()
+  if (passedLevels === 7) unlocked.add('gold')
+  if (durations.slice(4, 7).some((h) => h <= 12)) unlocked.add('cyan')
+  // orange(连击达人)：依赖 levelSubmits，当前后端无此数据，暂不解锁
+  // red(精准出击)：依赖 firstPassLevels，当前后端无此数据，暂不解锁
+  if (!Number.isNaN(lateHour) && lateHour >= 0 && lateHour <= 6) unlocked.add('blue')
+  if (maxContinuousDays >= 4) unlocked.add('purple')
+  if (rankPct >= 85) unlocked.add('pink')
+
+  return BADGE_DATA.map((b) => b.key).filter((k) => unlocked.has(k))
+}
+
+/**
+ * 渲染徽章到指定容器中
+ * @param {string} containerId - 目标容器元素 ID
+ * @param {Array} badges - 徽章配置数组（默认使用 BADGE_DATA）
+ * @param {boolean} includePink - 是否包含粉色"超速通关"徽章
+ */
+function renderBadges(containerId, badges, includePink) {
+  const el = document.getElementById(containerId)
+  if (!el) return
+  const list = badges || BADGE_DATA
+  const unlocked = new Set(getUnlockedBadgeKeys())
+  const filtered = list.filter((b) => unlocked.has(b.key) && (includePink || b.key !== 'pink'))
+  el.innerHTML = filtered.map(b => `
+    <div class="badge-item lit c-${b.key}">
+      <div style="position:relative;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div class="badge-hex-glow"></div>
+        <svg class="badge-ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"></circle></svg>
+        <div class="badge-hex">
+          <svg viewBox="0 0 40 40" fill="none" width="36" height="36">${b.svg}</svg>
+        </div>
+      </div>
+      <span class="badge-name">${b.name}</span>
+      <span class="badge-level">${b.level}</span>
+    </div>
+  `).join('')
+}
+
+function renderTimelineData() {
+  const data = timelineMetrics && Array.isArray(timelineMetrics.items) && timelineMetrics.items.length
+    ? timelineMetrics
+    : DEFAULT_TIMELINE_DATA
+  const items = Array.isArray(data.items) ? data.items : []
+
+  const fullSubEl = document.getElementById('fullTimelineSub')
+  if (fullSubEl) {
+    fullSubEl.textContent = data.fullReportSub || DEFAULT_TIMELINE_DATA.fullReportSub
+  }
+
+  const fullListEl = document.getElementById('fullTimelineList')
+  if (fullListEl) {
+    fullListEl.innerHTML = items.map((item, idx) => {
+      const level = Number(item.level || idx + 1)
+      const isFinal = Boolean(item.isFinal) || idx === items.length - 1
+      const rankClass = isFinal ? 'tl-rank king' : 'tl-rank'
+      const iconClass = isFinal ? 'tl-dot last' : 'tl-dot'
+      const rankText = item.rankUnlockLabel || (isFinal ? '王者达成！' : '已解锁')
+      const timeText = item.finishedAtFull || item.finishedAtShort || '--'
+      const durationText = item.durationFull || item.durationShort || '--'
+      return `<div class="tl-item"><div class="tl-left"><div class="${iconClass}">${escapeHtml(item.icon || '')}</div>${isFinal ? '' : '<div class="tl-line"></div>'}</div><div class="tl-right"><div class="tl-header"><span class="tl-name">第${escapeHtml(level)}关 · ${escapeHtml(item.name || '')}</span><span class="${rankClass}"><span class="tl-rank-emoji">${escapeHtml(item.rankEmoji || '')}</span>${escapeHtml(rankText)}</span></div><div class="tl-meta"><span>${escapeHtml(timeText)}</span><span>耗时 ${escapeHtml(durationText)}</span></div></div></div>`
+    }).join('')
+  }
+
+  const slideListEl = document.getElementById('slideTimelineList')
+  if (slideListEl) {
+    const lineBottom = items.length > 1 ? 80 : 40
+    const topLine = `<div style="position:absolute; left:14px; top:34px; bottom:${lineBottom}px; width:1px; background:linear-gradient(180deg, rgba(148,163,184,0.15) 0%, rgba(148,163,184,0.08) 80%, transparent 100%); z-index:0;"></div>`
+    const rows = items.map((item, idx) => {
+      const level = Number(item.level || idx + 1)
+      const isFinal = Boolean(item.isFinal) || idx === items.length - 1
+      const timeText = item.finishedAtShort || item.finishedAtFull || '--'
+      const durationText = item.durationShort || item.durationFull || '--'
+      const rankText = item.rankSlideLabel || `${item.rankEmoji || ''} 已解锁`
+      const note = item.note ? `✓ ${item.note}` : ''
+      const noteColor = isFinal
+        ? 'rgba(251,191,36,0.45)'
+        : item.noteHighlight
+          ? 'rgba(96,165,250,0.5)'
+          : 'rgba(148,163,184,0.35)'
+
+      if (isFinal) {
+        return `<div style="display:flex; gap:16px; padding:12px 14px; margin-top:6px; border-radius:12px; background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04)); border:1px solid rgba(251,191,36,0.2); position:relative; z-index:1;"><div style="width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#f59e0b,#92400e); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; margin-top:2px;">${escapeHtml(item.rankEmoji || '🏆')}</div><div style="flex:1;"><div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;"><span style="font-size:14px; font-weight:700; color:#fbbf24;">${escapeHtml(item.name || '')}</span><span style="font-size:10px; color:rgba(251,191,36,0.7); background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); padding:1px 7px; border-radius:999px;">${escapeHtml(rankText)}</span></div><div style="display:flex; gap:10px; align-items:center;"><span style="font-size:11px; color:rgba(251,191,36,0.6);">${escapeHtml(timeText)}</span><span style="font-size:10px; color:rgba(251,191,36,0.35);">· 用时 ${escapeHtml(durationText)}</span></div><div style="font-size:11px; color:${noteColor}; margin-top:2px;">${escapeHtml(note)}</div></div></div>`
+      }
+
+      return `<div style="display:flex; gap:16px; padding:10px 0; position:relative; z-index:1;"><div style="width:30px; height:30px; border-radius:50%; background:rgba(148,163,184,0.12); border:1px solid rgba(148,163,184,0.2); display:flex; align-items:center; justify-content:center; font-size:11px; color:rgba(148,163,184,0.6); flex-shrink:0; margin-top:2px;">${escapeHtml(level)}</div><div style="flex:1;"><div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;"><span style="font-size:14px; font-weight:600; color:rgba(255,255,255,0.85);">${escapeHtml(item.name || '')}</span><span style="font-size:10px; color:rgba(148,163,184,0.4); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:1px 7px; border-radius:999px;">${escapeHtml(rankText)}</span></div><div style="display:flex; gap:10px; align-items:center;"><span style="font-size:11px; color:rgba(148,163,184,0.45);">${escapeHtml(timeText)}</span><span style="font-size:10px; color:rgba(148,163,184,0.3);">· 用时 ${escapeHtml(durationText)}</span></div><div style="font-size:11px; color:${noteColor}; margin-top:2px;">${escapeHtml(note)}</div></div></div>`
+    }).join('')
+
+    slideListEl.innerHTML = `${topLine}${rows}`
+  }
 }
 
 // ===== 渲染完整报告动态数据 =====
@@ -2981,9 +2913,9 @@ function renderFullReport() {
   const durationEl = document.getElementById('frKpiDuration')
   if (durationEl) durationEl.textContent = userData.totalDuration
   const submitsEl = document.getElementById('frKpiSubmits')
-  if (submitsEl) submitsEl.textContent = userData.totalSubmits
+  if (submitsEl) submitsEl.textContent = `${userData.activeDays} 天`
   const rankEl = document.getElementById('frKpiRank')
-  if (rankEl) rankEl.textContent = `超越 ${userData.rankPct}%`
+  if (rankEl) rankEl.textContent = `超越 ${getDisplayRankPct()}%`
 
   // 荣誉区 - 心得（与心声页联动）
   const text = getReflectionDisplayText()
@@ -2998,28 +2930,24 @@ function renderFullReport() {
   const lateTimeEl = document.getElementById('frStatLate')
   if (lateTimeEl) lateTimeEl.textContent = userData.lateSubmitTime
   const firstPassEl = document.getElementById('frStatFirstPass')
-  if (firstPassEl) firstPassEl.textContent = `${userData.firstPassLevels}/7 关`
+  if (firstPassEl) firstPassEl.textContent = `第 ${userData.hardestLevel} 关`
 
   // 同步封面页称号（滑动报告第1页）
   const slideTitleEl = document.getElementById('slideCoverTitle')
   if (slideTitleEl) slideTitleEl.textContent = title
 
-  // 同步海报内容（弹窗版 + 独立页版）
-  const posterQuoteText = userReflectionText.trim() || '善于快速理解新工具，遇到复杂挑战时选择深度研究而非蛮力突破'
+  // 同步海报内容（唯一数据源，弹窗通过 cloneNode 自动同步）
+  const posterQuoteText = getReflectionDisplayText()
   ;[
     ['posterName',        userData.userName],
-    ['posterName2',       userData.userName],
     ['posterAvatarText',  userData.avatarInitial],
-    ['posterAvatarText2', userData.avatarInitial],
     ['posterTitle',       title],
-    ['posterTitle2',      title],
     ['posterQuote',       posterQuoteText],
-    ['posterQuote2',      posterQuoteText],
   ].forEach(([id, val]) => {
     const el = document.getElementById(id)
     if (!el) return
     // posterTitle 节点含子元素（emoji span），只替换文本节点
-    if (id === 'posterTitle' || id === 'posterTitle2') {
+    if (id === 'posterTitle') {
       // 保留 emoji span，更新后面的文本节点
       const txt = el.childNodes[el.childNodes.length - 1]
       if (txt && txt.nodeType === Node.TEXT_NODE) {
@@ -3036,43 +2964,410 @@ function renderFullReport() {
   })
 
   // 同步海报 poster-stats
-  const pctNum = userData.rankPct
-  const rankNum = groupRankMetrics?.group?.myRank ?? 8
-  ;['posterStatDuration', 'posterStatDuration2'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.textContent = userData.totalDuration
+  const pctNum = getDisplayRankPct()
+  const rankNum = Number(groupRankMetrics?.group?.myRank)
+  ;['posterStatDuration'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = userData.totalDuration })
+  ;['posterStatTop'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = `Top ${100 - pctNum}%` })
+  ;['posterStatTopSub'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = `超越 ${pctNum}%` })
+  ;['posterStatRank'].forEach(id => {
+    const el = document.getElementById(id)
+    if (el) el.textContent = Number.isFinite(rankNum) && rankNum > 0 ? `第${rankNum}位` : '--'
   })
-  ;['posterStatTop', 'posterStatTop2'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.textContent = `Top ${100 - pctNum}%`
-  })
-  ;['posterStatTopSub', 'posterStatTopSub2'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.textContent = `超越 ${pctNum}%`
-  })
-  ;['posterStatRank', 'posterStatRank2'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.textContent = `第${rankNum}位`
-  })
+
+  // 同步第2/3页叙事文案（与称号联动）
+  renderNarrativeTexts()
+
+  // 渲染时间线（滑动报告第7页 + 完整报告时间线）
+  renderTimelineData()
+
+  // 渲染徽章（滑动报告6枚，完整报告7枚含粉色）
+  renderBadges('slideBadgeGrid', BADGE_DATA, false)
+  renderBadges('fullBadgeGrid', BADGE_DATA, true)
 }
 
-const groupRankMetrics = {
-group: {
-id: 'frontend-sprint-3',
-name: '前端冲刺 3 组',
-myUserId: 'u008',
-myRank: 8,
-totalMembers: 16,
-passCount: 11
-},
-rankings: [
-{ userId: 'u001', rank: 1, userName: '张一', finishAt: '2025/03/18 11:40' },
-{ userId: 'u002', rank: 2, userName: '李二', finishAt: '2025/03/18 16:08' },
-{ userId: 'u003', rank: 3, userName: '王三', finishAt: '2025/03/18 21:12' },
-{ userId: 'u004', rank: 4, userName: '赵四', finishAt: '2025/03/19 09:03' },
-{ userId: 'u005', rank: 5, userName: '周五', finishAt: '2025/03/19 11:26' },
-{ userId: 'u006', rank: 6, userName: '吴六', finishAt: '2025/03/19 13:44' },
-{ userId: 'u007', rank: 7, userName: '郑七', finishAt: '2025/03/19 18:22' },
-{ userId: 'u008', rank: 8, userName: '小团子', finishAt: '2025/03/19 22:00' }
-]
+let groupRankMetrics = { group: null, rankings: [] }
+
+
+// ===== 第2/3页动态叙事文案（与称号联动） =====
+function renderNarrativeTexts() {
+  const title = computeTitle()
+  const slide2 = document.getElementById('slide2Narrative')
+  const slide3 = document.getElementById('slide3Narrative')
+  if (!slide2 || !slide3) return
+
+  const cW = v => `<em style="font-style:normal;font-weight:800;color:#fff;font-size:28px;letter-spacing:-0.5px;">${v}</em>`
+  const cB = v => `<em style="font-style:normal;font-weight:800;color:#60a5fa;font-size:26px;letter-spacing:-0.3px;">${v}</em>`
+  const cG = v => `<em style="font-style:normal;font-weight:800;color:#fbbf24;font-size:28px;letter-spacing:-0.5px;">${v}</em>`
+  const cGs = v => `<em style="font-style:normal;font-weight:800;color:#fbbf24;font-size:22px;">${v}</em>`
+
+  function tpl2(p1, p2, p3, p4) {
+    return `
+      <p style="font-size:15px;font-weight:300;line-height:1.8;color:rgba(226,232,240,0.45);margin:0 0 24px;letter-spacing:0.3px;">${p1}</p>
+      <p style="font-size:20px;font-weight:300;line-height:1.7;color:rgba(226,232,240,0.8);margin:0 0 16px;">${p2}</p>
+      <p style="font-size:20px;font-weight:300;line-height:1.7;color:rgba(226,232,240,0.8);margin:0 0 32px;">${p3}</p>
+      <div style="width:100%;height:1px;background:linear-gradient(90deg,rgba(255,255,255,0.12),transparent);margin-bottom:28px;"></div>
+      <p style="font-size:17px;font-weight:300;line-height:1.8;color:rgba(226,232,240,0.65);margin:0;letter-spacing:0.2px;">${p4}</p>`
+  }
+  function tpl3(p1, p2, p3, p4) {
+    return `
+      <p style="font-size:15px;font-weight:300;line-height:1.8;color:rgba(226,232,240,0.45);margin:0 0 24px;letter-spacing:0.3px;">${p1}</p>
+      <p style="font-size:20px;font-weight:300;line-height:1.7;color:rgba(226,232,240,0.8);margin:0 0 16px;">${p2}</p>
+      <p style="font-size:20px;font-weight:300;line-height:1.7;color:rgba(226,232,240,0.8);margin:0 0 32px;">${p3}</p>
+      <div style="width:100%;height:1px;background:linear-gradient(90deg,rgba(251,191,36,0.2),transparent);margin-bottom:28px;"></div>
+      <p style="font-size:17px;font-weight:300;line-height:1.8;color:rgba(226,232,240,0.65);margin:0;letter-spacing:0.2px;">${p4}</p>`
+  }
+
+  const d = userData.totalDays, r = getDisplayRankPct()
+  const lt = userData.lateSubmitTime.replace('凌晨 ', '')
+  const hl = userData.hardestLevel
+  const fl = userData.fastestLevel, ft = userData.fastestLevelTime
+  const hd = userData.hardestLevelDays
+  const cd = userData.maxContinuousDays
+
+  let s2HTML = '', s3HTML = ''
+
+  if (title.includes('深夜修仙极客')) {
+    s2HTML = tpl2(
+      '大多数人睡着的时候，你还在敲键盘。',
+      `用了 ${cW(d + ' 天')}，你闯完了全部 ${cW('7 关')}。`,
+      `凌晨 ${cB(lt)}，是你留在这段旅程里最深的印记。`,
+      `就这样，你超越了同期 ${cGs(r + '%')} 的学员。`
+    )
+    s3HTML = tpl3(
+      '有一关，你花的时间比其他所有关卡都多。',
+      `那就是${cG('第 ' + hl + ' 关')}。`,
+      `凌晨 ${cB(lt)}，是你在这关留下的最深痕迹。`,
+      '但你没有放弃——用时间和耐心，把它磨成了里程碑。'
+    )
+  } else if (title.includes('闪电突破者')) {
+    s2HTML = tpl2(
+      '别人还在理解题意，你已经开始行动了。',
+      `${cW(d + ' 天')}，${cW('7 关')}，平均不到 2 天攻克一关——`,
+      `最快的一关只用了 ${cW(ft)}，这个速度放在整个 Camp 都是顶尖。`,
+      `速度，是你超越 ${cGs(r + '%')} 同期学员最锋利的武器。`
+    )
+    s3HTML = tpl3(
+      '7 关里，有一关你快得让人惊讶。',
+      `那就是${cG('第 ' + fl + ' 关')}——你只用了 ${cW(ft)}就拿下了。`,
+      `其他关卡平均不到 2 天，每一关都是你效率的证明。`,
+      '速度，是你最锋利的武器。'
+    )
+  } else if (title.includes('稳扎稳打型')) {
+    s2HTML = tpl2(
+      '没有哪天特别拼，但也没有哪天缺席。',
+      `连续 ${cW(cd + ' 天')}，每天都在推进，每天都在进步。`,
+      `${cW(d + ' 天')}、${cW(cd + ' 个活跃学习日')}，是日积月累的结果。`,
+      `稳定，是比爆发更难得的能力——你超越了 ${cGs(r + '%')} 的同期学员。`
+    )
+    s3HTML = tpl3(
+      '7 关里，第 ' + hl + ' 关是你用时最长的一关。',
+      `你没有急，也没有放弃——用了 ${cW(hd + ' 天')}，一步一步啃了下来。`,
+      `${cW(d + ' 天')}的旅程里，这一关是你耐心最好的注脚。`,
+      '稳，是比快更难得的能力。'
+    )
+  } else {
+    // 稳定推进型（兜底）
+    s2HTML = tpl2(
+      '从零开始，你用自己的节奏走完了全程。',
+      `${cW(d + ' 天')}，${cW(cd + ' 个活跃学习日')}，${cW('7 关')}全通。`,
+      `没有捷径，没有窍门，只有一关一关地过。`,
+      `这本身，就是最好的答案——超越了 ${cGs(r + '%')} 的同期学员。`
+    )
+    s3HTML = tpl3(
+      '每一关都有它的难度，而第 ' + hl + ' 关是你遇到的最硬的那块。',
+      `你用了 ${cW(hd + ' 天')}，是所有关卡里耗时最长的。`,
+      `但你从未放弃——用时间和坚持，把这关啃了下来。`,
+      '走完全程，就是答案。'
+    )
+  }
+
+  slide2.innerHTML = s2HTML
+  slide3.innerHTML = s3HTML
 }
 
+// ===== URL 参数初始化（支持 ?userId=xxx 选择 mock 样本） =====
+function initDataFromUrl() {
+  const params = new URLSearchParams(window.location.search)
+  const userId = params.get('userId')
+  const profile = getMockProfileByUserId(userId)
+  if (!profile) {
+    console.warn('[mockdata] 未找到可用样本，请检查 mockdata.js')
+    return
+  }
+  applyMockProfile(profile)
+}
+
+// ===== 真实后端 API 联调 =====
+// 当 URL 含 ?mode=real 或通过 dev-server 代理时走真实接口
+// 否则 fallback 到 mock 数据
+async function initFromRealAPI() {
+  const params = new URLSearchParams(window.location.search)
+  const mode = params.get('mode')
+
+  // 如果明确指定 mode=mock 或没有 mode 参数且不在代理环境，走 mock
+  if (mode === 'mock') {
+    console.log('[data] mode=mock，使用 Mock 数据')
+    initDataFromUrl()
+    return
+  }
+
+  // 尝试从真实 API 获取数据
+  console.log('[data] 尝试从真实后端 API 获取数据...')
+
+  try {
+    // 并行请求所有需要的接口
+    const [userRes, stagesRes, groupRes, meituanRes] = await Promise.all([
+      fetch('/api/user/me').then(r => { if (!r.ok) throw new Error(`/api/user/me ${r.status}`); return r.json() }),
+      fetch('/api/stages').then(r => { if (!r.ok) throw new Error(`/api/stages ${r.status}`); return r.json() }),
+      fetch('/api/leaderboard/group').then(r => { if (!r.ok) throw new Error(`/api/leaderboard/group ${r.status}`); return r.json() }),
+      fetch('/api/leaderboard/meituan').then(r => { if (!r.ok) throw new Error(`/api/leaderboard/meituan ${r.status}`); return r.json() })
+    ])
+
+    console.log('[data] API 响应：', { user: userRes, stages: stagesRes, group: groupRes, meituan: meituanRes })
+
+    // 组装成 applyMockProfile 期望的 profile 格式
+    const profile = buildProfileFromAPI(userRes, stagesRes, groupRes, meituanRes)
+    console.log('[data] 组装后的 profile：', profile)
+
+    applyMockProfile(profile)
+    console.log('[data] ✅ 真实 API 数据加载成功')
+
+  } catch (err) {
+    console.warn('[data] ⚠️ 真实 API 请求失败，回退到 Mock 数据:', err.message)
+    initDataFromUrl()
+  }
+}
+
+// 将后端 API 响应组装为前端 profile 格式
+function buildProfileFromAPI(userRes, stagesRes, groupRes, meituanRes) {
+  // --- 用户基础信息 ---
+  const user = userRes.data || userRes.user || userRes
+  const userName = user.name || user.userName || user.displayName || ''
+  const userMis = user.mis || user.userId || user.id || ''
+
+  // --- 关卡进度 → 时间线、耗时等 ---
+  const stages = stagesRes.data || stagesRes.stages || stagesRes || []
+  const stageList = Array.isArray(stages) ? stages : []
+
+  // 尝试提取各关进度数据
+  const levelDurationHours = []
+  const timelineItems = []
+  let passedLevels = 0
+  let firstStartedAt = null
+  let lastCompletedAt = null
+  let allCompletedAts = [] // 用于计算活跃天数等
+
+  stageList.forEach((stage, idx) => {
+    const progress = stage.progress || stage.userProgress || stage.user_stage_progress || {}
+    const startedAt = progress.started_at || progress.startedAt || progress.startTime
+    const completedAt = progress.completed_at || progress.completedAt || progress.endTime
+    const status = progress.status || stage.status || ''
+
+    if (status === 'passed' || status === 'completed') {
+      passedLevels++
+    }
+
+    if (startedAt && !firstStartedAt) firstStartedAt = new Date(startedAt)
+    if (completedAt) {
+      lastCompletedAt = new Date(completedAt)
+      allCompletedAts.push(lastCompletedAt)
+    }
+
+    // 计算每关耗时(小时)
+    if (startedAt && completedAt) {
+      const hours = (new Date(completedAt) - new Date(startedAt)) / (1000 * 60 * 60)
+      levelDurationHours.push(Math.max(0, Math.round(hours * 10) / 10))
+    } else {
+      levelDurationHours.push(0)
+    }
+
+    // 时间线数据
+    timelineItems.push({
+      level: idx + 1,
+      name: stage.name || stage.title || `第${idx + 1}关`,
+      finishedAtFull: completedAt ? formatDateFull(completedAt) : '',
+      finishedAtShort: completedAt ? formatDateShort(completedAt) : '',
+      durationFull: startedAt && completedAt ? formatDuration(new Date(startedAt), new Date(completedAt)) : '',
+      durationShort: startedAt && completedAt ? formatDurationShort(new Date(startedAt), new Date(completedAt)) : ''
+    })
+
+    // 收集步骤完成时间
+    const steps = stage.steps || stage.stageSteps || []
+    if (Array.isArray(steps)) {
+      steps.forEach(step => {
+        const stepProgress = step.progress || step.userProgress || {}
+        const stepCompleted = stepProgress.completed_at || stepProgress.completedAt
+        if (stepCompleted) allCompletedAts.push(new Date(stepCompleted))
+      })
+    }
+  })
+
+  // --- 总耗时 ---
+  let totalDays = 0
+  let totalDuration = ''
+  if (firstStartedAt && lastCompletedAt) {
+    const diffMs = lastCompletedAt - firstStartedAt
+    totalDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)))
+    const hours = Math.round((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    totalDuration = hours > 0 ? `${totalDays}天${hours}小时` : `${totalDays}天`
+  }
+
+  // --- 活跃天数、最长连续天数、最晚提交小时 ---
+  const dateSet = new Set()
+  let lateSubmitHour = 0
+  allCompletedAts.forEach(d => {
+    if (d && !isNaN(d.getTime())) {
+      dateSet.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`)
+      const h = d.getHours()
+      if (h >= 0 && h <= 4) lateSubmitHour = Math.max(lateSubmitHour, h || 24)
+      else lateSubmitHour = Math.max(lateSubmitHour, h)
+    }
+  })
+  const activeDays = dateSet.size
+  const maxContinuousDays = calcMaxContinuousDays(allCompletedAts)
+
+  // --- 最难/最快关卡 ---
+  let hardestLevel = 1, fastestLevel = 1
+  let maxH = 0, minH = Infinity
+  levelDurationHours.forEach((h, i) => {
+    if (h > maxH) { maxH = h; hardestLevel = i + 1 }
+    if (h > 0 && h < minH) { minH = h; fastestLevel = i + 1 }
+  })
+
+  // --- 排行榜数据 ---
+  const meituanData = meituanRes.data || meituanRes
+  const groupData = groupRes.data || groupRes
+
+  // 组装 profile
+  return {
+    userData: {
+      userName,
+      mis: userMis,
+      totalDuration,
+      totalDays,
+      passedLevels,
+      levelDurationHours,
+      hardestLevel,
+      hardestLevelDays: Math.max(1, Math.round(maxH / 24)),
+      fastestLevel,
+      fastestLevelTime: formatHoursToReadable(minH === Infinity ? 0 : minH),
+      activeDays,
+      maxContinuousDays,
+      lateSubmitHour,
+      lateSubmitTime: formatLateHour(lateSubmitHour),
+      rankPct: 0 // 从 leaderboard 计算
+    },
+    userMis: userMis,
+    timelineMetrics: {
+      fullReportSub: `${totalDays}天闯关之旅，${passedLevels}关全记录`,
+      items: timelineItems
+    },
+    leaderboard: {
+      meituan: meituanData,
+      group: groupData
+    },
+    groupRankMetrics: normalizeGroupFromAPI(groupData, userMis)
+  }
+}
+
+// --- 辅助格式化函数 ---
+function formatDateFull(dateStr) {
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return dateStr
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const h = String(d.getHours()).padStart(2, '0')
+  const min = String(d.getMinutes()).padStart(2, '0')
+  return `${y}/${m}/${day} ${h}:${min}`
+}
+
+function formatDateShort(dateStr) {
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return dateStr
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const h = String(d.getHours()).padStart(2, '0')
+  const min = String(d.getMinutes()).padStart(2, '0')
+  return `${m}/${day} ${h}:${min}`
+}
+
+function formatDuration(start, end) {
+  const diffMs = end - start
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  const hours = Math.round((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  if (days > 0 && hours > 0) return `${days}天${hours}小时`
+  if (days > 0) return `${days}天`
+  if (hours > 0) return `${hours}小时`
+  return '不到1小时'
+}
+
+function formatDurationShort(start, end) {
+  const diffMs = end - start
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  const hours = Math.round((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  if (days > 0) return `${days}天`
+  return `${hours}小时`
+}
+
+function formatHoursToReadable(hours) {
+  if (hours >= 24) {
+    const d = Math.floor(hours / 24)
+    const h = Math.round(hours % 24)
+    return h > 0 ? `${d}天${h}小时` : `${d}天`
+  }
+  return hours > 0 ? `${Math.round(hours)}小时` : '未知'
+}
+
+function formatLateHour(h) {
+  if (h >= 0 && h < 6) return `凌晨 ${String(h).padStart(2, '0')}:${String(Math.floor(Math.random() * 59)).padStart(2, '0')}`
+  if (h < 12) return `上午 ${String(h).padStart(2, '0')}:00`
+  if (h < 18) return `下午 ${String(h).padStart(2, '0')}:00`
+  return `晚上 ${String(h).padStart(2, '0')}:00`
+}
+
+function calcMaxContinuousDays(dates) {
+  if (!dates.length) return 0
+  const daySet = new Set()
+  dates.forEach(d => {
+    if (d && !isNaN(d.getTime())) {
+      // 用 YYYY-MM-DD 格式去重
+      daySet.add(d.toISOString().slice(0, 10))
+    }
+  })
+  const sorted = [...daySet].sort()
+  let max = 1, cur = 1
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = new Date(sorted[i - 1])
+    const curr = new Date(sorted[i])
+    const diff = (curr - prev) / (1000 * 60 * 60 * 24)
+    if (diff === 1) { cur++; max = Math.max(max, cur) }
+    else { cur = 1 }
+  }
+  return max
+}
+
+function normalizeGroupFromAPI(groupData, myMis) {
+  if (!groupData) return { group: null, rankings: [] }
+  const list = groupData.rankings || groupData.list || groupData.members || []
+  const groupInfo = groupData.group || groupData.org || {}
+  return {
+    group: {
+      name: groupInfo.name || groupInfo.org_name || groupData.groupName || '',
+      myRank: groupData.myRank || 0,
+      totalMembers: groupInfo.totalMembers || groupInfo.emp_count || groupData.totalMembers || 0,
+      passCount: groupData.passCount || list.length || 0,
+      myMis: myMis
+    },
+    rankings: list.map((item, idx) => ({
+      rank: item.rank || idx + 1,
+      userId: item.userId || item.mis || item.user_id || '',
+      userName: item.userName || item.name || item.displayName || '',
+      mis: item.mis || item.userId || item.user_id || '',
+      finishAt: item.finishAt || item.passedAt || item.completed_at || ''
+    }))
+  }
+}
 
 function escapeHtml(value) {
   return String(value == null ? '' : value)
@@ -3083,45 +3378,110 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;')
 }
 
+// 格式化后端 lastPassedAt（ISO 8601 或已格式化字符串）为可读形式
+// 后端返回示例：2026-04-25T14:30:00.000+0000 → 04/25 14:30
+// Mock 数据已是 2025/03/18 11:40 格式，直接原样返回
+function formatPassedAt(raw) {
+  if (!raw || typeof raw !== 'string') return String(raw || '')
+  // 已是 MM/DD HH:mm 短格式，直接返回
+  if (/^\d{2}\/\d{2}/.test(raw)) return raw
+  // ISO 8601 格式：2026-04-25T14:30:00.000+0000
+  const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/)
+  if (m) return `${m[2]}/${m[3]} ${m[4]}:${m[5]}`
+  // 其他格式原样返回
+  return raw
+}
+
 function applyGroupRankData(payload) {
-const summaryEl = document.getElementById('groupRankSummary')
-const metaEl = document.getElementById('groupRankMeta')
-const listEl = document.getElementById('groupRankList')
-if (!summaryEl || !metaEl || !listEl) return
+  const groupFromPayload = payload && payload.group ? payload.group : null
+  const group = groupFromPayload || (payload && typeof payload === 'object' ? {
+    name: payload.name || '',
+    myRank: payload.myRank,
+    totalMembers: payload.totalMembers,
+    passCount: payload.passCount,
+    myMis: payload.myMis || payload.myUserId || payload.mis || ''
+  } : null)
+  const rankings = payload && Array.isArray(payload.rankings)
+    ? payload.rankings
+    : (payload && Array.isArray(payload.list) ? payload.list : [])
 
-const group = payload && payload.group ? payload.group : null
-const rankings = payload && Array.isArray(payload.rankings) ? payload.rankings : []
+  // ---- 公共渲染：生成排名列表 HTML ----
+  function renderRankList() {
+    if (!group || !group.name) {
+      return '<div class="group-rank-empty">暂无部门排名数据，待后端接入后自动展示。</div>'
+    }
+    if (!rankings.length) {
+      return '<div class="group-rank-empty">当前部门还没有通关记录，快成为第一位上榜同学吧。</div>'
+    }
+    const myRankNum = Number(group.myRank)
+    const myMis = group.myMis || group.myUserId  // 兼容旧字段名
+    const rows = [...rankings].sort((a, b) => (Number(a.rank) || 999) - (Number(b.rank) || 999))
+    return rows.map((member) => {
+      const rankNum = Number(member.rank)
+      const rank = rankNum > 0 ? rankNum : '--'
+      const isTop = rankNum > 0 && rankNum <= 3
+      // mis 为后端字段，兼容旧 mock 中的 userId
+      const memberMis = member.mis || member.userId
+      const isMe = Boolean(member.isMe) || (myMis && memberMis === myMis) || (myRankNum > 0 && rankNum === myRankNum)
+      const itemClass = `group-rank-item${isTop ? ' is-top' : ''}${isMe ? ' is-me' : ''}`
+      // name 为后端字段，兼容旧 mock 中的 userName
+      const name = member.name || member.userName || '未命名'
+      // lastPassedAt 为后端字段（ISO 8601 格式），兼容旧 mock 中的 finishAt
+      const rawTime = member.lastPassedAt || member.finishAt || member.finishTime || ''
+      const time = rawTime ? formatPassedAt(rawTime) : '进行中'
+      const nameText = isMe ? `你（${name}）` : name
+      return `<div class="${itemClass}"><span class="group-rank-order">#${escapeHtml(rank)}</span><span class="group-rank-name">${escapeHtml(nameText)}</span><span class="group-rank-time">${escapeHtml(time)}</span></div>`
+    }).join('')
+  }
 
-if (!group || !group.name) {
-summaryEl.textContent = '小组排名待同步'
-metaEl.textContent = '暂无小组数据'
-listEl.innerHTML = '<div class="group-rank-empty">暂无小组排名数据，待后端接入后自动展示。</div>'
-return
-}
+  // ---- 完整报告区 ----
+  const fullGroupNameEl = document.getElementById('fullGroupName')
+  const fullGroupMetaEl = document.getElementById('fullGroupMeta')
+  const fullGroupRankEl = document.getElementById('fullGroupRank')
+  const listEl = document.getElementById('groupRankList')
 
-const myRankNum = Number(group.myRank)
-const myRankText = myRankNum > 0 ? `第 ${myRankNum} 位` : '尚未通关'
-summaryEl.textContent = `你是${group.name}${myRankText}通关的同学`
+  if (listEl) {
+    listEl.innerHTML = renderRankList()
+  }
+  if (fullGroupNameEl) {
+    fullGroupNameEl.textContent = group && group.name ? group.name : '部门待同步'
+  }
+  if (fullGroupRankEl) {
+    const myRankNum = Number(group && group.myRank)
+    fullGroupRankEl.textContent = myRankNum > 0 ? `#${myRankNum}` : '--'
+  }
 
-if (metaEl) metaEl.style.display = 'none'
+  const passCountNum = Number(group && group.passCount)
+  const totalMembersNum = Number(group && group.totalMembers)
+  const hasPassCount = Number.isFinite(passCountNum) && passCountNum > 0
+  const hasTotalMembers = Number.isFinite(totalMembersNum) && totalMembersNum > 0
+  const groupMetaText = hasPassCount || hasTotalMembers
+    ? `通关 ${hasPassCount ? passCountNum : '--'} / ${hasTotalMembers ? totalMembersNum : '--'} 人`
+    : ''
 
-if (!rankings.length) {
-listEl.innerHTML = '<div class="group-rank-empty">当前小组还没有通关记录，快成为第一位上榜同学吧。</div>'
-return
-}
+  if (fullGroupMetaEl) {
+    fullGroupMetaEl.textContent = groupMetaText
+  }
 
-const rows = [...rankings].sort((a, b) => (Number(a.rank) || 999) - (Number(b.rank) || 999))
-listEl.innerHTML = rows.map((member) => {
-const rankNum = Number(member.rank)
-const rank = rankNum > 0 ? rankNum : '--'
-const isTop = rankNum > 0 && rankNum <= 3
-const isMe = Boolean(member.isMe) || (group.myUserId && member.userId === group.myUserId) || (myRankNum > 0 && rankNum === myRankNum)
-const itemClass = `group-rank-item${isTop ? ' is-top' : ''}${isMe ? ' is-me' : ''}`
-const name = member.userName || member.name || '未命名'
-const time = member.finishAt || member.finishTime || '进行中'
-const nameText = isMe ? `你（${name}）` : name
-return `<div class="${itemClass}"><span class="group-rank-order">#${escapeHtml(rank)}</span><span class="group-rank-name">${escapeHtml(nameText)}</span><span class="group-rank-time">${escapeHtml(time)}</span></div>`
-}).join('')
+  // ---- 滑动报告第6页（同行者）----
+  const slideListEl = document.getElementById('slideGroupRankList')
+  const slideNameEl = document.getElementById('slideGroupName')
+  const slideMetaEl = document.getElementById('slideGroupMeta')
+  const slideRankEl = document.getElementById('slideGroupRank')
+
+  if (slideListEl) {
+    slideListEl.innerHTML = renderRankList()
+  }
+  if (slideNameEl && group && group.name) {
+    slideNameEl.textContent = group.name
+  }
+  if (slideRankEl && group) {
+    const myRankNum = Number(group.myRank)
+    slideRankEl.textContent = myRankNum > 0 ? `#${myRankNum}` : '--'
+  }
+  if (slideMetaEl) {
+    slideMetaEl.textContent = groupMetaText
+  }
 }
 
 
@@ -3135,8 +3495,9 @@ function showToast(msg, color) {
 }
 
 function getReflectionDisplayText() {
-  const value = userReflectionText.trim()
-  return value || DEFAULT_REFLECTION_TEXT
+  const saved = localStorage.getItem('userReflectionText')
+  if (saved && !userReflectionText) userReflectionText = saved
+  return userReflectionText.trim() || DEFAULT_REFLECTION_TEXT
 }
 
 function renderReflectionInReport() {
@@ -3196,6 +3557,7 @@ function openReflectionPrompt() {
   overlay.classList.add('active')
   document.body.style.overflow = 'hidden'
   updateReflectionCounter()
+  input.removeEventListener('input', updateReflectionCounter)
   input.addEventListener('input', updateReflectionCounter)
   requestAnimationFrame(function () { input.focus() })
 }
@@ -3214,21 +3576,24 @@ function handleReflectionOverlayClick(e) {
 }
 
 function submitReflectionPrompt() {
-var input = document.getElementById('reflectionInput')
-var typed = input ? input.value.trim() : ''
-if (typed) {
-  userReflectionText = typed.slice(0, 60)
-} else {
-  // 用户未输入，取当前 placeholder 中的文案（去掉"比如："前缀）
-  var ph = input ? input.placeholder : ''
-  userReflectionText = ph.replace(/^比如[：:]\s*/, '').slice(0, 60)
-}
-closeReflectionPrompt()
-openReport()
+  var input = document.getElementById('reflectionInput')
+  var typed = input ? input.value.trim() : ''
+  if (typed) {
+    userReflectionText = typed.slice(0, 60)
+    localStorage.setItem('userReflectionText', userReflectionText)
+  } else {
+    userReflectionText = ''
+    localStorage.removeItem('userReflectionText')
+  }
+  renderReflectionInReport()
+  closeReflectionPrompt()
+  openReport()
 }
 
 function skipReflectionPrompt() {
   userReflectionText = ''
+  localStorage.removeItem('userReflectionText')
+  renderReflectionInReport()
   closeReflectionPrompt()
   openReport()
 }
@@ -3304,7 +3669,6 @@ function bindTapFireworks() {
   })
 }
 
-applyGroupRankData(groupRankMetrics)
 bindTapFireworks()
 
 // 页面加载后自动开始播报
@@ -3372,7 +3736,7 @@ function ensureRingAnimated() {
   if (!fg) return
   ringAnimated = true
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    fg.style.strokeDashoffset = CIRC * (1 - RANK_PCT / 100)
+    fg.style.strokeDashoffset = CIRC * (1 - getDisplayRankPct() / 100)
   }))
 }
 
@@ -3409,7 +3773,7 @@ function openFullReport() {
 
 function closeFullReport() {
   setView('v-report')
-  updateActivePageIndicator()
+  updateActiveDot()
   spawnCoverParticles()
 }
 
@@ -3426,12 +3790,26 @@ function closeReport() {
 // ===== 海报弹窗 =====
 function openPoster() {
   const overlay = document.getElementById('posterOverlay')
+  const modalCard = document.getElementById('posterModalCard')
+  const sourceCard = document.getElementById('posterCard')
+  // 每次打开时克隆一份 posterCard 到弹窗中，消除双份 DOM 维护问题
+  if (modalCard && sourceCard) {
+    modalCard.innerHTML = ''
+    const clone = sourceCard.cloneNode(true)
+    // 克隆后移除 id 避免页面重复 id
+    clone.removeAttribute('id')
+    clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'))
+    modalCard.appendChild(clone)
+  }
   overlay.classList.add('active')
   document.body.style.overflow = 'hidden'
 }
 
 function closePosterModal() {
   const overlay = document.getElementById('posterOverlay')
+  const modalCard = document.getElementById('posterModalCard')
+  // 关闭时清空克隆内容
+  if (modalCard) modalCard.innerHTML = ''
   overlay.classList.remove('active')
   document.body.style.overflow = ''
 }
@@ -3443,32 +3821,27 @@ function handleOverlayClick(e) {
   }
 }
 
-// 弹窗内复制海报
-async function copyPosterModal() {
+// 弹窗内下载海报
+async function downloadPosterModal() {
   const btn = document.getElementById('pmaCopyBtn')
   btn.textContent = '⏳ 生成中…'
   btn.classList.add('btn-disabled')
-  const canvas = await captureCardEl(document.getElementById('posterCardModal'))
+  // 从弹窗克隆中取海报卡片（#posterModalCard 的第一个子元素）
+  const modalCard = document.getElementById('posterModalCard')
+  const canvas = await captureCardEl(modalCard?.firstElementChild || null)
   if (!canvas) {
-    btn.textContent = '复制海报'
+    btn.textContent = '下载海报'
     btn.classList.remove('btn-disabled')
     return
   }
-  canvas.toBlob(async (blob) => {
-    if (!blob) return
-    try {
-      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
-      showToast('海报已复制到剪贴板 ✓')
-    } catch(e) {
-      const a = document.createElement('a')
-      a.download = 'PDE王者成就.png'
-      a.href = canvas.toDataURL('image/png')
-      a.click()
-      showToast('已保存为图片 ✓')
-    }
-    btn.textContent = '复制海报'
-    btn.classList.remove('btn-disabled')
-  }, 'image/png')
+  const a = document.createElement('a')
+  a.download = getPosterDownloadName()
+  a.href = canvas.toDataURL('image/png')
+  a.click()
+  showToast('海报已保存 ✓')
+  
+  btn.textContent = '下载海报'
+  btn.classList.remove('btn-disabled')
 }
 
 // 弹窗内转发到大象
@@ -3484,7 +3857,7 @@ async function shareToElephantModal() {
     return
   }
 
-  const canvas = await captureCardEl(document.getElementById('posterCardModal'))
+  const canvas = await captureCardEl((document.getElementById('posterModalCard'))?.firstElementChild || null)
   if (!canvas) {
     btn.textContent = '转发到大象'
     btn.classList.remove('btn-disabled')
@@ -3501,7 +3874,7 @@ async function shareToElephantModal() {
       showToast('海报已复制！打开大象粘贴发送即可 ✓')
     } else {
       const a = document.createElement('a')
-      a.download = 'PDE王者成就.png'
+      a.download = getPosterDownloadName()
       a.href = canvas.toDataURL('image/png')
       a.click()
       showToast('已保存海报，请在大象中发送图片 📎')
@@ -3526,7 +3899,12 @@ function loadH2C() {
 }
 
 async function captureCardEl(card) {
-  if (!card) card = document.getElementById('posterCardModal') || document.getElementById('posterCard')
+  // 优先使用传入的 card，否则从弹窗克隆中取（#posterModalCard 的第一个子元素），
+  // 最后 fallback 到原始 #posterCard
+  if (!card) {
+    const modalCard = document.getElementById('posterModalCard')
+    card = modalCard?.firstElementChild || document.getElementById('posterCard')
+  }
   try {
     const h2c = await loadH2C()
     return await h2c(card, { backgroundColor: '#0a0e1a', scale: 2, useCORS: true, logging: false })
@@ -3536,7 +3914,7 @@ async function captureCardEl(card) {
   }
 }
 // 兼容旧调用
-async function captureCard() { return captureCardEl(document.getElementById('posterCard')) }
+async function captureCard() { return captureCardEl(null) }
 
 async function downloadPoster() {
   const btn = document.getElementById('dlBtn')
@@ -3545,36 +3923,13 @@ async function downloadPoster() {
   const canvas = await captureCard()
   if (canvas) {
     const a = document.createElement('a')
-    a.download = 'PDE王者成就-小团子.png'
+    a.download = getPosterDownloadName()
     a.href = canvas.toDataURL('image/png')
     a.click()
     showToast('海报已保存 ✓')
   }
-  btn.textContent = '⬇ 保存图片'
+  btn.textContent = '下载海报'
   btn.classList.remove('btn-disabled')
-}
-
-async function copyPoster() {
-  const btn = document.getElementById('copyBtn')
-  btn.textContent = '⏳ 生成中…'
-  btn.classList.add('btn-disabled')
-  const canvas = await captureCard()
-  if (canvas) {
-    canvas.toBlob(async (blob) => {
-      if (!blob) return
-      try {
-        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
-        showToast('海报已复制到剪贴板 ✓')
-      } catch {
-        showToast('复制失败，请使用"保存图片"', 'rgba(239,68,68,0.9)')
-      }
-      btn.textContent = '复制海报'
-      btn.classList.remove('btn-disabled')
-    }, 'image/png')
-  } else {
-    btn.textContent = '复制海报'
-    btn.classList.remove('btn-disabled')
-  }
 }
 
 // 检测是否在大象容器内（UA 包含 DXShell 或 DXRightSideShell）
@@ -3649,7 +4004,7 @@ async function shareToElephant() {
     } else {
       // 降级为下载
       const a = document.createElement('a')
-      a.download = 'PDE王者成就.png'
+      a.download = getPosterDownloadName()
       a.href = canvas.toDataURL('image/png')
       a.click()
       showToast('已保存海报，请在大象中发送图片 📎')
@@ -3720,10 +4075,30 @@ openFullReport()
 
 // 监听报告滚动更新页码
 document.addEventListener('DOMContentLoaded', function() {
-  var report = document.getElementById('v-report')
-  if (report) {
-    report.addEventListener('scroll', updateActiveDot, { passive: true })
-  }
+  // 1. 从真实 API 或 mock 数据初始化
+  //    默认尝试真实 API，失败自动 fallback 到 mock
+  //    加 ?mode=mock 强制使用 mock 数据
+  initFromRealAPI().then(() => {
+    applyGroupRankData(groupRankMetrics)
+
+    // 2. 恢复 localStorage 中保存的闯关心得
+    const savedRef = localStorage.getItem('userReflectionText')
+    if (savedRef) userReflectionText = savedRef
+
+    // 3. 初始化动态叙事文案（第2/3页）
+    renderNarrativeTexts()
+
+    // 3.5 初始化时间线与徽章渲染
+    renderTimelineData()
+    renderBadges('slideBadgeGrid', BADGE_DATA, false)
+    renderBadges('fullBadgeGrid', BADGE_DATA, true)
+
+    // 4. 滑动报告滚动事件
+    var report = document.getElementById('v-report')
+    if (report) {
+      report.addEventListener('scroll', updateActiveDot, { passive: true })
+    }
+  })
 })
 
 // ===== 封面粒子 =====
